@@ -40,7 +40,7 @@ jobs:
       run: poetry install
     - name: Run all tests
       run: |
-        poetry run python -m unittest test
+        poetry run pytest test
       env:
         SECRETS_ENVFILE: ./secrets.json
         DEBUG: 0
