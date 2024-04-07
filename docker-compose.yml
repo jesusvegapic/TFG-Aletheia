@@ -8,6 +8,10 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    environment:
+      SECRETS_FILENAME: /run/secrets/secrets_file
+    secrets:
+      - secrets_file
 
   postgres:
     image: postgres
@@ -18,3 +22,7 @@ services:
     image: adminer
     ports:
       - "8080:8080"
+
+secrets:
+  secrets_file:
+    file: "secrets.json"
