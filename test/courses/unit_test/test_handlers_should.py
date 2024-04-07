@@ -5,7 +5,7 @@ from src.courses.application.commands.create_course import create_course
 from src.courses.domain.entities import Course
 from src.courses.domain.value_objects import CourseName, CourseDescription
 from src.shared.domain.value_objects import GenericUUID
-from test.courses.unit_test.test_repository import TestCourseRepository
+from test.courses.unit_test.repository import TestCourseRepository
 
 
 class TestHandlersShould(IsolatedAsyncioTestCase):

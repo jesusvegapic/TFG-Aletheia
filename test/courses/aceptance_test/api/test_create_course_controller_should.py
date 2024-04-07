@@ -1,9 +1,8 @@
 from unittest import IsolatedAsyncioTestCase
 from fastapi import FastAPI
 from httpx import AsyncClient
-from apps.api.config.api_config import ApiConfig
 from apps.api.routers.courses import router
-from apps.config.container import ApplicationContainer
+from apps.config.container import ApplicationContainer, Config
 from src.shared.domain.value_objects import GenericUUID
 from src.shared.infrastructure.database import Base
 
@@ -11,7 +10,13 @@ from src.shared.infrastructure.database import Base
 class CreateCourseControllerShould(IsolatedAsyncioTestCase):
 
     async def asyncSetUp(self):
-        config = ApiConfig(DATABASE_URL="sqlite+aiosqlite:///:memory:", DATABASE_ECHO=True, DEBUG=True)
+        config = Config(
+            APP_NAME="api_test",
+            DATABASE_URL="sqlite+aiosqlite:///:memory:",
+            DATABASE_ECHO=True,
+            DEBUG=True,
+            LOGGER_NAME="api_test"
+        )
         container = ApplicationContainer(config=config)
         api = FastAPI(debug=config.DEBUG)
         api.include_router(router)
