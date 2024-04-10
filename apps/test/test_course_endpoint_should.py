@@ -6,6 +6,8 @@ from apps.config.container import ApplicationContainer, Config
 from src.shared.domain.value_objects import GenericUUID
 from src.shared.infrastructure.database import Base
 
+TEST_VIDEO_PATH = "./test_files/test_video.mp4"
+
 
 class CreateCourseControllerShould(IsolatedAsyncioTestCase):
 
@@ -26,7 +28,7 @@ class CreateCourseControllerShould(IsolatedAsyncioTestCase):
 
         self.api_client = AsyncClient(app=api, base_url="http://test")
 
-    async def test_execute_create_course_command(self):
+    async def test_post_valid_course(self):
         async with self.api_client as client:
             response = await client.post(
                 "/courses/create_course",
@@ -40,3 +42,27 @@ class CreateCourseControllerShould(IsolatedAsyncioTestCase):
             print(response)
 
             self.assertTrue(response.status_code == 201)
+
+    async def test_put_valid_lectio_on_an_existing_course(self):
+        async with self.api_client as client:
+            course_id = await client.post(
+                "/courses/create_course",
+                json={
+                    "teacher_id": GenericUUID.next_id().__str__(),
+                    "name": "Kant vs Hegel",
+                    "description": "La panacea de la historia de la filosofia"
+                }
+            )
+
+            with open(TEST_VIDEO_PATH, "rb") as video:
+                lectio_metadata = {
+                    "name": "El ego trascendental",
+                    "description": "Una mirada desde las coordenadas del materialismo filosofico"
+                }
+
+                multipart = {
+                    "metadata": (None, lectio_metadata),
+                    "video": ("El_ego_trascendental.mp4", video, "/video/mp4")
+                }
+
+                response = await client.put(f"/courses/{course_id}/lectio", files=multipart)

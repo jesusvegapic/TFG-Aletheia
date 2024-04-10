@@ -268,11 +268,11 @@ class LazyObject:
     instantiation. If you don't need to do that, use SimpleLazyObject.
     """
 
-    # Avoid infinite recursion when tracing __init__ (#19456).
+    # Avoid infinite recursion when tracing __init__.py (#19456).
     _wrapped = None
 
     def __init__(self):
-        # Note: if a subclass overrides __init__(), it will likely need to
+        # Note: if a subclass overrides __init__.py(), it will likely need to
         # override __copy__() and __deepcopy__() as well.
         self._wrapped = empty
 

@@ -1,10 +1,12 @@
 from pydantic import BaseModel
 
 
-class CreateCourseRequest(BaseModel):
+class PostCourseRequest(BaseModel):
     teacher_id: str
     name: str
     description: str
 
-    class Config:
-        arbitrary_types_allowed = True
+
+class PutLectioRequest(BaseModel):
+    name: str
+    description: str
