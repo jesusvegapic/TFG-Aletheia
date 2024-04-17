@@ -1,4 +1,4 @@
-from src.shared.application.integration_events import VideoIsWaitingForUpload
+from src.courses.domain.events import VideoIsWaitingForUpload
 from src.shared.domain.value_objects import GenericUUID
 from src.videos.application import videos_module
 from src.videos.domain.entities import Video

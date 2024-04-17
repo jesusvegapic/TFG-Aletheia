@@ -21,7 +21,7 @@ async def put_course(
         application: Annotated[Application, Depends(get_application)]
 ):
     command = CreateCourse(
-        id=course_id,
+        course_id=course_id,
         teacher_id=request_body.teacher_id,
         name=request_body.name,
         description=request_body.description
@@ -44,7 +44,7 @@ async def put_lectio(
 ):
 
     command = CreateLectio(
-        id=lectio_id,
+        lectio_id=lectio_id,
         course_id=course_id,
         name=name,
         description=description,

@@ -1,7 +1,9 @@
 from dataclasses import dataclass, field
 from typing import TypeVar, Generic
+
+from lato import Event
+
 from src.shared.domain.buisness_rules import BusinessRuleValidationMixin
-from src.shared.domain.events import DomainEvent
 from src.shared.domain.value_objects import GenericUUID
 
 EntityId = TypeVar("EntityId", bound=GenericUUID)
@@ -24,7 +26,7 @@ class Aggregate(Entity):
 class AggregateRoot(BusinessRuleValidationMixin, Entity[EntityId]):
     events: list = field(default_factory=list)
 
-    def register_event(self, event: DomainEvent):
+    def register_event(self, event: Event):
         self.events.append(event)
 
     def collect_events(self):

@@ -1,1 +1,1 @@
-from video_is_waiting_for_download import video_is_waiting_for_download
+from src.videos.application.events.video_is_waiting_for_download import video_is_waiting_for_download

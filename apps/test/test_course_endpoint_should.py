@@ -1,5 +1,4 @@
 from unittest import IsolatedAsyncioTestCase
-from uuid import uuid4
 
 from fastapi import FastAPI
 from httpx import AsyncClient
@@ -60,12 +59,14 @@ class CreateCourseControllerShould(IsolatedAsyncioTestCase):
                 }
             )
 
+            self.assertEqual(response.status_code, 201)
+
             lectio_metadata = {
                 "name": "El ego trascendental",
                 "description": "Una mirada desde las coordenadas del materialismo filosofico"
             }
 
-            files = {"video": ("El_ego_trascendental.mp4", open(TEST_VIDEO_PATH, 'rb'), "/video/mp4")}
+            files = {"video": ("test_video.mp4", open(TEST_VIDEO_PATH, 'rb'), "/video/mp4")}
             lectio_id = GenericUUID.next_id().hex
             response = await client.put(
                 f"/courses/{course_id}/lectio/{lectio_id}",

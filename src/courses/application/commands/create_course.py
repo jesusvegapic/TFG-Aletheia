@@ -8,6 +8,7 @@ from src.shared.domain.entities import GenericUUID
 
 
 class CreateCourse(Command):
+    course_id: str
     teacher_id: str
     name: str
     description: str
@@ -16,7 +17,7 @@ class CreateCourse(Command):
 @courses_module.handler(CreateCourse)
 async def create_course(command: CreateCourse, course_repository: CourseRepository) -> CommandResult:
     course = Course(
-        id=Course.next_id(),
+        id=GenericUUID(command.course_id),
         owner=GenericUUID(command.teacher_id),
         name=CourseName(command.name),
         description=CourseDescription(command.description)

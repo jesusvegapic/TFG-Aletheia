@@ -26,7 +26,7 @@ class CoursePersistenceModel(Base):
 class LectioPersistenceModel(Base):
     __tablename__ = "lectios"
     id = Column(UUIDType(binary=False), primary_key=True, default=uuid.uuid4())  # type: ignore
-    course_id = Column(UUIDType(binary=False), ForeignKey(CoursePersistenceModel.id))
+    course_id = Column(UUIDType(binary=False), ForeignKey(CoursePersistenceModel.id))  # type: ignore
     name = Column(String(CourseName.max_length()), nullable=False)
     description = Column(String(CourseDescription.max_length()), nullable=False)
     course = relationship(CoursePersistenceModel, back_populates="lectios")
