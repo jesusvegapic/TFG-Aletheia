@@ -1,4 +1,3 @@
-import asyncio
 import time
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -6,7 +5,7 @@ from lato import Application
 
 from apps.api.routers import courses
 from apps.api.config.api_config import ApiConfig
-from apps.config.container import ApplicationContainer
+from apps.container import ApplicationContainer
 from src.shared.domain.errors import DomainError, EntityNotFoundError
 from src.shared.infrastructure.custom_loggin import logger, LoggerFactory
 from src.shared.infrastructure.database import Base
@@ -60,10 +59,8 @@ async def root():
     return {"info": "Online auctions API. See /docs for documentation"}
 
 
-db_engine = container.db_engine()
-
-
 async def init_db():
+    db_engine = container.db_engine()
     async with db_engine.connect() as db:
         logger.info(f"using db engine {db_engine}, creating tables")
         await db.run_sync(Base.metadata.create_all)

@@ -1,10 +1,13 @@
-from typing import Optional
+from dataclasses import dataclass
+from typing import Optional, Any, BinaryIO
+from uuid import UUID
 
+from aiofiles.threadpool.binary import AsyncBufferedReader
+from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorGridFSBucket
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from src.shared.domain.errors import EntityNotFoundError
-from src.shared.domain.repositories import GenericRepository, Entity
+from src.shared.domain.repository import GenericRepository, Entity, EntityId
 from src.shared.domain.value_objects import GenericUUID
 from src.shared.infrastructure.data_mapper import DataMapper
 from src.shared.infrastructure.database import Base
@@ -34,7 +37,7 @@ class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
     def data_mapper(self):
         return self.mapper_class()
 
-    def add(self, entity: Entity):
+    async def add(self, entity: Entity):
         if entity.id not in self._identity_map:
             self._identity_map[entity.id] = entity
             instance = self.map_entity_to_persistence_model(entity)
@@ -109,3 +112,57 @@ class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
         for entity in self._identity_map.values():
             events.extend(entity.collect_events())
         return events
+
+
+class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
+    mapper_class: type[DataMapper[Entity, Base]]
+    persistence_model_class: 'GridFsPersistenceModel'
+
+    def __init__(self, bucket: AsyncIOMotorGridFSBucket, session: AsyncIOMotorClientSession, identity_map=None):
+        self._session = session
+        self._bucket = bucket
+        self._identity_map = identity_map or dict()
+
+    @property
+    def data_mapper(self):
+        return self.mapper_class()
+
+    async def add(self, entity: Entity):
+        if entity.id not in self._identity_map:
+            self._identity_map[entity.id] = entity
+            instance = self.map_entity_to_persistence_model(entity)
+            await self._bucket.upload_from_stream_with_id(
+                file_id=instance.file_id,
+                filename=instance.filename,
+                source=instance.content,
+                metadata=instance.metadata,
+                session=self._session
+            )
+
+    def map_entity_to_persistence_model(self, entity: Entity) -> 'GridFsPersistenceModel':
+        assert self.mapper_class, (
+            f"No data_mapper attribute in {self.__class__.__name__}. "
+            "Make sure to include `mapper_class = MyDataMapper` in the Repository class."
+        )
+
+        return self.data_mapper.entity_to_persistence_model(entity)
+
+    async def get(self, id: EntityId) -> Optional[Entity]:
+        raise NotImplementedError()
+
+    async def remove(self, entity: Entity):
+        raise NotImplementedError()
+
+    async def remove_by_id(self, id: EntityId):
+        raise NotImplementedError()
+
+    def collect_events(self):
+        pass
+
+
+@dataclass(kw_only=True)
+class GridFsPersistenceModel:
+    file_id: UUID
+    filename: str
+    content: BinaryIO
+    metadata: dict[str, Any]

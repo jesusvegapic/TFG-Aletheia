@@ -1,13 +1,12 @@
 from typing import Annotated
-
 from dependency_injector.wiring import inject
 from fastapi import APIRouter, UploadFile
 from fastapi.params import Depends, File, Form
 from lato import Application
-
 from apps.api.dependencies import get_application
-from apps.api.models.courses import PostCourseRequest, PostCourseResponse, PutLectioRequest
+from apps.api.models.courses import PostCourseRequest
 from src.courses.application.commands.create_course import CreateCourse
+from src.courses.application.commands.create_lectio import CreateLectio
 
 router = APIRouter()
 
@@ -16,7 +15,7 @@ router = APIRouter()
     "/courses/{course_id}", status_code=201
 )
 @inject
-async def post_course(
+async def put_course(
         request_body: PostCourseRequest,
         course_id: str,
         application: Annotated[Application, Depends(get_application)]
@@ -39,14 +38,16 @@ async def put_lectio(
         course_id: str,
         lectio_id: str,
         application: Annotated[Application, Depends(get_application)],
-        request_body: PutLectioRequest = Form(...),
+        name: str = Form(...),
+        description: str = Form(...),
         video: UploadFile = File(...)
 ):
+
     command = CreateLectio(
+        id=lectio_id,
         course_id=course_id,
-        lectio_id=lectio_id,
-        name=request_body,
-        description=request_body.description,
+        name=name,
+        description=description,
         video=video.file,
         video_name=video.filename,
         video_type=video.content_type

@@ -1,1 +1,2 @@
-from .create_course import CreateCourse  # type: ignore
+from create_course import CreateCourse
+from create_lectio import CreateLectio

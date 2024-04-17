@@ -10,7 +10,7 @@ EntityId = TypeVar("EntityId", bound=GenericUUID)
 
 class GenericRepository(Generic[EntityId, Entity], metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def add(self, entity: Entity):
+    async def add(self, entity: Entity):
         raise NotImplementedError
 
     @abc.abstractmethod

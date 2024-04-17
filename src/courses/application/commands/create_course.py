@@ -22,6 +22,6 @@ async def create_course(command: CreateCourse, course_repository: CourseReposito
         description=CourseDescription(command.description)
     )
 
-    course_repository.add(course)
+    await course_repository.add(course)
 
     return CommandResult.success(course.id)
