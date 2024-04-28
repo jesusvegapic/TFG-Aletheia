@@ -2,14 +2,14 @@ from unittest import IsolatedAsyncioTestCase
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from src.courses.domain.entities import Course
-from src.courses.domain.value_objects import CourseName, CourseDescription
-from src.courses.infrastructure.repository import SqlCourseRepository
-from src.shared.domain.value_objects import GenericUUID
-from src.shared.infrastructure.database import Base
+from src.admin.courses.domain.entities import Course
+from src.admin.courses.domain.value_objects import CourseName, CourseDescription
+from src.admin.courses.infrastructure.repository import SqlCourseRepository
+from src.shared.domain.ddd.value_objects import GenericUUID
+from src.shared.infrastructure.persistence.sql_alchemy.database import Base
 
 
-class TestRepositoryShould(IsolatedAsyncioTestCase):
+class SqlAlchemyCourseRepositoryShould(IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
         engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=True)

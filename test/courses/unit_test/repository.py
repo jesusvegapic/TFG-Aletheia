@@ -1,7 +1,7 @@
 from typing import Optional
 
-from src.courses.domain.repository import CourseRepository
-from src.shared.domain.repository import EntityId, Entity
+from src.admin.courses.domain.repository import CourseRepository
+from src.shared.domain.ddd.repository import EntityId, Entity
 
 
 class TestCourseRepository(CourseRepository):

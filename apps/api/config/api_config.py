@@ -12,7 +12,7 @@ with open(secrets_filename, "r") as env_file:
     secrets_json = json.loads(env_file.read())
 
 env_db = secrets_json["db"]
-env_gridfs = secrets_json["mongodb"]
+env_gridfs = secrets_json["motor_mongodb"]
 
 
 @dataclass
@@ -23,7 +23,7 @@ class ApiConfig(Config):
     DATABASE_URL: str = \
         f"postgresql+asyncpg://{env_db['user']}:{env_db['passwd']}@{env_db['host']}:{env_db['port']}/{env_db['name']}"
     BUCKET_URL: str = (
-        f"mongodb://{env_gridfs['user']}:{env_gridfs['passwd']}@"
+        f"motor_mongodb://{env_gridfs['user']}:{env_gridfs['passwd']}@"
         f"{env_gridfs['host']}:{env_gridfs['port']}/{env_gridfs['name']}"
     )
     LOGGER_NAME: str = "api"

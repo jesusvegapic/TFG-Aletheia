@@ -6,9 +6,9 @@ from lato import Application
 from apps.api.routers import courses
 from apps.api.config.api_config import ApiConfig
 from apps.container import ApplicationContainer
-from src.shared.domain.errors import DomainError, EntityNotFoundError
+from src.shared.domain.ddd.errors import DomainError, EntityNotFoundError
 from src.shared.infrastructure.custom_loggin import logger, LoggerFactory
-from src.shared.infrastructure.database import Base
+from src.shared.infrastructure.persistence.sql_alchemy.database import Base
 
 # dependency injection container
 

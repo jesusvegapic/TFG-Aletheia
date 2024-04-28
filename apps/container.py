@@ -3,12 +3,11 @@ from dataclasses import dataclass
 from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject  # noqa
 from lato import Application, TransactionContext, as_type
-from motor.core import _MotorTransactionContext
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket, AsyncIOMotorClientSession
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession
-from src.courses.application import courses_module
-from src.courses.domain.repository import CourseRepository
-from src.courses.infrastructure.repository import SqlCourseRepository
+from src.admin.courses.application import courses_module
+from src.admin.courses.domain.repository import CourseRepository
+from src.admin.courses.infrastructure.repository import SqlCourseRepository
 from src.shared.infrastructure.custom_loggin import logger
 from src.videos.application import videos_module
 from src.videos.domain.repository import VideoRepository
@@ -29,14 +28,14 @@ def create_db_engine(config: Config) -> AsyncEngine:
     engine = create_async_engine(
         config.DATABASE_URL, echo=config.DATABASE_ECHO
     )
-    from src.shared.infrastructure.database import Base
+    from src.shared.infrastructure.persistence.sql_alchemy.database import Base
 
     # TODO: it seems like a hack, but it works...
     Base.metadata.bind = engine
     return engine
 
 
-def create_mongodb_client(config: Config) -> [AsyncIOMotorClient]:
+def create_mongodb_client(config: Config) -> AsyncIOMotorClient:
     return AsyncIOMotorClient(config.BUCKET_URL)
 
 
@@ -66,7 +65,6 @@ def create_application(
         db_session = AsyncSession(engine)
         bucket_session_factory: AsyncIOMotorClient = application.get_dependency("bucket_session_factory")
         bucket_session = await bucket_session_factory.start_session()
-        bucket_session_ctx = bucket_session.start_transaction()
         bucket = application.get_dependency("bucket")
         transaction_id = uuid.uuid4()
         logger.correlation_id = transaction_id  # type: ignore
@@ -76,22 +74,15 @@ def create_application(
             publish_async=ctx.publish_async,
             db_session=db_session,
             bucket_session=bucket_session,
-            bucket_session_ctx=bucket_session_ctx,
             course_repository=as_type(SqlCourseRepository(db_session), CourseRepository),
             video_repository=as_type(AsyncMotorGridFsVideoRepository(bucket, bucket_session), VideoRepository)
         )
-        await bucket_session_ctx.__aenter__()
         logger.debug("<<< Begin transaction")
 
     @application.on_exit_transaction_context
     async def on_exit_transaction_context(ctx: TransactionContext, exception=None):
         db_session: AsyncSession = ctx["db_session"]
         bucket_session: AsyncIOMotorClientSession = ctx["bucket_session"]
-        bucket_session_ctx: _MotorTransactionContext = ctx["bucket_session_ctx"]
-        try:
-            await bucket_session_ctx.__aexit__(exc_type=type(exception), exc_val=exception)
-        except Exception:
-            ...
         if exception:
             await db_session.rollback()
             logger.warning(f"rollback due to {exception}")

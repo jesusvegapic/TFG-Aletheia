@@ -1,0 +1,15 @@
+from lato import Command
+
+from src.platform.students.domain.repository import StudentRepository
+
+
+class StartLectio(Command):
+    student_id: str
+    lectio_id: str
+
+
+async def start_lectio(command: StartLectio, student_repository: StudentRepository, publish):
+    student = await student_repository.get_by_id(GenericUUID(command.student_id))
+    student.start_lectio(command.lectio_id)
+    student_repository.add(student)
+    await publish(student.pull_domain_events())
