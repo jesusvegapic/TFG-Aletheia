@@ -6,7 +6,7 @@ from src.admin.courses.domain.entities import Course
 from src.admin.courses.domain.value_objects import CourseName, CourseDescription
 from src.admin.courses.infrastructure.repository import SqlCourseRepository
 from src.shared.domain.ddd.value_objects import GenericUUID
-from src.shared.infrastructure.persistence.sql_alchemy.database import Base
+from src.framework_ddd.core.infrastructure.sql_alchemy.sql_alchemy_database import Base
 
 
 class SqlAlchemyCourseRepositoryShould(IsolatedAsyncioTestCase):

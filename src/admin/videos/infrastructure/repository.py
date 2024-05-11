@@ -1,5 +1,5 @@
-from src.shared.infrastructure.persistence.data_mapper import DataMapper
-from src.shared.infrastructure.persistence.sql_alchemy.repository import AsyncMotorGridFsGenericRepository, GridFsPersistenceModel
+from src.framework_ddd.core.infrastructure.ddd_repositories.data_mapper import DataMapper
+from src.framework_ddd.core.infrastructure.repository import AsyncMotorGridFsGenericRepository, GridFsPersistenceModel
 from src.videos.domain.entities import Video
 from src.videos.domain.repository import VideoRepository
 

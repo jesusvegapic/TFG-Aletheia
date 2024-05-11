@@ -1,7 +1,7 @@
 from abc import ABC
 
 from src.platform.students.domain.entities import Student
-from src.shared.domain.iam.repository import UserRepository
+from src.framework_ddd.iam.domain.repository import UserRepository
 
 
 class StudentRepository(UserRepository, ABC):

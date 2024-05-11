@@ -1,16 +1,12 @@
 import uuid
-
-from sqlalchemy import Column, Enum, String, ForeignKey
-from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType  # type: ignore
 
 from src.admin.courses.domain.entities import Course, Lectio
 from src.admin.courses.domain.repository import CourseRepository
 from src.admin.courses.domain.value_objects import CourseState, CourseName, CourseDescription, LectioName, LectioDescription
 from src.shared.domain.ddd.value_objects import GenericUUID
-from src.shared.infrastructure.persistence.data_mapper import DataMapper
-from src.shared.infrastructure.persistence.sql_alchemy.database import Base
-from src.shared.infrastructure.persistence.sql_alchemy.repository import SqlAlchemyGenericRepository
+from src.framework_ddd.core.infrastructure.ddd_repositories.data_mapper import DataMapper
+from src.framework_ddd.core.infrastructure.repository import SqlAlchemyGenericRepository
 
 
 def deserialize_id(value: str) -> GenericUUID:

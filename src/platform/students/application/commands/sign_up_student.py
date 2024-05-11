@@ -2,6 +2,8 @@ from typing import Optional
 
 from lato import Command
 
+from src.admin.faculties.application.queries.get_faculty import GetFaculty
+from src.platform.students.domain.entities import Student
 from src.platform.students.domain.repository import StudentRepository
 
 
@@ -17,21 +19,19 @@ class SignUpStudent(Command):
 
 async def sign_up_student(command: SignUpStudent, student_repository: StudentRepository, publish):
     faculty_dao = await publish(GetFaculty(command.faculty_id))
-    if faculty_dao:
-        if command.degree_id not in faculty_dao.degress:
-            raise DomainException()
-
-        student = Student(
-            id=GenericUUID(command.student_id),
-            email=Email(email),
-            password=Password(command.password),
-            name=Name(command.name),
-            surnames=Surnames(command.surnames[0], command.surnames[1]),
-            faculty=GenericUUID(command.faculty_id),
-            degree=GenericUUID(command.degree_id)
-        )
-
-        student_repository.add(student)
-
-    else:
+    if not faculty_dao:
         raise EntityNotFoundException()
+
+    faculty_entity = faculty_dao_to_entity(faculty_dao)
+
+    student = Student(
+        id=GenericUUID(command.student_id),
+        email=Email(email),
+        password_hash=Password(command.password),
+        name=Name(command.name),
+        surnames=Surnames(command.surnames[0], command.surnames[1]),
+        faculty=faculty,
+        degree=GenericUUID(command.degree_id)
+    )
+
+    student_repository.add(student)
