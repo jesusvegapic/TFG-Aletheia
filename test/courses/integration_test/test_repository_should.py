@@ -2,9 +2,9 @@ from unittest import IsolatedAsyncioTestCase
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from src.admin.courses.domain.entities import Course
-from src.admin.courses.domain.value_objects import CourseName, CourseDescription
-from src.admin.courses.infrastructure.repository import SqlCourseRepository
+from src.Academia.courses.domain.entities import Course
+from src.Academia.courses.domain.value_objects import CourseName, CourseDescription
+from src.Academia.courses.infrastructure.repository import SqlCourseRepository
 from src.shared.domain.ddd.value_objects import GenericUUID
 from src.framework_ddd.core.infrastructure.sql_alchemy.sql_alchemy_database import Base
 

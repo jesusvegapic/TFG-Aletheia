@@ -1,20 +1,21 @@
-from dataclasses import dataclass, field
-from typing import TypeVar, Generic
-
 from lato import Event
 
-from src.shared.domain.ddd.buisness_rules import BusinessRuleValidationMixin
-from src.shared.domain.ddd.value_objects import GenericUUID
-
-EntityId = TypeVar("EntityId", bound=GenericUUID)
+from src.framework_ddd.core.domain.buisness_rules import BusinessRuleValidationMixin
+from src.framework_ddd.core.domain.value_objects import GenericUUID
 
 
-@dataclass
-class Entity(Generic[EntityId]):
-    id: EntityId = field(hash=True)
+class Entity:
+    _id: GenericUUID
+
+    def __init__(self, id: str):
+        self._id = GenericUUID(id)
+
+    @property
+    def id(self):
+        return self._id.hex
 
     @classmethod
-    def next_id(cls) -> EntityId:
+    def next_id(cls) -> GenericUUID:
         return GenericUUID.next_id()
 
 
@@ -22,14 +23,13 @@ class Aggregate(Entity):
     ...
 
 
-@dataclass(kw_only=True)
-class AggregateRoot(BusinessRuleValidationMixin, Entity[EntityId]):
-    events: list = field(default_factory=list)
+class AggregateRoot(BusinessRuleValidationMixin, Entity):
+    _events: list[Event]
 
-    def register_event(self, event: Event):
-        self.events.append(event)
+    def _register_event(self, event: Event):
+        self._events.append(event)
 
-    def collect_events(self):
-        events = self.events
-        self.events = []
+    def pull_domain_events(self):
+        events = self._events
+        self._events = []
         return events

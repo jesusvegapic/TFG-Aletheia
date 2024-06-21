@@ -5,9 +5,9 @@ from dependency_injector.wiring import Provide, inject  # noqa
 from lato import Application, TransactionContext, as_type
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket, AsyncIOMotorClientSession
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession
-from src.admin.courses.application import courses_module
-from src.admin.courses.domain.repository import CourseRepository
-from src.admin.courses.infrastructure.repository import SqlCourseRepository
+from src.Academia.courses.application import courses_module
+from src.Academia.courses.domain.repository import CourseRepository
+from src.Academia.courses.infrastructure.repository import SqlCourseRepository
 from src.framework_ddd.core.infrastructure.custom_loggin import logger
 from src.videos.application import videos_module
 from src.videos.domain.repository import VideoRepository

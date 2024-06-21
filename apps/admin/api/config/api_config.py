@@ -17,7 +17,7 @@ env_gridfs = secrets_json["motor_mongodb"]
 
 @dataclass
 class ApiConfig(Config):
-    APP_NAME: str = "Aletheia Courses platform API REST"
+    APP_NAME: str = "Aletheia Courses agora API REST"
     DEBUG: bool = True if os.getenv("DEBUG") == 1 else 0  # type: ignore
     DATABASE_ECHO: bool = True if os.getenv("DATABASE_ECHO") == 1 else 0  # type: ignore
     DATABASE_URL: str = \

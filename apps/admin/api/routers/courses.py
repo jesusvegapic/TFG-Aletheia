@@ -5,8 +5,8 @@ from fastapi.params import Depends, File, Form
 from lato import Application
 from apps.admin.api.dependencies import get_application
 from apps.admin.api.models.courses import PostCourseRequest
-from src.admin.courses.application.commands import CreateCourse
-from src.admin.courses.application.commands import CreateLectio
+from src.Academia.courses.application.commands import CreateCourse
+from src.Academia.courses.application.commands import CreateLectio
 
 router = APIRouter()
 

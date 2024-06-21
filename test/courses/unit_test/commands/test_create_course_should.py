@@ -1,9 +1,9 @@
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock
-from src.admin.courses.application.commands import CreateCourse
-from src.admin.courses.application.commands import create_course
-from src.admin.courses.domain.entities import Course
-from src.admin.courses.domain.value_objects import CourseName, CourseDescription
+from src.Academia.courses.application.commands import CreateCourse
+from src.Academia.courses.application.commands import create_course
+from src.Academia.courses.domain.entities import Course
+from src.Academia.courses.domain.value_objects import CourseName, CourseDescription
 from src.shared.domain.ddd.value_objects import GenericUUID
 from test.courses.unit_test.repository import TestCourseRepository
 

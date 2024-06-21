@@ -2,7 +2,7 @@ import tempfile
 from unittest import IsolatedAsyncioTestCase
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
 from src.videos.domain.entities import Video
-from src.admin.videos.domain.value_objects import VideoName, VideoType
+from src.Academia.videos.domain.value_objects import VideoName, VideoType
 from src.videos.infrastructure.repository import AsyncMotorGridFsVideoRepository
 
 

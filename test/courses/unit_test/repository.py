@@ -1,6 +1,6 @@
 from typing import Optional
 
-from src.admin.courses.domain.repository import CourseRepository
+from src.Academia.courses.domain.repository import CourseRepository
 from src.shared.domain.ddd.repository import EntityId, Entity
 
 

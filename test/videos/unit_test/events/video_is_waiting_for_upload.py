@@ -2,11 +2,11 @@ import tempfile
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import MagicMock, AsyncMock
 
-from src.admin.courses.domain.events import VideoIsWaitingForUpload
+from src.Academia.courses.domain.events import VideoIsWaitingForUpload
 from src.shared.domain.ddd.value_objects import GenericUUID
 from src.videos.application.events.video_is_waiting_for_upload import video_is_waiting_for_upload
 from src.videos.domain.entities import Video
-from src.admin.videos.domain.value_objects import VideoName, VideoType
+from src.Academia.videos.domain.value_objects import VideoName, VideoType
 
 
 class VideoIsWaitingForDownloadShould(IsolatedAsyncioTestCase):
