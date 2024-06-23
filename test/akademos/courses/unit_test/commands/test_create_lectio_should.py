@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from src.Academia.courses.domain.entities import Course
 from src.Academia.courses.domain.value_objects import CourseName, CourseDescription
 from src.shared.domain.ddd.value_objects import GenericUUID
-from test.courses.unit_test.courses_module import TestCoursesModule
+from test.akademos.courses.unit_test.courses_module import TestCoursesModule
 
 
 class CreateLectioShould(TestCoursesModule):

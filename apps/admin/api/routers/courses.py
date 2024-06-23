@@ -5,9 +5,6 @@ from fastapi.params import Depends, File, Form
 from lato import Application
 from apps.admin.api.dependencies import get_application
 from apps.admin.api.models.courses import PostCourseRequest
-from src.Academia.courses.application.commands import CreateCourse
-from src.Academia.courses.application.commands import CreateLectio
-
 router = APIRouter()
 
 
@@ -48,9 +45,7 @@ async def put_lectio(
         course_id=course_id,
         name=name,
         description=description,
-        video=video.file,
-        video_name=video.filename,
-        video_type=video.content_type
+        video=VideoDto
     )
 
     await application.execute_async(command)

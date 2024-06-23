@@ -7,6 +7,7 @@ from src.akademos.courses.domain.value_objects import (  # type: ignore
     Topic
 )
 from src.akademos.shared.application.events import LectioAdded
+from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.entities import AggregateRoot, Entity
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 
@@ -29,29 +30,35 @@ class Course(AggregateRoot):
             self.__topics.append(Topic(topic))
         self._register_event(CourseCreatedDomainEvent(id, owner, name, description, topics))  # type: ignore
 
-    def add_lectio(self, lectio: 'Lectio'):
+    def add_lectio(self, lectio: 'Lectio', video: VideoDto):
         self.__lectios.append(lectio)
-        self._register_event(LectioAdded(self.id, lectio.id, lectio.name, lectio.description, lectio.video_id))
+        self._register_event(
+            LectioAdded(
+                self.id,
+                lectio.id,
+                lectio.name,
+                lectio.description,
+                video
+            )
+        )
 
 
 class Lectio(Entity):
     __name: LectioName
     __description: LectioDescription
-    __video_id: GenericUUID
 
-    def __init__(self, id: str, name: str, description: str, video_id: str):
+    def __init__(self, id: str, name: str, description: str):
         super().__init__(id)
         self.__name = LectioName(name)
         self.__description = LectioDescription(description)
-        self.__video_id = GenericUUID(video_id)
         
     @property
     def name(self):
         return self.__name
 
     @property
-    def video_id(self):
-        return self.__video_id.hex
+    def video_content(self):
+        return self.__video_content
 
     @property
     def description(self):

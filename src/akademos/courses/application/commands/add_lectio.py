@@ -4,6 +4,7 @@ from lato import Command
 from src.akademos.courses.application import courses_module
 from src.akademos.courses.domain.entities import Lectio
 from src.akademos.courses.domain.repository import CourseRepository
+from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.errors import EntityNotFoundError
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 
@@ -14,16 +15,19 @@ class AddLectio(Command):  # type: ignore
     course_id: str
     name: str
     description: str
-    video_id: str
+    video: VideoDto
 
 
 @courses_module.handler(AddLectio)
 async def create_lectio(command: AddLectio, course_repository: CourseRepository, publish):
     course = await course_repository.get(GenericUUID(command.course_id))
     if course:
-        lectio = Lectio(command.lectio_id, command.name, command.description, command.video_id)
-
-        course.add_lectio(lectio)
+        lectio = Lectio(
+            command.lectio_id,
+            command.name,
+            command.description
+        )
+        course.add_lectio(lectio, command.video)
 
         await course_repository.add(course)
 

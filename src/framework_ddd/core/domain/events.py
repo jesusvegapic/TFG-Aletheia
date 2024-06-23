@@ -1,12 +1,17 @@
-from dataclasses import field, dataclass
 from datetime import datetime
-from uuid import uuid4
 
 from lato import Event
 
+from src.framework_ddd.core.domain.value_objects import GenericUUID
 
-@dataclass(frozen=True)
+
 class DomainEvent(Event):  # type: ignore
     entity_id: str
-    event_id: str = field(default_factory=lambda: uuid4().hex, init=False)
-    ocurred_on: datetime = field(default_factory=datetime.now, init=False)
+    event_id: str
+    ocurred_on: datetime
+
+    def __init__(self, entity_id: str):
+        super().__init__()
+        self.entity_id = entity_id
+        self.event_id = GenericUUID.next_id().hex
+        self.ocurred_on = datetime.now()

@@ -1,4 +1,7 @@
 from typing import Optional, List, Set
+
+from src.agora.students.domain.errors import DegreeNotExistsInStudentFacultyError, NotEnrolledLectioError, \
+    CantStartFinishedLectioError, CantFinishNotStartedLectioError
 from src.agora.students.domain.value_objects import LectioStatus
 from src.akademos.courses.domain.value_objects import Topic
 from src.framework_ddd.core.domain.entities import Entity
@@ -10,7 +13,7 @@ from src.shared.utils.list import flatmap, find
 class Student(PersonalUser):  # type: ignore
     __faculty: 'Faculty'
     __degree: GenericUUID
-    __courses_in_progress: set['Course']
+    __courses_in_progress: Set['Course']
     __last_visited_lectio: Optional['Lectio']
 
     def __init__(
@@ -28,7 +31,7 @@ class Student(PersonalUser):  # type: ignore
             last_visited_lectio: Optional['Lectio']
     ):
         if not faculty.has_degree(degree):
-            raise DegreeDoesntExistsInStudentFacultyException(id=id, degree=degree, faculty=faculty.name)
+            raise DegreeNotExistsInStudentFacultyError(id=id, degree=degree, faculty=faculty.name)
 
         super().__init__(id, name, firstname, second_name, email, password_hash, is_superuser)
         self.__faculty = faculty
@@ -37,43 +40,46 @@ class Student(PersonalUser):  # type: ignore
         self.__last_visited_lectio = last_visited_lectio
 
     def enroll_in_a_course(self, course: 'Course'):
-        self.__courses_in_progress.append(course)
+        self.__courses_in_progress.add(course)
 
-    def start_lectio(self, lectio_id: GenericUUID):
+    def start_lectio(self, lectio_id: str):
         lectio = self.__find_lectio(lectio_id)
-        lectio.start_lectio()
+        lectio.start()
 
-    def finish_lectio(self, lectio_id: GenericUUID):
+    def finish_lectio(self, lectio_id: str):
         lectio = self.__find_lectio(lectio_id)
-        lectio.finish_lectio()
+        lectio.finish()
 
-    def set_last_visited_lectio(self, lectio_id: GenericUUID):
+    def set_last_visited_lectio(self, lectio_id: str):
         self.__last_visited_lectio = self.__find_lectio(lectio_id)
 
-    def __find_lectio(self, lectio_id: GenericUUID) -> 'Lectio':
-        lectios = flatmap(lambda course: course.lectios, self.__courses_in_progress)  # type: ignore
+    def __find_lectio(self, lectio_id: str) -> 'Lectio':
+        lectios = flatmap(lambda course: course.lectios, self.__courses_in_progress)
         lectio = find(lambda lectio: lectio.id == lectio_id, lectios)
         if lectio:
             return lectio
         else:
-            raise DomainException()
+            raise NotEnrolledLectioError()
 
 
 class Course(Entity):
-    __lectios: list['Lectio']
+    __lectios: Set['Lectio']
 
     def __init__(self, id: str, lectios: list[dict]):
         super().__init__(id)
-        self.__lectios = [
-            Lectio(
-                lectio["id"],
-                lectio["status"]
-            )
-            for lectio in lectios
-        ]
+        self.__lectios = set(
+            map(lambda lectio: Lectio(lectio["id"], lectio["status"]), lectios)
+        )
 
-    def __eq__(self, other: 'Course') -> bool:
-        return self.id == other.id
+    @property
+    def lectios(self):
+        return self.__lectios
+
+    def __eq__(self, other):
+        if not isinstance(other, Course):
+            return False
+        else:
+            return self.id == other.id
 
 
 class Lectio(Entity):
@@ -83,31 +89,36 @@ class Lectio(Entity):
         super().__init__(id)
         self.__status = LectioStatus(status) if status else LectioStatus.NOT_STARTED  # type: ignore
 
-    def start_lectio(self):
+    def start(self):
         if self.__status is LectioStatus.NOT_STARTED or self.__status is LectioStatus.STARTED:
             self.__status = LectioStatus.STARTED
         else:
-            raise DomainException()
+            raise CantStartFinishedLectioError()
 
-    def finish_lectio(self):
+    def finish(self):
         if self.__status is LectioStatus.STARTED or self.__status is LectioStatus.FINISHED:
             self.__status = LectioStatus.FINISHED
         else:
-            raise DomainException()
+            raise CantFinishNotStartedLectioError()
+
+    def __eq__(self, other):
+        if not isinstance(other, Lectio):
+            return False
+        else:
+            return self.id == other.id
 
 
 class Faculty(Entity):
     __name: FacultyName
-    __degrees: list[GenericUUID]
+    __degrees: Set[GenericUUID]
 
-    def __init__(self, id: str, name: str, degrees: list[str]):
+    def __init__(self, id: str, name: str, degrees: Set[str]):
         super().__init__(id)
         self.__name = FacultyName(name)
-        self.__degrees = [GenericUUID(degree_id) for degree_id in degrees]
+        self.__degrees = set(map(lambda degree_id: GenericUUID(degree_id), degrees))
 
     def has_degree(self, degree: str) -> bool:
-        result = find(lambda degree_uuid: degree_uuid.hex == degree, self.__degrees)
-        return True if result else False
+        return GenericUUID(degree) in self.__degrees
 
     @property
     def name(self):
