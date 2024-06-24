@@ -1,12 +1,17 @@
-from dataclasses import dataclass
 from tempfile import SpooledTemporaryFile
+from typing import Optional
 
-from src.shared.domain.ddd.entities import AggregateRoot
-from src.shared.domain.ddd.value_objects import GenericUUID
-from src.Academia.videos.domain.value_objects import VideoName, VideoType
+from src.akademos.videos.domain.value_objects import VideoName, VideoType
+from src.framework_ddd.core.domain.entities import AggregateRoot
 
 
-class Video(AggregateRoot[GenericUUID]):
-    content: SpooledTemporaryFile
-    name: VideoName
-    type: VideoType
+class Video(AggregateRoot):
+    __content: SpooledTemporaryFile
+    __name: VideoName
+    __type: VideoType
+
+    def __init__(self, id: str, content: SpooledTemporaryFile, name: str, type: str):
+        super().__init__(id)
+        self.__content = content
+        self.__name = VideoName(name)
+        self.__type = VideoType(type)

@@ -1,11 +1,8 @@
 from dataclasses import dataclass
-
 from lato import Query
-
 from src.framework_ddd.core.domain.errors import DomainError
 
 
-@dataclass(frozen=True)
 class GetCourse(Query):  # type: ignore
     course_id: str
 
@@ -13,7 +10,16 @@ class GetCourse(Query):  # type: ignore
 @dataclass(frozen=True)
 class GetCourseResponse:
     id: str
-    lectios: list[str]
+    name: str
+    owner: str
+    description: str
+    lectios: list['LectioDto']
+
+
+@dataclass(frozen=True)
+class LectioDto:
+    id: str
+    name: str
 
 
 class FailedGetCourseResponse:

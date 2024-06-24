@@ -2,11 +2,10 @@ from unittest import IsolatedAsyncioTestCase
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from src.Academia.courses.domain.entities import Course
-from src.Academia.courses.domain.value_objects import CourseName, CourseDescription
-from src.Academia.courses.infrastructure.repository import SqlCourseRepository
-from src.shared.domain.ddd.value_objects import GenericUUID
-from src.framework_ddd.core.infrastructure.sql_alchemy.sql_alchemy_database import Base
+from src.akademos.courses.domain.entities import Course
+from src.akademos.courses.infrastructure.repository import SqlCourseRepository
+from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.framework_ddd.core.infrastructure.database import Base
 
 
 class SqlAlchemyCourseRepositoryShould(IsolatedAsyncioTestCase):
@@ -28,15 +27,20 @@ class SqlAlchemyCourseRepositoryShould(IsolatedAsyncioTestCase):
         await self.session.close()
 
     async def test_save_valid_course(self):
-        course_id = Course.next_id()
-        teacher_id = GenericUUID.next_id()
+        course_id = Course.next_id().hex
+        teacher_id = GenericUUID.next_id().hex
         course = Course(
             id=course_id,
             owner=teacher_id,
-            name=CourseName("Kant vs Hegel"),
-            description=CourseDescription("La panacea de la historía de la filosofía moderna")
+            name="Kant vs Hegel",
+            description="La panacea de la historía de la filosofía moderna",
+            topics=[
+                "Filosofía",
+                "Literatura"
+            ]
         )
-        self.repository.add(course)
+
+        await self.repository.add(course)
         course_found = await self.repository.get(course.id)
         await self.session.commit()
 

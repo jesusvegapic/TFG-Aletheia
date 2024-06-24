@@ -1,8 +1,7 @@
 import abc
 from typing import TypeVar, Generic, Optional
-
-from src.shared.domain.ddd.entities import GenericUUID
-from src.shared.domain.ddd.entities import Entity as DomainEntity
+from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.framework_ddd.core.domain.entities import Entity as DomainEntity
 
 Entity = TypeVar("Entity", bound=DomainEntity)
 EntityId = TypeVar("EntityId", bound=GenericUUID)
@@ -24,8 +23,3 @@ class GenericRepository(Generic[EntityId, Entity], metaclass=abc.ABCMeta):
     @abc.abstractmethod
     async def remove_by_id(self, id: EntityId):
         raise NotImplementedError
-
-    @abc.abstractmethod
-    def collect_events(self):
-        raise NotImplementedError
-    

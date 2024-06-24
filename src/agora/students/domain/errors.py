@@ -19,7 +19,7 @@ class DegreeNotExistsInStudentFacultyError(StudentsModuleError):
     id: str
     degree: str
     faculty: str
-    name: str = Field(default="degree_not_exists_in_student_faculty")  # type: ignore
+    name: str = "degree_not_exists_in_student_faculty"
 
 
 @dataclass(frozen=True)

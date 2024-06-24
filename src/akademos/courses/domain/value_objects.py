@@ -56,7 +56,7 @@ class Topic(StrEnum):
     Ciencias_sociales_y_humanidades = "Ciencias sociales y humanidades"
     Antropologia = "Antropologia"
     Historia = "Historia"
-    Psicologia = "Psicoogía"
+    Psicologia = "Psicología"
     Sociologia = "Sociología"
     Filosofia = "Filosofía"
     Ciencias_politicas = "Ciencias políticas"

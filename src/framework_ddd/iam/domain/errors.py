@@ -1,8 +1,19 @@
-class InvalidCredentialsException(ApplicationException):
-    def __init__(self, message="Invalid password"):
-        super().__init__(message)
+from dataclasses import dataclass
+
+from src.framework_ddd.core.domain.errors import DomainError
 
 
-class InvalidAccessTokenException(ApplicationException):
-    def __init__(self, message="Invalid access token"):
-        super().__init__(message)
+@dataclass(frozen=True)
+class PersonalUserNameError(DomainError):
+    name: str
+
+
+@dataclass(frozen=True)
+class PersonalUserSurnamesError(DomainError):
+    firstname: str
+    second_name: str
+
+
+@dataclass(frozen=True)
+class EmailError(DomainError):
+    email: str

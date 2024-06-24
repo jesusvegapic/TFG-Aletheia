@@ -1,10 +1,8 @@
 from dataclasses import dataclass
-from typing import List, Dict
-
+from typing import List
 from lato import Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.shared.infrastructure.sql_alchemy.models import CourseModel
 
 
@@ -14,7 +12,14 @@ class ListCourses(Query):
 
 @dataclass(frozen=True)
 class ListCoursesResponse:
-    courses: List[Dict]
+    courses: List['ListedCourseDto']
+
+
+@dataclass(frozen=True)
+class ListedCourseDto:
+    id: str
+    owner: str
+    name: str
 
 
 async def list_courses(query: ListCourses, session: AsyncSession) -> ListCoursesResponse:
@@ -33,11 +38,11 @@ async def get_paged_courses(session: AsyncSession, start_index: int, page_size: 
 def course_model_instances_to_list_courses_response(instances: List[CourseModel]) -> ListCoursesResponse:
     return ListCoursesResponse(
         [
-            {
-                "id": instance.id,
-                "name": instance.name,
-                "owner": instance.owner
-            }
+            ListedCourseDto(
+                id=instance.id.hex,  # type: ignore
+                name=instance.name,  # type: ignore
+                owner=instance.owner.hex  # type: ignore
+            )
             for instance in instances
         ]
     )

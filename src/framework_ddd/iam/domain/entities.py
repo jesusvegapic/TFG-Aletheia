@@ -3,6 +3,7 @@ from src.framework_ddd.core.domain.entities import AggregateRoot
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.framework_ddd.iam.domain.value_objects import Name, Surnames, Email
 
+
 class User(AggregateRoot):
     _email: Email
     _password_hash: bytes

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from lato import Command
-
 from src.akademos.courses.application import courses_module
 from src.akademos.courses.domain.entities import Lectio
 from src.akademos.courses.domain.repository import CourseRepository
@@ -9,7 +8,6 @@ from src.framework_ddd.core.domain.errors import EntityNotFoundError
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 
 
-@dataclass(frozen=True)
 class AddLectio(Command):  # type: ignore
     lectio_id: str
     course_id: str
@@ -17,12 +15,15 @@ class AddLectio(Command):  # type: ignore
     description: str
     video: VideoDto
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 @courses_module.handler(AddLectio)
-async def create_lectio(command: AddLectio, course_repository: CourseRepository, publish):
+async def add_lectio(command: AddLectio, course_repository: CourseRepository, publish):
     course = await course_repository.get(GenericUUID(command.course_id))
     if course:
-        lectio = Lectio(
+        lectio = Lectio.create(
             command.lectio_id,
             command.name,
             command.description
@@ -33,4 +34,4 @@ async def create_lectio(command: AddLectio, course_repository: CourseRepository,
 
         await publish(course.pull_domain_events())
     else:
-        raise EntityNotFoundError(entity_id=course.id)
+        raise EntityNotFoundError(entity_id=command.course_id)

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.shared.domain.ddd.value_objects import ValueObject
+from src.framework_ddd.core.domain.value_objects import ValueObject
 
 
 @dataclass(frozen=True)

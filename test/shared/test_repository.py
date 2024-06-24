@@ -1,14 +1,14 @@
 from typing import Optional
 
-from src.Academia.courses.domain.repository import CourseRepository
-from src.shared.domain.ddd.repository import EntityId, Entity
+from src.framework_ddd.core.domain.entities import Entity
+from src.framework_ddd.core.domain.repository import GenericRepository, EntityId
 
 
-class TestCourseRepository(CourseRepository):
+class TestRepository(GenericRepository):
     def add(self, entity: Entity):
         pass
 
-    async def get(self, id: EntityId) -> Optional[Entity]:  # type: ignore
+    async def get(self, id: EntityId) -> Optional[Entity]:
         pass
 
     async def remove(self, entity: Entity):

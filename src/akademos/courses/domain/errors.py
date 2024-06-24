@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from src.shared.domain.ddd.errors import DomainError
+
+from src.framework_ddd.core.domain.errors import DomainError
 
 
 class CourseApplicationError(Exception):

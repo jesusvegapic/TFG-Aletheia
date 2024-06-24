@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.shared.domain.ddd.errors import BusinessRuleValidationError
+from src.framework_ddd.core.domain.errors import BusinessRuleValidationError
 
 
 class BusinessRule(BaseModel):

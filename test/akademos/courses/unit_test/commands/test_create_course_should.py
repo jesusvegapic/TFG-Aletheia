@@ -1,11 +1,10 @@
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock
-from src.Academia.courses.application.commands import CreateCourse
-from src.Academia.courses.application.commands import create_course
-from src.Academia.courses.domain.entities import Course
-from src.Academia.courses.domain.value_objects import CourseName, CourseDescription
-from src.shared.domain.ddd.value_objects import GenericUUID
-from test.courses.unit_test.repository import TestCourseRepository
+from src.akademos.courses.application.commands import CreateCourse
+from src.akademos.courses.application.commands.create_course import create_course
+from src.akademos.courses.domain.entities import Course
+from src.framework_ddd.core.domain.value_objects import GenericUUID
+from test.akademos.courses.unit_test.repository import TestCourseRepository
 
 
 class TestHandlersShould(IsolatedAsyncioTestCase):
@@ -14,14 +13,18 @@ class TestHandlersShould(IsolatedAsyncioTestCase):
 
     async def test_create_valid_course(self):
         command = CreateCourse(
-            teacher_id=GenericUUID.next_id().__str__(),
+            course_id=GenericUUID.next_id().hex,
+            teacher_id=GenericUUID.next_id().hex,
             name="Kant vs Hegel",
-            description="La panacea de la filosofia moderna"
+            description="La panacea de la filosofia moderna",
+            topics=["Historia", "Filosofía"]
         )
+
+        publish = AsyncMock()
 
         self.repository.add = AsyncMock()
 
-        await create_course(command, self.repository)
+        await create_course(command, self.repository, publish)
 
         args, kwargs = self.repository.add.call_args
 
@@ -31,9 +34,10 @@ class TestHandlersShould(IsolatedAsyncioTestCase):
 
         expected_course = Course(
             id=actual_course.id,
-            owner=GenericUUID(command.teacher_id),
-            name=CourseName(command.name),
-            description=CourseDescription(command.description)
+            owner=command.teacher_id,
+            name=command.name,
+            description=command.description,
+            topics=command.topics
         )
 
         self.assertEqual(actual_course, expected_course)
