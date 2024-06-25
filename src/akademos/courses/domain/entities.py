@@ -19,7 +19,7 @@ class Course(AggregateRoot):
     __owner: GenericUUID
     __name: CourseName
     __description: CourseDescription
-    __state: ClassVar[CourseState] = CourseState.CREATED
+    __state: CourseState
     __lectios: List['Lectio']
     __topics: List[Topic]
 
@@ -30,6 +30,7 @@ class Course(AggregateRoot):
             name: str,
             description: str,
             topics: List[str],
+            state: Optional[str] = None,
             lectios: Optional[List['Lectio']] = None
     ):
         super().__init__(id)
@@ -37,6 +38,7 @@ class Course(AggregateRoot):
         self.__name = CourseName(name)
         self.__description = CourseDescription(description)
         self.__lectios = lectios if lectios else []
+        self.__state = CourseState(state) if state else CourseState.CREATED
         self.__topics = [(Topic(topic)) for topic in topics]
 
     @classmethod

@@ -1,15 +1,16 @@
 from dataclasses import dataclass
-from tempfile import SpooledTemporaryFile
-from typing import Optional, Any
+from typing import Optional, Any, Mapping
 from uuid import UUID
 import bson
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorGridFSBucket
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.framework_ddd.core.domain.errors import EntityNotFoundError
+from src.framework_ddd.core.domain.files import BinaryIOProtocol
 from src.framework_ddd.core.domain.repository import GenericRepository, Entity, EntityId
 from src.framework_ddd.core.domain.value_objects import GenericUUID
-from src.framework_ddd.core.infrastructure.database import Base
+from src.framework_ddd.core.infrastructure.database import Base, GridOutWrapper
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
+from src.framework_ddd.core.infrastructure.errors import NullFilename
 
 
 # a sentinel value for keeping track of entities removed from the repository
@@ -21,16 +22,15 @@ class Removed:
         return "<Removed entity>"
 
 
-REMOVED = Removed()
-
-
 class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
     mapper_class: type[DataMapper[Entity, Base]]
     model_class: type[Entity]
+    removed: Removed
 
     def __init__(self, db_session: AsyncSession, identity_map=None):
         self._session = db_session
         self._identity_map = identity_map or dict()
+        self.removed = Removed()
 
     @property
     def data_mapper(self):
@@ -58,13 +58,13 @@ class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
 
     async def remove(self, entity: Entity):
         self._check_not_removed(entity.id)
-        self._identity_map[entity.id] = REMOVED
+        self._identity_map[entity.id] = self.removed
         instance = await self._session.get(self.get_model_class(), id)
         await self._session.delete(instance)
 
     async def remove_by_id(self, entity_id: GenericUUID):
         self._check_not_removed(entity_id)
-        self._identity_map[entity_id] = REMOVED
+        self._identity_map[entity_id] = self.removed
         instance = await self._session.get(self.get_model_class(), id)
         if instance is None:
             raise EntityNotFoundError(entity_id.hex)
@@ -103,7 +103,7 @@ class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
 
     def _check_not_removed(self, entity_id):
         assert (
-                self._identity_map.get(entity_id, None) is not REMOVED
+                self._identity_map.get(entity_id, None) is not self.removed
         ), f"Entity {entity_id} already removed"
 
     def collect_events(self):
@@ -115,12 +115,14 @@ class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
 
 class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
     mapper_class: type[DataMapper[Entity, Base]]
-    persistence_model_class: 'GridFsPersistenceModel'
+    model_class: 'GridFsPersistenceModel'
+    removed: Removed
 
     def __init__(self, bucket: AsyncIOMotorGridFSBucket, session: AsyncIOMotorClientSession, identity_map=None):
         self._session = session
         self._bucket = bucket
         self._identity_map = identity_map or dict()
+        self.removed = Removed()
 
     @property
     def data_mapper(self):
@@ -146,7 +148,41 @@ class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
         return self.data_mapper.entity_to_model(entity)
 
     async def get(self, id: EntityId) -> Optional[Entity]:
-        raise NotImplementedError()
+        download = await self._bucket.open_download_stream(bson.Binary.from_uuid(id), self._session)
+        filename = download.filename
+        if filename:
+            instance = GridFsPersistenceModel(
+                file_id=id,
+                filename=filename,
+                content=GridOutWrapper(download),
+                metadata=download.metadata
+            )
+            if instance is None:
+                return None
+            return self._get_entity(instance)
+        else:
+            raise NullFilename(id=id.hex)
+
+    def _get_entity(self, instance):
+        if instance is None:
+            return None
+        entity = self.map_model_to_entity(instance)
+        self._check_not_removed(entity.id)
+
+        if entity.id in self._identity_map:
+            return self._identity_map[entity.id]
+
+        self._identity_map[entity.id] = entity
+        return entity
+
+    def _check_not_removed(self, entity_id):
+        assert (
+                self._identity_map.get(entity_id, None) is not self.removed
+        ), f"Entity {entity_id} already removed"
+
+    def map_model_to_entity(self, instance) -> Entity:
+        assert self.data_mapper
+        return self.data_mapper.model_to_entity(instance)
 
     async def remove(self, entity: Entity):
         raise NotImplementedError()
@@ -155,12 +191,12 @@ class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
         raise NotImplementedError()
 
     def collect_events(self):
-        pass
+        raise NotImplementedError()
 
 
 @dataclass(kw_only=True)
 class GridFsPersistenceModel:
     file_id: UUID
     filename: str
-    content: SpooledTemporaryFile
-    metadata: dict[str, Any]
+    content: BinaryIOProtocol
+    metadata: Optional[Mapping[str, Any]]

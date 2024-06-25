@@ -1,12 +1,9 @@
-from dataclasses import dataclass
-from tempfile import SpooledTemporaryFile
-from typing import Optional
-
 from pydantic import BaseModel
+from src.shared.utils.files import BinaryIOProtocol
 
 
 class VideoDto(BaseModel):
-    file: SpooledTemporaryFile
+    file: BinaryIOProtocol
     filename: str
     content_type: str
 

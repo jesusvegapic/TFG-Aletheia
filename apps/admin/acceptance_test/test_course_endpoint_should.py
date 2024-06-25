@@ -8,7 +8,7 @@ from src.shared.domain.ddd.value_objects import GenericUUID
 from src.framework_ddd.core.infrastructure.custom_loggin import LoggerFactory
 from src.framework_ddd.core.infrastructure.sql_alchemy.sql_alchemy_database import Base
 
-TEST_VIDEO_PATH = "../../../src/akademos/videos/test_files/test_video.mp4"
+TEST_VIDEO_PATH = "../../../test/akademos/videos/test_files/test_video.mp4"
 
 
 class CreateCourseControllerShould(IsolatedAsyncioTestCase):

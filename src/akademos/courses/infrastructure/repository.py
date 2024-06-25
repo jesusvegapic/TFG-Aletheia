@@ -10,25 +10,19 @@ from src.framework_ddd.core.infrastructure.repository import SqlAlchemyGenericRe
 from src.shared.infrastructure.sql_alchemy.models import CourseModel, LectioModel, TopicModel
 
 
-def deserialize_id(value: str) -> GenericUUID:
-    if isinstance(value, uuid.UUID):
-        return GenericUUID(value.hex)
-    return GenericUUID(value)
-
-
 class CourseDataMapper(DataMapper):
 
     def model_to_entity(self, instance: CourseModel) -> Course:
         def lectio_model_to_entity(lectio_instance: LectioModel) -> Lectio:
             return Lectio(
-                id=deserialize_id(lectio_instance.id),  # type: ignore
-                name=LectioName(lectio_instance.name),  # type: ignore
-                description=LectioDescription(lectio_instance.description)  # type: ignore
+                id=lectio_instance.id.hex,
+                name=lectio_instance.name,  # type: ignore
+                description=lectio_instance.description  # type: ignore
             )
 
         return Course(
-            id=deserialize_id(instance.id),  # type: ignore
-            owner=deserialize_id(instance.owner),  # type: ignore
+            id=instance.id.hex,  # type: ignore
+            owner=instance.owner.hex,  # type: ignore
             name=instance.name,  # type: ignore
             description=instance.description,  # type: ignore
             state=instance.state,  # type: ignore

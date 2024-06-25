@@ -5,7 +5,7 @@ from fastapi.params import Depends, File, Form
 from lato import Application
 from starlette.responses import JSONResponse
 
-from apps.admin.api.dependencies import get_application
+from apps.admin.api.dependencies import get_application, UploadFileWrapper
 from apps.admin.api.models.courses import PostCourseRequest
 from src.akademos.courses.application.commands import CreateCourse, AddLectio
 from src.akademos.shared.application.dtos import VideoDto
@@ -56,9 +56,9 @@ async def put_lectio(
             name=name,
             description=description,
             video=VideoDto(
-                video.file,  # type: ignore
-                filename,
-                content_type
+                file=UploadFileWrapper(video),
+                filename=filename,
+                content_type=content_type
             )
         )
 
