@@ -1,10 +1,9 @@
-from lato import Query
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorGridFSBucket
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
-class GetLectio(Query):
-    lectio_id: str
+from src.agora.shared.application.queries import GetLectio
+from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.shared.infrastructure.sql_alchemy.models import LectioModel
 
 
 async def get_lectio(

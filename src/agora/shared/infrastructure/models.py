@@ -1,0 +1,7 @@
+class FacultyModel:
+    ...
+
+
+class DegreeModel:
+    ...
+

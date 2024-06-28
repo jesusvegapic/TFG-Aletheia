@@ -24,3 +24,8 @@ class LectioDto:
 
 class FailedGetCourseResponse:
     cause: DomainError
+
+
+
+class GetLectio(Query):
+    lectio_id: str

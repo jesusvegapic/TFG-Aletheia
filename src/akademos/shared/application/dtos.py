@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from src.shared.utils.files import BinaryIOProtocol
+
+from src.framework_ddd.core.domain.files import BinaryIOProtocol
 
 
 class VideoDto(BaseModel):

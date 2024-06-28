@@ -4,7 +4,7 @@ from src.akademos.courses.application.commands import CreateCourse
 from src.akademos.courses.application.commands.create_course import create_course
 from src.akademos.courses.domain.entities import Course
 from src.framework_ddd.core.domain.value_objects import GenericUUID
-from test.akademos.courses.unit_test.repository import TestCourseRepository
+from test.akademos.courses.unit_test.courses_module import TestCourseRepository
 
 
 class TestHandlersShould(IsolatedAsyncioTestCase):

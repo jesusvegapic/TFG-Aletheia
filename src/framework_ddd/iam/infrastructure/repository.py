@@ -1,12 +1,12 @@
 import uuid
-
-from sqlalchemy import Column, UUID, String, Boolean, ForeignKey
-
-from src.framework_ddd.core.infrastructure.ddd_repositories.data_mapper import DataMapper
+from sqlalchemy import Column, UUID, String, Boolean, ForeignKey, select
+from sqlalchemy.exc import NoResultFound
+from src.framework_ddd.core.infrastructure.database import Base
+from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.core.infrastructure.repository import SqlAlchemyGenericRepository
-from src.framework_ddd.core.infrastructure.sql_alchemy.sql_alchemy_database import Base
 from src.framework_ddd.iam.domain.entities import User
 from src.framework_ddd.iam.domain.repository import UserRepository
+from src.framework_ddd.iam.domain.value_objects import Email
 
 
 class UserModel(Base):
@@ -14,7 +14,7 @@ class UserModel(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, nullable=False)
     password = Column(String(255))
-    is_superuser = Column(Boolean(), nullable=False)
+    is_superuser = Column(Boolean(), nullable=False)  # type: ignore
 
 
 class PersonalUserModel(Base):
@@ -49,20 +49,22 @@ class SqlAlchemyUserRepository(SqlAlchemyGenericRepository, UserRepository):
     mapper_class = UserDataMapper
     model_class = UserModel
 
-    def get_by_access_token(self, access_token: str) -> User | None:
+    async def get_by_access_token(self, access_token: str) -> User | None:
         try:
             instance = (
-                self._session.query(UserModel)
-                .filter_by(access_token=access_token)
-                .one()
-            )
+                await self._session.execute(
+                    select(UserModel)
+                    .filter_by(access_token=access_token)
+                )
+            ).one()
+
             return self._get_entity(instance)
         except NoResultFound:
             return None
 
-    def get_by_email(self, email: Email) -> User | None:
+    async def get_by_email(self, email: Email) -> User | None:
         try:
-            instance = self._session.query(UserModel).filter_by(email=email).one()
+            instance = (await self._session.execute(select(UserModel).filter_by(email=email))).one()
             return self._get_entity(instance)
         except NoResultFound:
             return None

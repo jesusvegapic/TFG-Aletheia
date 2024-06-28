@@ -24,14 +24,6 @@ class DegreeNotExistsInStudentFacultyError(StudentsModuleError):
 
 @dataclass(frozen=True)
 class NotEnrolledLectioError(StudentsModuleError):
-    ...
+    course_id: str
+    lectio_id: str
 
-
-@dataclass(frozen=True)
-class CantStartFinishedLectioError(StudentsModuleError):
-    ...
-
-
-@dataclass(frozen=True)
-class CantFinishNotStartedLectioError(StudentsModuleError):
-    ...

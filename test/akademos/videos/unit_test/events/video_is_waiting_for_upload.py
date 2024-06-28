@@ -8,6 +8,7 @@ from src.akademos.videos.application.events.create_video_on_lectio_added_to_cour
     create_video_on_lectio_added_to_course
 from src.akademos.videos.domain.entities import Video
 from src.framework_ddd.core.domain.value_objects import GenericUUID
+from test.shared.files import TestBinaryIOProtocol
 
 
 class VideoIsWaitingForDownloadShould(IsolatedAsyncioTestCase):
@@ -16,8 +17,8 @@ class VideoIsWaitingForDownloadShould(IsolatedAsyncioTestCase):
         self.repository = MagicMock()
 
     async def test_create_a_valid_video_on_lectio_added_to_course(self):
-        video = tempfile.SpooledTemporaryFile()
         lectio_id = Video.next_id().hex
+        video = TestBinaryIOProtocol()
         event = LectioAdded(
             entity_id=GenericUUID.next_id().hex,
             lectio_id=lectio_id,
@@ -26,7 +27,7 @@ class VideoIsWaitingForDownloadShould(IsolatedAsyncioTestCase):
             video=VideoDto(
                 file=video,
                 filename="garfield",
-                content_type="/video/mp4"
+                content_type="video/mp4"
             )
         )
 
@@ -43,7 +44,7 @@ class VideoIsWaitingForDownloadShould(IsolatedAsyncioTestCase):
             id=lectio_id,
             content=video,
             name="garfield",
-            type="/video/mp4"
+            type="video/mp4"
         )
 
         self.assertEqual(expected_video, actual_video)

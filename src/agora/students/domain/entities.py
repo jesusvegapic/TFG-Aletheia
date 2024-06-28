@@ -1,21 +1,17 @@
 from typing import Optional, List, Set
-
-from pydantic import BaseModel
-
-from src.agora.students.domain.errors import DegreeNotExistsInStudentFacultyError, NotEnrolledLectioError, \
-    CantStartFinishedLectioError, CantFinishNotStartedLectioError
+from src.agora.students.domain.errors import NotEnrolledLectioError
 from src.agora.students.domain.value_objects import LectioStatus
 from src.akademos.courses.domain.value_objects import Topic
 from src.framework_ddd.core.domain.entities import Entity
-from src.framework_ddd.core.domain.value_objects import GenericUUID, FacultyName
+from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.framework_ddd.iam.domain.entities import PersonalUser
-from src.shared.utils.list import flatmap, find
+from src.shared.utils.list import find
 
 
 class Student(PersonalUser):
-    __faculty: 'Faculty'
+    __faculty: GenericUUID
     __degree: GenericUUID
-    __courses_in_progress: List['StudentCourse']
+    __courses_in_progress: Set['StudentCourse']
     __last_visited_lectio: Optional['StudentLectio']
 
     def __init__(
@@ -27,64 +23,49 @@ class Student(PersonalUser):
             email: str,
             password_hash: bytes,
             is_superuser: bool,
-            faculty: 'Faculty',
+            faculty: str,
             degree: str,
-            courses_in_progress: Optional[List['StudentCourse']] = None,
+            courses_in_progress: Optional[Set['StudentCourse']] = None,
             last_visited_lectio: Optional['StudentLectio'] = None
     ):
-        if not faculty.has_degree(degree):
-            raise DegreeNotExistsInStudentFacultyError(id=id, degree=degree, faculty=faculty.name)
-
         super().__init__(id, name, firstname, second_name, email, password_hash, is_superuser)
-        self.__faculty = faculty
+        self.__faculty = GenericUUID(faculty)
         self.__degree = GenericUUID(degree)
-        self.__courses_in_progress = courses_in_progress if courses_in_progress else []
+        self.__courses_in_progress = courses_in_progress if courses_in_progress else set()
         self.__last_visited_lectio = last_visited_lectio
 
-    @classmethod
-    def create(
-            cls,
-            id: str,
-            name: str,
-            firstname: str,
-            second_name: str,
-            email: str,
-            password_hash: bytes,
-            is_superuser: bool,
-            faculty: 'Faculty',
-            degree: str
-    ):
-        return cls(id, name, firstname, second_name, email, password_hash, is_superuser, faculty, degree)
-
     def enroll_in_a_course(self, course: 'StudentCourse'):
-        self.__courses_in_progress.append(course)
+        self.__courses_in_progress.add(course)
 
-    def start_lectio(self, lectio_id: str):
-        lectio = self.__find_lectio(lectio_id)
-        lectio.start()
+    def start_lectio_in_course(self, course_id: str, lectio: 'StudentLectio'):
+        course = next(find(lambda course: course.id == course_id, self.__courses_in_progress))
+        if course:
+            course.start_lectio(lectio)
 
-    def finish_lectio(self, lectio_id: str):
-        lectio = self.__find_lectio(lectio_id)
-        lectio.finish()
+    def finish_lectio(self, course_id: str, lectio_id: str):
+        self.__find_lectio(course_id, lectio_id).finish()
 
-    def set_last_visited_lectio(self, lectio_id: str):
-        self.__last_visited_lectio = self.__find_lectio(lectio_id)
+    def set_last_visited_lectio(self, course_id: str, lectio_id: str):
+        self.__last_visited_lectio = self.__find_lectio(course_id, lectio_id)
 
-    def __find_lectio(self, lectio_id: str) -> 'StudentLectio':
-        lectios = flatmap(lambda course: course.lectios, self.__courses_in_progress)
-        lectio = find(lambda lectio: lectio.id == lectio_id, lectios)
+    def __find_lectio(self, course_id: str, lectio_id: str) -> 'StudentLectio':
+        lectios = find(lambda course: course.id == course_id, self.__courses_in_progress)
+        lectio = next(find(lambda lectio: lectio.id == lectio_id, lectios))
         if lectio:
             return lectio
         else:
-            raise NotEnrolledLectioError()
+            raise NotEnrolledLectioError(course_id=course_id, lectio_id=lectio_id)  # type: ignore
 
 
 class StudentCourse(Entity):
-    __lectios: List['StudentLectio']
+    __lectios: Set['StudentLectio']
 
-    def __init__(self, id: str, lectios: List['StudentLectio']):
+    def __init__(self, id: str, lectios: Optional[Set['StudentLectio']] = None):
         super().__init__(id)
-        self.__lectios = lectios
+        self.__lectios = lectios if lectios else set()
+
+    def start_lectio(self, lectio: 'StudentLectio'):
+        self.__lectios.add(lectio)
 
     @property
     def lectios(self):
@@ -96,36 +77,10 @@ class StudentLectio(Entity):
 
     def __init__(self, id: str, status: Optional[LectioStatus] = None):
         super().__init__(id)
-        self.__status = status if status else LectioStatus.NOT_STARTED
-
-    def start(self):
-        if self.__status is LectioStatus.NOT_STARTED or self.__status is LectioStatus.STARTED:
-            self.__status = LectioStatus.STARTED
-        else:
-            raise CantStartFinishedLectioError()
+        self.__status = status if status else LectioStatus.STARTED
 
     def finish(self):
-        if self.__status is LectioStatus.STARTED or self.__status is LectioStatus.FINISHED:
-            self.__status = LectioStatus.FINISHED
-        else:
-            raise CantFinishNotStartedLectioError()
-
-
-class Faculty(Entity):
-    __name: FacultyName
-    __degrees: List[GenericUUID]
-
-    def __init__(self, id: str, name: str, degrees: List[str]):
-        super().__init__(id)
-        self.__name = FacultyName(name)
-        self.__degrees = [GenericUUID(degree) for degree in degrees]
-
-    def has_degree(self, degree: str) -> bool:
-        return GenericUUID(degree) in self.__degrees
-
-    @property
-    def name(self):
-        return self.__name
+        self.__status = LectioStatus.FINISHED
 
 
 class TeacherCoursesSubscription(Entity):

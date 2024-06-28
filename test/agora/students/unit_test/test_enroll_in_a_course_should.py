@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from lato.message import Query
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, LectioDto
 from src.agora.students.application.commands.enroll_in_a_course import EnrollInACourse, enroll_in_a_course
-from src.agora.students.domain.entities import Student, Faculty, StudentCourse, StudentLectio
+from src.agora.students.domain.entities import Student, StudentCourse, StudentLectio
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from test.agora.students.students_module import TestStudentsModule
 
@@ -19,7 +19,6 @@ class EnrollInACourseShould(TestStudentsModule):
         faculty_id = GenericUUID.next_id().hex
         owner_id = GenericUUID.next_id().hex
         lectio_id = GenericUUID.next_id().hex
-        filosofia_id = GenericUUID.next_id().hex
         derecho_id = GenericUUID.next_id().hex
 
         async def publish(message: Union[Query, List]):
@@ -39,7 +38,7 @@ class EnrollInACourseShould(TestStudentsModule):
 
         course_expected = StudentCourse(
             id=course_id,
-            lectios=[StudentLectio(id=lectio_id)]
+            lectios={StudentLectio(id=lectio_id)}
         )
 
         command = EnrollInACourse(
@@ -57,21 +56,14 @@ class EnrollInACourseShould(TestStudentsModule):
             "email": "pepe@gmail.com",
             "password_hash": b"papapapa",
             "is_superuser": False,
-            "faculty": Faculty(
-                id=faculty_id,
-                name="derecho",
-                degrees=[
-                    filosofia_id,
-                    derecho_id
-                ]
-            ),
+            "faculty": faculty_id,
             "degree": derecho_id
         }
 
-        self.repository.get.return_value = Student.create(**student_initial_args)
+        self.repository.get.return_value = Student(**student_initial_args)
 
         expected_student = Student(
-            courses_in_progress=[course_expected],
+            courses_in_progress={course_expected},
             **student_initial_args
         )
 
