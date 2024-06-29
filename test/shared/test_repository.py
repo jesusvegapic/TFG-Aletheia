@@ -1,5 +1,4 @@
 from typing import Optional
-
 from src.framework_ddd.core.domain.entities import Entity
 from src.framework_ddd.core.domain.repository import GenericRepository, EntityId
 

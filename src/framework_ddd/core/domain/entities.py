@@ -20,13 +20,9 @@ class Entity(BaseModel):
     def next_id(cls) -> GenericUUID:
         return GenericUUID.next_id()
 
-    def __hash__(self):
-        return self.id.__hash__()
-
     class Config:
         underscore_attrs_are_private = True
         arbitrary_types_allowed = True
-        allow_mutation = True
 
 
 class Aggregate(Entity):

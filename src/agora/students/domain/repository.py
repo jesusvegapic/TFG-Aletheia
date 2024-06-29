@@ -1,8 +1,9 @@
 from abc import ABC
 
 from src.agora.students.domain.entities import Student
-from src.framework_ddd.iam.domain.repository import UserRepository
+from src.framework_ddd.core.domain.repository import GenericRepository
+from src.framework_ddd.core.domain.value_objects import GenericUUID
 
 
-class StudentRepository(UserRepository[Student], ABC):
+class StudentRepository(GenericRepository[GenericUUID, Student], ABC):
     ...

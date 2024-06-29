@@ -1,5 +1,5 @@
 from typing import Optional, List, Set
-from src.agora.students.domain.errors import NotEnrolledLectioError
+from src.agora.students.domain.errors import NotEnrolledLectioError, DegreeNotExistsInStudentFacultyError
 from src.agora.students.domain.value_objects import LectioStatus
 from src.akademos.courses.domain.value_objects import Topic
 from src.framework_ddd.core.domain.entities import Entity
@@ -9,10 +9,10 @@ from src.shared.utils.list import find
 
 
 class Student(PersonalUser):
-    __faculty: GenericUUID
+    __faculty: 'StudentFaculty'
     __degree: GenericUUID
-    __courses_in_progress: Set['StudentCourse']
-    __last_visited_lectio: Optional['StudentLectio']
+    __courses_in_progress: List['StudentCourse']
+    __last_visited_lectio: GenericUUID
 
     def __init__(
             self,
@@ -22,20 +22,22 @@ class Student(PersonalUser):
             second_name: str,
             email: str,
             password_hash: bytes,
-            is_superuser: bool,
-            faculty: str,
+            faculty: 'StudentFaculty',
             degree: str,
-            courses_in_progress: Optional[Set['StudentCourse']] = None,
-            last_visited_lectio: Optional['StudentLectio'] = None
+            courses_in_progress: Optional[List['StudentCourse']] = None,
+            last_visited_lectio: Optional[str] = None
     ):
-        super().__init__(id, name, firstname, second_name, email, password_hash, is_superuser)
-        self.__faculty = GenericUUID(faculty)
-        self.__degree = GenericUUID(degree)
-        self.__courses_in_progress = courses_in_progress if courses_in_progress else set()
-        self.__last_visited_lectio = last_visited_lectio
+        if faculty.has_degree(degree):
+            super().__init__(id, name, firstname, second_name, email, password_hash, False)
+            self.__faculty = faculty
+            self.__degree = GenericUUID(degree)
+            self.__courses_in_progress = courses_in_progress if courses_in_progress else []
+            self.__last_visited_lectio = GenericUUID(last_visited_lectio) if last_visited_lectio else None  # type: ignore
+        else:
+            raise DegreeNotExistsInStudentFacultyError(degree_id=degree, faculty_id=faculty.id)
 
     def enroll_in_a_course(self, course: 'StudentCourse'):
-        self.__courses_in_progress.add(course)
+        self.__courses_in_progress.append(course)
 
     def start_lectio_in_course(self, course_id: str, lectio: 'StudentLectio'):
         course = next(find(lambda course: course.id == course_id, self.__courses_in_progress))
@@ -56,16 +58,32 @@ class Student(PersonalUser):
         else:
             raise NotEnrolledLectioError(course_id=course_id, lectio_id=lectio_id)  # type: ignore
 
+    @property
+    def faculty(self):
+        return self.__faculty
+
+    @property
+    def degree(self):
+        return self.__degree.hex
+
+    @property
+    def courses_in_progress(self):
+        return self.__courses_in_progress
+
+    @property
+    def last_visited_lectio(self):
+        return self.__last_visited_lectio.hex
+
 
 class StudentCourse(Entity):
-    __lectios: Set['StudentLectio']
+    __lectios: List['StudentLectio']
 
-    def __init__(self, id: str, lectios: Optional[Set['StudentLectio']] = None):
+    def __init__(self, id: str, lectios: Optional[List['StudentLectio']] = None):
         super().__init__(id)
-        self.__lectios = lectios if lectios else set()
+        self.__lectios = lectios if lectios else []
 
     def start_lectio(self, lectio: 'StudentLectio'):
-        self.__lectios.add(lectio)
+        self.__lectios.append(lectio)
 
     @property
     def lectios(self):
@@ -81,6 +99,26 @@ class StudentLectio(Entity):
 
     def finish(self):
         self.__status = LectioStatus.FINISHED
+
+
+    @property
+    def status(self):
+        return self.__status
+
+
+class StudentFaculty(Entity):
+    __degrees: List['GenericUUID']
+
+    def __init__(self, id: str, degrees: List[GenericUUID]):
+        super().__init__(id)
+        self.__degrees = degrees
+
+    def has_degree(self, degree: str) -> bool:
+        return GenericUUID(degree) in self.__degrees
+
+    @property
+    def degrees(self):
+        return [degree.hex for degree in self.__degrees]
 
 
 class TeacherCoursesSubscription(Entity):

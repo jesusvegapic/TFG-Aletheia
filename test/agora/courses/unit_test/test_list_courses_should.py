@@ -1,8 +1,6 @@
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock
-
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.agora.courses.application.queries import list_courses
 from src.agora.courses.application.queries.list_courses import ListCourses, ListCoursesResponse, ListedCourseDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID

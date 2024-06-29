@@ -1,49 +1,48 @@
-from functools import reduce
-from sqlalchemy import Column, ForeignKey, Enum, PrimaryKeyConstraint, CheckConstraint, select, \
-    ForeignKeyConstraint
+from sqlalchemy import Column, ForeignKey, Enum, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType  # type: ignore
 from src.agora.shared.infrastructure.models import FacultyModel, DegreeModel
 from src.agora.students.domain.value_objects import LectioStatus
-from src.framework_ddd.core.domain.value_objects import GenericUUID
-from src.agora.students.domain.entities import Student, Faculty, StudentCourse
+from src.agora.students.domain.entities import Student, StudentCourse, StudentFaculty, StudentLectio
 from src.agora.students.domain.repository import StudentRepository
+from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.framework_ddd.core.infrastructure.database import Base
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
-from src.framework_ddd.iam.infrastructure.repository import UserModel
+from src.framework_ddd.iam.infrastructure.user_model import PersonalUserModel, UserModel
 from src.shared.infrastructure.sql_alchemy.models import CourseModel, LectioModel
 from src.framework_ddd.core.infrastructure.repository import SqlAlchemyGenericRepository
-from src.shared.utils.structures import merge_dict
 
 
 class StudentModel(Base):
     __tablename__ = "students"
-    user_id = Column(UUIDType(binary=False), ForeignKey=UserModel.id, primary_key=True)  # type: ignore
+    personal_user_id = Column(UUIDType(binary=False), ForeignKey(PersonalUserModel.user_id), primary_key=True)  # type: ignore
     faculty_id = Column(UUIDType(binary=False), ForeignKey(FacultyModel.id), nullable=False)  # type: ignore
     degree_id = Column(UUIDType(binary=False), ForeignKey(DegreeModel.id), nullable=False)  # type: ignore
-    faculty = relationship(FacultyModel)
-    degree = relationship(DegreeModel)
+    last_visited_lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id), nullable=False)  # type: ignore
+    faculty = relationship(FacultyModel, back_populates="student", lazy="selectin")
+    degree = relationship(DegreeModel, back_populates="student", lazy="selectin")
+    personal_user = relationship(PersonalUserModel)
     student_courses = relationship(
         "StudentCourseModel",
         back_populates="student"
     )
-    last_visited_lectio = relationship("StudentLectioModel")
+    last_visited_lectio = relationship(LectioModel)  # type: ignore
 
 
 class StudentCourseModel(Base):
     __tablename__ = "students_courses"
     id = Column(UUIDType(binary=False), ForeignKey(CourseModel.id))  # type: ignore
-    student_id = Column(UUIDType(binary=False), ForeignKey(StudentModel.id))  # type: ignore
+    student_id = Column(UUIDType(binary=False), ForeignKey(StudentModel.personal_user_id))  # type: ignore
     course = relationship(CourseModel)
     student = relationship(
         StudentModel,
-        back_populates=StudentModel.enrolled_courses  # type: ignore
+        back_populates="student_courses"  # type: ignore
     )
     lectios_in_progress = relationship(
-        "StudentLectio",
-        back_populates="course"
+        'StudentLectioModel',
+        back_populates="student_course"
     )
-    __table_args__ = PrimaryKeyConstraint("student_id", "course_id")
+    __table_args__ = (PrimaryKeyConstraint("student_id", "id"),)
 
 
 class StudentLectioModel(Base):
@@ -51,65 +50,72 @@ class StudentLectioModel(Base):
     student_course_id = Column(UUIDType(binary=False), ForeignKey(StudentCourseModel.id))  # type: ignore
     lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id))  # type: ignore
     progress = Column(Enum(LectioStatus))  # type: ignore
-    student = relationship(
-        StudentModel,
-        back_populates=StudentModel.lectios_in_progress  # type: ignore
-    )
+    student_course = relationship(StudentCourseModel, back_populates="lectios_in_progress")
     lectio = relationship(LectioModel)  # type: ignore
     __table_args__ = (
-        PrimaryKeyConstraint( "student_course_id", "lectio_id"),
-
-    )
-
-
-class StudentLastVisitedLectioModel(Base):
-    __tablename__ = "students_last_visited_lectios"
-    student_id = Column(UUIDType(binary=False), ForeignKey(StudentModel.id), primary_key=True)  # type: ignore
-    lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id))  # type: ignore
-    student = relationship(StudentModel)
-    lectio =
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ["student", "lectio_id"],
-            [StudentLectioModel.student_id, StudentLectioModel.lectio_id]
-        )
+        PrimaryKeyConstraint("student_course_id", "lectio_id"),
     )
 
 
 class StudentDataMapper(DataMapper):
 
-    def persistence_model_to_entity(self, instance: StudentModel) -> Student:
-
-        def enrolled_course_model_to_entity(instance: StudentCourseModel) -> StudentCourse:
-
-            courses_in_progress, courses_lectios = reduce(
-                lambda course: (
-                    enrolled_course_model_to_entity(course),
-                    reduce(merge_dict, [(GenericUUID(lectio.id), lectio_model_to_entity(lectio)) for lectio in course.lectios], {})
-                ),
-                instance.enrolled_courses
-            )
-
-
-        student = Student(
-            id=GenericUUID(instance.id),
-            name=Name(instance.name),
-            surnames=Surnames(instance.firstname, instance.secondname),
-            faculty=Faculty(faculty_model_to_entity(instance.faculty)),
-            degree=GenericUUID(instance.degree_id),
-            courses_in_progress=courses_in_progress,
-            courses_lectios=courses_lectios,
-            last_visited_lectio=(
-                courses_lectios[GenericUUID(instance.last_visited_lectio.lectio_id)]
-                if instance.last_visited_lectio.lectio_id
-                else None
-            )
+    def model_to_entity(self, instance: StudentModel) -> Student:
+        return Student(
+            id=instance.personal_user.user.id.hex,
+            name=instance.personal_user.name,
+            firstname=instance.personal_user.firstname,
+            second_name=instance.personal_user.second_name,
+            email=instance.personal_user.user.email,
+            password_hash=instance.personal_user.user.password,
+            faculty=StudentFaculty(instance.faculty.id.hex, [degree.id for degree in instance.faculty.degrees]),
+            degree=instance.degree.id.hex,
+            courses_in_progress=[
+                StudentCourse(
+                    course.id.hex,
+                    [
+                        StudentLectio(lectio.lectio_id.hex, lectio.progress)
+                        for lectio in course.lectios_in_progress
+                    ]
+                )
+                for course in instance.student_courses
+            ],
+            last_visited_lectio=instance.last_visited_lectio_id.hex  # type: ignore
         )
 
-        return student
-
-    def entity_to_persistence_model(self, entity: Student) -> StudentModel:
-        pass
+    def entity_to_model(self, student: Student) -> StudentModel:
+        return StudentModel(
+            personal_user_id=student.id,
+            faculty_id=student.faculty.id,
+            degree_id=student.degree,
+            student_courses=[
+                StudentCourseModel(
+                    id=course.id,
+                    student_id=student.id,
+                    lectios_in_progress=[
+                        StudentLectioModel(
+                            student_course_id=course.id,
+                            lectio_id=lectio.id,
+                            progress=lectio.status
+                        )
+                        for lectio in course.lectios
+                    ]
+                )
+                for course in student.courses_in_progress
+            ],
+            last_visited_lectio_id=student.last_visited_lectio,
+            personal_user=PersonalUserModel(
+                user_id=student.id,
+                name=student.name,
+                firstname=student.firstname,
+                second_name=student.second_name,
+                user=UserModel(
+                    id=student.id,
+                    email=student.email,
+                    password=student.password_hash,
+                    is_superuser=student.is_superuser
+                )
+            )
+        )
 
 
 class SqlAlchemyStudentRepository(StudentRepository, SqlAlchemyGenericRepository):

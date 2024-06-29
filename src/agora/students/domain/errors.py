@@ -16,10 +16,8 @@ class CourseNotFoundError(EntityNotFoundError, StudentsModuleError):
 
 @dataclass(frozen=True)
 class DegreeNotExistsInStudentFacultyError(StudentsModuleError):
-    id: str
-    degree: str
-    faculty: str
-    name: str = "degree_not_exists_in_student_faculty"
+    degree_id: str
+    faculty_id: str
 
 
 @dataclass(frozen=True)

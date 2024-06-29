@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from lato.message import Query
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, LectioDto
 from src.agora.students.application.commands.enroll_in_a_course import EnrollInACourse, enroll_in_a_course
-from src.agora.students.domain.entities import Student, StudentCourse, StudentLectio
+from src.agora.students.domain.entities import Student, StudentCourse, StudentLectio, StudentFaculty
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from test.agora.students.students_module import TestStudentsModule
 
@@ -19,7 +19,7 @@ class EnrollInACourseShould(TestStudentsModule):
         faculty_id = GenericUUID.next_id().hex
         owner_id = GenericUUID.next_id().hex
         lectio_id = GenericUUID.next_id().hex
-        derecho_id = GenericUUID.next_id().hex
+        derecho_id = GenericUUID.next_id()
 
         async def publish(message: Union[Query, List]):
             if isinstance(message, GetCourse):
@@ -38,7 +38,7 @@ class EnrollInACourseShould(TestStudentsModule):
 
         course_expected = StudentCourse(
             id=course_id,
-            lectios={StudentLectio(id=lectio_id)}
+            lectios=[StudentLectio(id=lectio_id)]
         )
 
         command = EnrollInACourse(
@@ -48,6 +48,8 @@ class EnrollInACourseShould(TestStudentsModule):
 
         self.repository.get = AsyncMock()
 
+        student_faculty = StudentFaculty(faculty_id, [derecho_id])
+
         student_initial_args = {
             "id": student_id,
             "name": "pepe",
@@ -55,15 +57,14 @@ class EnrollInACourseShould(TestStudentsModule):
             "second_name": "fernandez",
             "email": "pepe@gmail.com",
             "password_hash": b"papapapa",
-            "is_superuser": False,
-            "faculty": faculty_id,
-            "degree": derecho_id
+            "faculty": student_faculty,
+            "degree": derecho_id.hex
         }
 
         self.repository.get.return_value = Student(**student_initial_args)
 
         expected_student = Student(
-            courses_in_progress={course_expected},
+            courses_in_progress=[course_expected],
             **student_initial_args
         )
 

@@ -1,28 +1,11 @@
-import uuid
-from sqlalchemy import Column, UUID, String, Boolean, ForeignKey, select
+from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
-from src.framework_ddd.core.infrastructure.database import Base
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.core.infrastructure.repository import SqlAlchemyGenericRepository
 from src.framework_ddd.iam.domain.entities import User
 from src.framework_ddd.iam.domain.repository import UserRepository
 from src.framework_ddd.iam.domain.value_objects import Email
-
-
-class UserModel(Base):
-    __tablename__ = "users"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    email = Column(String(255), unique=True, nullable=False)
-    password = Column(String(255))
-    is_superuser = Column(Boolean(), nullable=False)  # type: ignore
-
-
-class PersonalUserModel(Base):
-    __tablename__ = "personal_users"
-    user_id = Column(UUID(as_uuid=True), ForeignKey(UserModel.id), primary_key=True)
-    name = Column(String(255), nulleable=False)
-    firstname = Column(String(255), nulleable=False)
-    secondname = Column(String(255), nulleable=False)
+from src.framework_ddd.iam.infrastructure.user_model import UserModel
 
 
 class UserDataMapper(DataMapper):
