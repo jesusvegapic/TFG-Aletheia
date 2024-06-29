@@ -1,5 +1,6 @@
 from typing import Optional, List, Set
 from src.agora.students.domain.errors import NotEnrolledLectioError, DegreeNotExistsInStudentFacultyError
+from src.agora.students.domain.events import StudentCreated, StudentHasBeenEnrolledInACourse
 from src.agora.students.domain.value_objects import LectioStatus
 from src.akademos.courses.domain.value_objects import Topic
 from src.framework_ddd.core.domain.entities import Entity
@@ -32,12 +33,43 @@ class Student(PersonalUser):
             self.__faculty = faculty
             self.__degree = GenericUUID(degree)
             self.__courses_in_progress = courses_in_progress if courses_in_progress else []
-            self.__last_visited_lectio = GenericUUID(last_visited_lectio) if last_visited_lectio else None  # type: ignore
+            self.__last_visited_lectio = GenericUUID(
+                last_visited_lectio) if last_visited_lectio else None  # type: ignore
         else:
             raise DegreeNotExistsInStudentFacultyError(degree_id=degree, faculty_id=faculty.id)
 
+    @classmethod
+    def create(cls,
+           id: str,
+           name: str,
+           firstname: str,
+           second_name: str,
+           email: str,
+           password_hash: bytes,
+           faculty: 'StudentFaculty',
+           degree: str
+    ):
+        args = {
+            "id": id,
+            "name": name,
+            "firstname": firstname,
+            "second_name": second_name,
+            "email": email,
+            "password_hash": password_hash,
+            "faculty": faculty,
+            "degree": degree
+        }
+        student = cls(**args)  # type: ignore
+
+        args.pop("password_hash")
+        args["faculty"] = faculty.id
+        student._register_event(StudentCreated(**args))  # type: ignore
+
+        return student
+
     def enroll_in_a_course(self, course: 'StudentCourse'):
         self.__courses_in_progress.append(course)
+        self._register_event(StudentHasBeenEnrolledInACourse(entity_id=self.id, course_id=course.id))
 
     def start_lectio_in_course(self, course_id: str, lectio: 'StudentLectio'):
         course = next(find(lambda course: course.id == course_id, self.__courses_in_progress))
@@ -47,8 +79,8 @@ class Student(PersonalUser):
     def finish_lectio(self, course_id: str, lectio_id: str):
         self.__find_lectio(course_id, lectio_id).finish()
 
-    def set_last_visited_lectio(self, course_id: str, lectio_id: str):
-        self.__last_visited_lectio = self.__find_lectio(course_id, lectio_id)
+    def set_last_visited_lectio(self, lectio_id: str):
+        self.__last_visited_lectio = GenericUUID(lectio_id)
 
     def __find_lectio(self, course_id: str, lectio_id: str) -> 'StudentLectio':
         lectios = find(lambda course: course.id == course_id, self.__courses_in_progress)
@@ -99,7 +131,6 @@ class StudentLectio(Entity):
 
     def finish(self):
         self.__status = LectioStatus.FINISHED
-
 
     @property
     def status(self):

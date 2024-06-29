@@ -1,3 +1,4 @@
+from src.akademos.videos.domain.events import VideoCreated
 from src.akademos.videos.domain.value_objects import VideoName, VideoType
 from src.framework_ddd.core.domain.entities import AggregateRoot
 from src.framework_ddd.core.domain.files import BinaryIOProtocol
@@ -13,6 +14,12 @@ class Video(AggregateRoot):
         self.__content = content
         self.__name = VideoName(name)
         self.__type = VideoType(type)
+
+    @classmethod
+    def create(cls, id: str, content: BinaryIOProtocol, name: str, type: str):
+        video = cls(id=id, content=content, name=name, type=type)
+        video._register_event(VideoCreated(entity_id=id, name=name, type=type))
+        return video
 
     @property
     def content(self):

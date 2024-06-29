@@ -4,6 +4,8 @@ from lato.message import Query
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, LectioDto
 from src.agora.students.application.commands.enroll_in_a_course import EnrollInACourse, enroll_in_a_course
 from src.agora.students.domain.entities import Student, StudentCourse, StudentLectio, StudentFaculty
+from src.agora.students.domain.events import StudentHasBeenEnrolledInACourse
+from src.framework_ddd.core.domain.events import DomainEvent
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from test.agora.students.students_module import TestStudentsModule
 
@@ -21,6 +23,8 @@ class EnrollInACourseShould(TestStudentsModule):
         lectio_id = GenericUUID.next_id().hex
         derecho_id = GenericUUID.next_id()
 
+        events = []
+
         async def publish(message: Union[Query, List]):
             if isinstance(message, GetCourse):
                 return GetCourseResponse(
@@ -35,6 +39,8 @@ class EnrollInACourseShould(TestStudentsModule):
                         )
                     ]
                 )
+            elif isinstance(message, List):
+                events.extend(message)
 
         course_expected = StudentCourse(
             id=course_id,
@@ -77,3 +83,12 @@ class EnrollInACourseShould(TestStudentsModule):
         actual_student = args[0]
 
         self.assertEqual(actual_student, expected_student)
+        self.assertTrue(len(events) == 1)
+        self.assertTrue(isinstance(events[0], StudentHasBeenEnrolledInACourse))
+        self.assertEqual(
+            events[0].event_dump(),
+            StudentHasBeenEnrolledInACourse(
+                entity_id=expected_student.id,
+                course_id=course_expected.id
+            ).event_dump()
+        )

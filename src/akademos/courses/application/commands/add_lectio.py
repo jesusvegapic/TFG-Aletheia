@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from lato import Command
 from src.akademos.courses.application import courses_module
 from src.akademos.courses.domain.entities import Lectio

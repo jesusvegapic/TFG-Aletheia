@@ -43,3 +43,4 @@ class AggregateRoot(BusinessRuleValidationMixin, Entity):
         events = self._events
         self._events = []
         return events
+
