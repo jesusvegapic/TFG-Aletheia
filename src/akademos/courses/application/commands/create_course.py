@@ -1,7 +1,7 @@
 from typing import List
-
 from lato import Command
-from src.akademos.courses.application import courses_module
+
+from src.akademos.courses.application import akademos_courses_module
 from src.akademos.courses.domain.entities import Course
 from src.akademos.courses.domain.repository import CourseRepository
 
@@ -14,7 +14,7 @@ class CreateCourse(Command):
     topics: List[str]
 
 
-@courses_module.handler(CreateCourse)
+@akademos_courses_module.handler(CreateCourse)
 async def create_course(command: CreateCourse, course_repository: CourseRepository, publish):
     course = Course.create(
         id=command.course_id,
@@ -26,4 +26,5 @@ async def create_course(command: CreateCourse, course_repository: CourseReposito
 
     await course_repository.add(course)
 
-    await publish(course.pull_domain_events())
+    for event in course.pull_domain_events():
+        await publish(event)

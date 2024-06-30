@@ -1,12 +1,13 @@
 from typing import Annotated
 from dependency_injector.wiring import inject
 from fastapi import APIRouter, UploadFile
-from fastapi.params import Depends, File, Form
+from fastapi.params import Depends, File, Form, Query
 from lato import Application
 from starlette.responses import JSONResponse
-
-from apps.admin.api.dependencies import get_application, UploadFileWrapper
-from apps.admin.api.models.courses import PostCourseRequest
+from apps.aletheia.api.dependencies import get_application, UploadFileWrapper
+from apps.aletheia.api.models.courses import PostCourseRequest
+from src.agora.courses.application.queries.list_courses import ListCourses
+from src.agora.shared.application.queries import GetCourse, GetCourseResponse
 from src.akademos.courses.application.commands import CreateCourse, AddLectio
 from src.akademos.shared.application.dtos import VideoDto
 
@@ -70,3 +71,30 @@ async def put_lectio(
                 "message": "filename and content_type are mandatory fields for a video upload"
             }
         )
+
+
+@router.get(
+    "/courses/{course_id}", status_code=200
+)
+@inject
+async def get_course(
+        course_id: str,
+        application: Annotated[Application, Depends(get_application)]
+):
+    query = GetCourse(course_id=course_id)
+    response: GetCourseResponse = await application.execute_async(query)
+    return response
+
+
+@router.get(
+    "/courses", status_code=200
+)
+@inject
+async def list_courses(
+        application: Annotated[Application, Depends(get_application)],
+        start: int = Query(0, alias="start"),  # type: ignore
+        limit: int = Query(15, alias="limit")  # type: ignore
+):
+    query = ListCourses(page_number=start, courses_by_page=limit)
+    response = await application.execute_async(query)
+    return response

@@ -27,6 +27,7 @@ class GetCourseShould(IsolatedAsyncioTestCase):
             name="kant vs hegel",
             description="la panacea de la filosofia",
             state="CREATED",
+            topics="Filosofía;Linguistica",
             lectios=[]
         )
 
@@ -46,6 +47,7 @@ class GetCourseShould(IsolatedAsyncioTestCase):
             name="kant vs hegel",
             owner=owner_id,
             description="la panacea de la filosofia",
+            topics=["Filosofía", "Linguistica"],
             lectios=[
                 LectioDto(
                     id=lectio_id,

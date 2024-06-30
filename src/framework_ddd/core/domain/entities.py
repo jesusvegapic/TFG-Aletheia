@@ -1,6 +1,5 @@
 from lato import Event
 from pydantic import BaseModel
-
 from src.framework_ddd.core.domain.buisness_rules import BusinessRuleValidationMixin
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 

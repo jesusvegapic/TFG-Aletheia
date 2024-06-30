@@ -13,3 +13,4 @@ class PostCourseRequest(BaseModel):
 class PutLectioRequest(BaseModel):
     name: str
     description: str
+

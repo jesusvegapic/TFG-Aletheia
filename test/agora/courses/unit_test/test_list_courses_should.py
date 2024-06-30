@@ -10,7 +10,7 @@ from src.shared.infrastructure.sql_alchemy.models import CourseModel, LectioMode
 class ListCoursesShould(IsolatedAsyncioTestCase):
 
     async def test_list_courses_correctly(self):
-        query = ListCourses(actual_page=1)
+        query = ListCourses(page_number=0, courses_by_page=15)
         course_id = GenericUUID.next_id().hex
         owner_id = GenericUUID.next_id().hex
 
@@ -22,6 +22,7 @@ class ListCoursesShould(IsolatedAsyncioTestCase):
                     name="kant vs hegel",
                     description="la panacea de la filosofia",
                     state="CREATED",
+                    topics="Filosofía;Linguistica",
                     lectios=[]
                 )
             ]

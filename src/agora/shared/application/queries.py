@@ -1,5 +1,10 @@
 from dataclasses import dataclass
+from enum import StrEnum
+from typing import List
+
 from lato import Query
+from pydantic import BaseModel
+
 from src.framework_ddd.core.domain.errors import DomainError
 
 
@@ -7,24 +12,22 @@ class GetCourse(Query):  # type: ignore
     course_id: str
 
 
-@dataclass(frozen=True)
-class GetCourseResponse:
+class GetCourseResponse(BaseModel):
     id: str
     name: str
     owner: str
     description: str
-    lectios: list['LectioDto']
+    topics: List[str]
+    lectios: List['LectioDto']
 
 
-@dataclass(frozen=True)
-class LectioDto:
+class LectioDto(BaseModel):
     id: str
     name: str
 
 
 class FailedGetCourseResponse:
     cause: DomainError
-
 
 
 class GetLectio(Query):

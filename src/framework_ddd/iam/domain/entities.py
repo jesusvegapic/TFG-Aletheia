@@ -1,4 +1,3 @@
-
 from src.framework_ddd.core.domain.entities import AggregateRoot
 from src.framework_ddd.iam.domain.value_objects import Name, Surnames, Email
 
@@ -14,16 +13,13 @@ class User(AggregateRoot):
         self._password_hash = password_hash
         self._is_superuser = is_superuser
 
-
     @property
     def email(self) -> str:
         return self._email
 
-
     @property
     def password_hash(self):
         return self._password_hash
-
 
     @property
     def is_superuser(self):

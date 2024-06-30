@@ -30,7 +30,7 @@ class SqlAlchemyCourseRepositoryShould(TestInMemorySqlDatabase):
         )
 
         await self.repository.add(course)
-        course_found = await self.repository.get(course.id)
         await self.session.commit()
+        course_found = await self.repository.get(course.id)
 
         self.assertEqual(course, course_found)

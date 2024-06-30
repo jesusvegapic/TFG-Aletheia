@@ -1,6 +1,5 @@
 from src.akademos.videos.domain.entities import Video
 from src.akademos.videos.domain.repository import VideoRepository
-from src.akademos.videos.infrastructure.errors import NullContentType
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.core.infrastructure.repository import GridFsPersistenceModel, AsyncMotorGridFsGenericRepository

@@ -90,7 +90,7 @@ class LoggerFactory:
                     },
                 },
                 "json_formatter": {
-                    "()": "src.shared.infrastructure.custom_loggin.ElkJsonFormatter",
+                    "()": "src.framework_ddd.core.infrastructure.custom_loggin.ElkJsonFormatter",
                 },
             },
             "handlers": {

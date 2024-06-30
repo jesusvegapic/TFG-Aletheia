@@ -1,9 +1,7 @@
 from typing import Coroutine, Any
-
 from motor.motor_asyncio import AsyncIOMotorGridOut
 from sqlalchemy.orm import declarative_base
 from sqlalchemy_utils import force_auto_coercion  # type: ignore
-
 from src.framework_ddd.core.domain.files import BinaryIOProtocol
 
 force_auto_coercion()

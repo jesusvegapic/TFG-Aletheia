@@ -2,10 +2,9 @@ import time
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from lato import Application
-
-from apps.admin.api.routers import courses
-from apps.admin.api.config.api_config import ApiConfig
-from apps.admin.container import ApplicationContainer
+from apps.aletheia.api.routers import courses, students
+from apps.aletheia.api.config.api_config import ApiConfig
+from apps.aletheia.container import ApplicationContainer
 from src.framework_ddd.core.domain.errors import DomainError, EntityNotFoundError
 from src.framework_ddd.core.infrastructure.custom_loggin import LoggerFactory, logger
 from src.framework_ddd.core.infrastructure.database import Base
@@ -18,6 +17,7 @@ config = ApiConfig()
 container = ApplicationContainer(config=config)
 api = FastAPI(debug=config.DEBUG)  # type: ignore
 api.include_router(courses.router)
+api.include_router(students.router)
 api.container = container  # type: ignore
 
 

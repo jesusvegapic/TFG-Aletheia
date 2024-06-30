@@ -5,13 +5,14 @@ from dependency_injector.wiring import Provide, inject  # noqa
 from lato import Application, TransactionContext, as_type
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket, AsyncIOMotorClientSession
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession
-from src.Academia.courses.application import courses_module
-from src.Academia.courses.domain.repository import CourseRepository
-from src.Academia.courses.infrastructure.repository import SqlCourseRepository
+from src.agora.courses.application import agora_courses_module
+from src.akademos.courses.application import akademos_courses_module
+from src.akademos.courses.domain.repository import CourseRepository
+from src.akademos.courses.infrastructure.repository import SqlCourseRepository
+from src.akademos.videos.application import videos_module
+from src.akademos.videos.domain.repository import VideoRepository
+from src.akademos.videos.infrastructure.repository import AsyncMotorGridFsVideoRepository
 from src.framework_ddd.core.infrastructure.custom_loggin import logger
-from src.videos.application import videos_module
-from src.videos.domain.repository import VideoRepository
-from src.videos.infrastructure.repository import AsyncMotorGridFsVideoRepository
 
 
 @dataclass
@@ -28,7 +29,7 @@ def create_db_engine(config: Config) -> AsyncEngine:
     engine = create_async_engine(
         config.DATABASE_URL, echo=config.DATABASE_ECHO
     )
-    from src.framework_ddd.core.infrastructure.sql_alchemy.sql_alchemy_database import Base
+    from src.framework_ddd.core.infrastructure.database import Base
 
     # TODO: it seems like a hack, but it works...
     Base.metadata.bind = engine
@@ -56,8 +57,10 @@ def create_application(
         bucket=bucket
     )
 
-    application.include_submodule(courses_module)
+    application.include_submodule(akademos_courses_module)
     application.include_submodule(videos_module)
+
+    application.include_submodule(agora_courses_module)
 
     @application.on_enter_transaction_context
     async def on_enter_transaction_context(ctx: TransactionContext):
@@ -71,7 +74,7 @@ def create_application(
         ctx.set_dependencies(
             logger=logger,
             transaction_id=transaction_id,
-            publish_async=ctx.publish_async,
+            publish=ctx.publish_async,
             db_session=db_session,
             bucket_session=bucket_session,
             course_repository=as_type(SqlCourseRepository(db_session), CourseRepository),

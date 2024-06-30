@@ -5,7 +5,6 @@ from src.agora.shared.infrastructure.models import FacultyModel, DegreeModel
 from src.agora.students.domain.value_objects import LectioStatus
 from src.agora.students.domain.entities import Student, StudentCourse, StudentFaculty, StudentLectio
 from src.agora.students.domain.repository import StudentRepository
-from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.framework_ddd.core.infrastructure.database import Base
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.iam.infrastructure.user_model import PersonalUserModel, UserModel

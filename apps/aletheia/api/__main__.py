@@ -2,7 +2,7 @@ import asyncio
 
 import uvicorn
 
-from apps.admin.api.main import init_db
+from apps.aletheia.api.main import init_db
 
 
 if __name__ == '__main__':

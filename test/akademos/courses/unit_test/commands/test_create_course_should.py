@@ -44,11 +44,10 @@ class TestHandlersShould(IsolatedAsyncioTestCase):
         self.assertEqual(actual_course, expected_course)
         self.assertTrue(publish.called)
         args, kwargs = publish.call_args
-        events = args[0]
-        self.assertTrue(len(events) == 1)
-        self.assertTrue(isinstance(events[0], CourseCreated))
+        event = args[0]
+        self.assertTrue(isinstance(event, CourseCreated))
         self.assertEqual(
-            events[0].event_dump(),
+            event.event_dump(),
             CourseCreated(
                 entity_id=expected_course.id,
                 owner=expected_course.owner,

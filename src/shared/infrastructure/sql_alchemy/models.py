@@ -1,10 +1,10 @@
 import uuid
 
-from sqlalchemy import Column, String, Enum, ForeignKey, ARRAY
+from sqlalchemy import Column, String, Enum, ForeignKey, ARRAY, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType  # type: ignore
 
-from src.akademos.courses.domain.value_objects import CourseState
+from src.akademos.courses.domain.value_objects import CourseState, Topic
 from src.framework_ddd.core.infrastructure.database import Base
 
 
@@ -15,13 +15,11 @@ class CourseModel(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     state = Column(Enum(CourseState), nullable=False)  # type: ignore
-    topics = relationship(
-        "TopicModel",
-        back_populates="course"
-    )
+    topics = Column(String(255), nullable=False)
     lectios = relationship(
         "LectioModel",
-        back_populates="course"
+        back_populates="course",
+        lazy="selectin"
     )
 
 
@@ -32,10 +30,3 @@ class LectioModel(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
     course = relationship(CourseModel, back_populates="lectios")
-
-
-class TopicModel(Base):
-    __tablename__ = "topics"
-    name = Column(String(255), primary_key=True, nullable=False)
-    course_id = Column(UUIDType(binary=False), ForeignKey(CourseModel.id))  # type: ignore
-    course = relationship(CourseModel, back_populates="topics")

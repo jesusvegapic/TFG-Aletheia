@@ -70,7 +70,7 @@ class CreateLectioShould(TestCoursesModule):
 
         args, kwargs = publish_mock.call_args
 
-        actual_event = args[0][0]
+        actual_event = args[0]
 
         expected_event = expected_event.model_dump(exclude={"id"})
         expected_event["video"].pop("file")

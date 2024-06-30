@@ -24,7 +24,7 @@ class Removed:
 
 class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
     mapper_class: type[DataMapper[Entity, Base]]
-    model_class: type[Entity]
+    model_class: type[Base]
     removed: Removed
 
     def __init__(self, db_session: AsyncSession, identity_map=None):

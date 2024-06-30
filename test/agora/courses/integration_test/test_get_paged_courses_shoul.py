@@ -16,6 +16,7 @@ class GetPagedCoursesShould(TestInMemorySqlDatabase):
                 owner=GenericUUID.next_id().hex,
                 name="kant vs hegel",
                 description="La panacea de la filosofia",
+                topics="Filosofía;Linguistica",
                 state=CourseState.CREATED
             ),
             course_ids
@@ -31,6 +32,9 @@ class GetPagedCoursesShould(TestInMemorySqlDatabase):
         self.assertTrue(len(instances_page) == 15)
 
         second_instances_page = await list_courses.get_paged_courses(self.session, 15, 15)
+
+        print(instances_page)
+        print(second_instances_page)
 
         for instance in instances_page:
             self.assertTrue(instance.id not in [second_instance.id for second_instance in second_instances_page])

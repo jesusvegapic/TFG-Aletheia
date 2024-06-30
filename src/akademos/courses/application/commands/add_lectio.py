@@ -1,5 +1,5 @@
 from lato import Command
-from src.akademos.courses.application import courses_module
+from src.akademos.courses.application import akademos_courses_module
 from src.akademos.courses.domain.entities import Lectio
 from src.akademos.courses.domain.repository import CourseRepository
 from src.akademos.shared.application.dtos import VideoDto
@@ -18,7 +18,7 @@ class AddLectio(Command):  # type: ignore
         arbitrary_types_allowed = True
 
 
-@courses_module.handler(AddLectio)
+@akademos_courses_module.handler(AddLectio)
 async def add_lectio(command: AddLectio, course_repository: CourseRepository, publish):
     course = await course_repository.get(GenericUUID(command.course_id))
     if course:
@@ -30,7 +30,7 @@ async def add_lectio(command: AddLectio, course_repository: CourseRepository, pu
         course.add_lectio(lectio, command.video)
 
         await course_repository.add(course)
-
-        await publish(course.pull_domain_events())
+        for event in course.pull_domain_events():
+            await publish(event)
     else:
         raise EntityNotFoundError(entity_id=command.course_id)
