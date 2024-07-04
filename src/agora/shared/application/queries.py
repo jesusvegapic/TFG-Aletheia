@@ -6,6 +6,7 @@ from lato import Query
 from pydantic import BaseModel
 
 from src.framework_ddd.core.domain.errors import DomainError
+from src.framework_ddd.core.domain.files import BinaryIOProtocol
 
 
 class GetCourse(Query):  # type: ignore
@@ -32,3 +33,15 @@ class FailedGetCourseResponse:
 
 class GetLectio(Query):
     lectio_id: str
+
+
+class GetLectioResponse(BaseModel):
+    lectio_id: str
+    name: str
+    description: str
+    video_content: BinaryIOProtocol
+    video_name: str
+    video_type: str
+
+    class Config:
+        arbitrary_types_allowed = True

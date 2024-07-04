@@ -1,5 +1,4 @@
 from unittest.mock import AsyncMock
-
 from src.agora.students.application.commands.start_lectio import start_lectio, StartLectio
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from test.agora.students.students_module import TestStudentsModule, StudentMother
@@ -7,7 +6,7 @@ from test.agora.students.students_module import TestStudentsModule, StudentMothe
 
 class StartLectioShould(TestStudentsModule):
 
-    async def start_a_lectio_correctly(self):
+    async def test_start_a_lectio_correctly(self):
         self.repository.get = AsyncMock()
         fake_student = StudentMother.full_fields_random()
         self.repository.get.return_value = fake_student

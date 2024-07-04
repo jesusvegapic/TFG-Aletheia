@@ -12,9 +12,5 @@ User = TypeVar("User", bound=DomainUser)
 
 class UserRepository(GenericRepository[GenericUUID, User], Generic[User], metaclass=abc.ABCMeta):
     @abstractmethod
-    def get_by_email(self, email: Email) -> User | None:
-        ...
-
-    @abstractmethod
-    def get_by_access_token(self, access_token: str) -> User | None:
+    async def get_by_email(self, email: Email) -> User | None:
         ...

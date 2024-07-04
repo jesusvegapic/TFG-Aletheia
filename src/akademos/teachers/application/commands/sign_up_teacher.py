@@ -1,6 +1,8 @@
-from typing import Optional
-
 from lato import Command
+from src.akademos.faculties.application.queries.get_faculty import GetFaculty
+from src.akademos.teachers.domain.entities import Teacher, TeacherFaculty
+from src.akademos.teachers.domain.repository import TeacherRepository
+from src.framework_ddd.core.domain.value_objects import GenericUUID
 
 
 class SignUpTeacher(Command):
@@ -8,31 +10,29 @@ class SignUpTeacher(Command):
     email: str
     password: str
     name: str
-    surnames: tuple[str, Optional[str]]
+    firstname: str
+    second_name: str
     faculty_id: str
     degrees: list[str]
     position: str
 
 
-async def sign_up_teacher(command: SignUpTeacher, student_repository: TeacherRepository, publish):
-    faculty_dao = await publish(GetFaculty(command.faculty_id))
-    if faculty_dao:
-        for degree_id in command.degrees:
-            if degree_id not in faculty_dao.degress:
-                raise DomainException()
+async def sign_up_teacher(command: SignUpTeacher, repository: TeacherRepository, publish):
+    faculty = await publish(GetFaculty(faculty_id=command.faculty_id))
 
-        teacher = Teacher(
-            id=GenericUUID(command.student_id),
-            email=Email(email),
-            password=Password(command.password),
-            name=Name(command.name),
-            surnames=Surnames(command.surnames[0], command.surnames[1]),
-            faculty=GenericUUID(command.faculty_id),
-            degrees=[GenericUUID(degree_id) for degree_id in command.degrees],
-            position=TeacherPosition(command.position)
-        )
+    teacher = Teacher.create(
+        command.teacher_id,
+        command.email,
+        command.password,
+        command.name,
+        command.firstname,
+        command.second_name,
+        TeacherFaculty(faculty.id, [GenericUUID(degree) for degree in faculty.degrees]),
+        command.degrees,
+        command.position
+    )
 
-        teacher_repository.add(teacher)
+    await repository.add(teacher)
 
-    else:
-        raise EntityNotFoundException()
+    for event in teacher.pull_domain_events():
+        await publish(event)

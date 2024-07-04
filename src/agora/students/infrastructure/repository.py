@@ -17,7 +17,6 @@ class StudentModel(Base):
     personal_user_id = Column(UUIDType(binary=False), ForeignKey(PersonalUserModel.user_id), primary_key=True)  # type: ignore
     faculty_id = Column(UUIDType(binary=False), ForeignKey(FacultyModel.id), nullable=False)  # type: ignore
     degree_id = Column(UUIDType(binary=False), ForeignKey(DegreeModel.id), nullable=False)  # type: ignore
-    last_visited_lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id), nullable=False)  # type: ignore
     faculty = relationship(FacultyModel, back_populates="student", lazy="selectin")
     degree = relationship(DegreeModel, back_populates="student", lazy="selectin")
     personal_user = relationship(PersonalUserModel)
@@ -25,13 +24,13 @@ class StudentModel(Base):
         "StudentCourseModel",
         back_populates="student"
     )
-    last_visited_lectio = relationship(LectioModel)  # type: ignore
 
 
 class StudentCourseModel(Base):
     __tablename__ = "students_courses"
     id = Column(UUIDType(binary=False), ForeignKey(CourseModel.id))  # type: ignore
     student_id = Column(UUIDType(binary=False), ForeignKey(StudentModel.personal_user_id))  # type: ignore
+    last_visited_lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id), nullable=False)  # type: ignore
     course = relationship(CourseModel)
     student = relationship(
         StudentModel,
@@ -41,6 +40,7 @@ class StudentCourseModel(Base):
         'StudentLectioModel',
         back_populates="student_course"
     )
+    last_visited_lectio = relationship(LectioModel)  # type: ignore
     __table_args__ = (PrimaryKeyConstraint("student_id", "id"),)
 
 
@@ -74,11 +74,12 @@ class StudentDataMapper(DataMapper):
                     [
                         StudentLectio(lectio.lectio_id.hex, lectio.progress)
                         for lectio in course.lectios_in_progress
-                    ]
+                    ],
+                    course.last_visited_lectio_id.hex
                 )
                 for course in instance.student_courses
             ],
-            last_visited_lectio=instance.last_visited_lectio_id.hex  # type: ignore
+
         )
 
     def entity_to_model(self, student: Student) -> StudentModel:
@@ -97,11 +98,11 @@ class StudentDataMapper(DataMapper):
                             progress=lectio.status
                         )
                         for lectio in course.lectios
-                    ]
+                    ],
+                    last_visited_lectio_id=course.last_visited_lectio,
                 )
                 for course in student.courses_in_progress
             ],
-            last_visited_lectio_id=student.last_visited_lectio,
             personal_user=PersonalUserModel(
                 user_id=student.id,
                 name=student.name,

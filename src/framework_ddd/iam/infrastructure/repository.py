@@ -11,17 +11,17 @@ from src.framework_ddd.iam.infrastructure.user_model import UserModel
 class UserDataMapper(DataMapper):
     def model_to_entity(self, instance: UserModel) -> User:
         return User(
-            id=instance.id,
-            email=instance.email,
-            password_hash=instance.password,
-            is_superuser=instance.is_superuser,
+            id=instance.id,  # type: ignore
+            email=instance.email,  # type: ignore
+            hashed_password=instance.password,  # type: ignore
+            is_superuser=instance.is_superuser,  # type: ignore
         )
 
     def entity_to_model(self, entity: User) -> UserModel:
         return UserModel(
             id=entity.id,
             email=entity.email,
-            password=entity.password_hash,
+            password=entity.hashed_password,  # type: ignore
             is_superuser=entity.is_superuser,
         )
 
@@ -31,19 +31,6 @@ class SqlAlchemyUserRepository(SqlAlchemyGenericRepository, UserRepository):
 
     mapper_class = UserDataMapper
     model_class = UserModel
-
-    async def get_by_access_token(self, access_token: str) -> User | None:
-        try:
-            instance = (
-                await self._session.execute(
-                    select(UserModel)
-                    .filter_by(access_token=access_token)
-                )
-            ).one()
-
-            return self._get_entity(instance)
-        except NoResultFound:
-            return None
 
     async def get_by_email(self, email: Email) -> User | None:
         try:

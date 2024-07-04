@@ -4,13 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.agora.courses.application.queries import list_courses
 from src.agora.courses.application.queries.list_courses import ListCourses, ListCoursesResponse, ListedCourseDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID
-from src.shared.infrastructure.sql_alchemy.models import CourseModel, LectioModel
+from src.shared.infrastructure.sql_alchemy.models import CourseModel
 
 
 class ListCoursesShould(IsolatedAsyncioTestCase):
 
     async def test_list_courses_correctly(self):
-        query = ListCourses(page_number=0, courses_by_page=15)
+        query = ListCourses(page_number=0, courses_by_page=15, topics=["Filosofía"])
         course_id = GenericUUID.next_id().hex
         owner_id = GenericUUID.next_id().hex
 
@@ -39,6 +39,17 @@ class ListCoursesShould(IsolatedAsyncioTestCase):
             ]
         )
 
-        actual_response = await list_courses.list_courses(query, AsyncMock())
+        await self.assert_query(query, response_expected)
 
+        query = ListCourses(page_number=0, courses_by_page=15, topics=[])
+        await self.assert_query(query, response_expected)
+
+        query = ListCourses(page_number=0, courses_by_page=15, topics=["Derecho"])
+        response_expected = ListCoursesResponse(
+            courses=[]
+        )
+        await self.assert_query(query, response_expected)
+
+    async def assert_query(self, query: ListCourses, response_expected: ListCoursesResponse):
+        actual_response = await list_courses.list_courses(query, AsyncMock())
         self.assertEqual(actual_response, response_expected)

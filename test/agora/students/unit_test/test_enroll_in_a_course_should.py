@@ -5,7 +5,6 @@ from src.agora.shared.application.queries import GetCourse, GetCourseResponse, L
 from src.agora.students.application.commands.enroll_in_a_course import EnrollInACourse, enroll_in_a_course
 from src.agora.students.domain.entities import Student, StudentCourse, StudentLectio, StudentFaculty
 from src.agora.students.domain.events import StudentHasBeenEnrolledInACourse
-from src.framework_ddd.core.domain.events import DomainEvent
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from test.agora.students.students_module import TestStudentsModule
 
@@ -32,6 +31,7 @@ class EnrollInACourseShould(TestStudentsModule):
                     name="kant vs hegel",
                     owner=owner_id,
                     description="la panacea de la filosofia",
+                    topics=["Filosofía", "Linguistica"],
                     lectios=[
                         LectioDto(
                             id=lectio_id,

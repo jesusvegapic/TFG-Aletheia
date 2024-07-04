@@ -1,6 +1,6 @@
-from lato import Event
 from pydantic import BaseModel
 from src.framework_ddd.core.domain.buisness_rules import BusinessRuleValidationMixin
+from src.framework_ddd.core.domain.events import DomainEvent
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 
 
@@ -29,13 +29,13 @@ class Aggregate(Entity):
 
 
 class AggregateRoot(BusinessRuleValidationMixin, Entity):
-    _events: list[Event]
+    _events: list[DomainEvent]
 
     def __init__(self, id: str):
         super().__init__(id)
         self._events = []
 
-    def _register_event(self, event: Event):
+    def _register_event(self, event: DomainEvent):
         self._events.append(event)
 
     def pull_domain_events(self):

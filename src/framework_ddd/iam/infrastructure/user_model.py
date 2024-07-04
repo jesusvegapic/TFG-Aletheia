@@ -1,7 +1,6 @@
 from sqlalchemy import Column, String, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
-from sqlalchemy_utils import UUIDType
-
+from sqlalchemy_utils import UUIDType  # type: ignore
 from src.framework_ddd.core.infrastructure.database import Base
 
 

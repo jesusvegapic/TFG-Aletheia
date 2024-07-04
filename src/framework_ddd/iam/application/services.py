@@ -1,51 +1,73 @@
+import datetime
+from datetime import timedelta
 import bcrypt
+import jwt
+from pydantic import BaseModel
+from src.framework_ddd.iam.domain.errors import InvalidCredentialsException, ExpiredTokenError
+from src.framework_ddd.iam.domain.repository import UserRepository, User
+from src.framework_ddd.iam.domain.value_objects import Email
 
-from src.framework_ddd.iam.domain.repository import UserRepository
+
+class IamUserInfo(BaseModel):
+    email: str
+    user_id: str
+    is_superuser: bool
 
 
 class IamService:
-    def __init__(self, user_repository: UserRepository, secret_key: str):
-        self.user_repository = user_repository
+    __user_repository: UserRepository
+    __secret_key: str
+    __algorithm: str
+    __access_token_expire_after_minutes: int
 
-    def create_user(
-            self, user_id, email, password, access_token, is_superuser=False
-    ) -> User:
-        user = self.user_repository.get_by_email(email)
-        if user:
-            raise ValueError(f"User with email {email} already exists")
+    def __init__(
+            self,
+            user_repository: UserRepository,
+            secret_key: str,
+            algorithm: str = "HS256",
+            access_token_expire_after_minutes: int = 240
+    ):
+        self.__user_repository = user_repository
+        self.__secret_key = secret_key
+        self.__algorithm = algorithm
+        self.__access_token_expire_after_minutes = access_token_expire_after_minutes
 
-        user = self.user_repository.get_by_access_token(access_token)
-        if user:
-            raise ValueError(f"User with access_token {access_token} already exists")
+    @classmethod
+    def hash_password(cls, password: str):
+        hashed_password = bcrypt.hashpw(password.encode("UTF-8"), bcrypt.gensalt())
+        return hashed_password
 
-        password_hash = bcrypt.hashpw(password.encode("UTF-8"), bcrypt.gensalt())
-        user = User(
-            id=user_id,
-            email=Email(email),
-            password_hash=password_hash.decode("UTF-8"),
-            access_token=access_token,
-            is_superuser=is_superuser,
-        )
-        self.user_repository.add(user)
-        return user
-
-    def authenticate_with_name_and_password(self, name, password) -> :
-        user = self.user_repository.get_by_email(name)
+    async def authenticate_with_email_and_password(self, email: str, password: str):
+        user = await self.__user_repository.get_by_email(Email(email))
         if not user:
             raise InvalidCredentialsException()
 
         password_match = bcrypt.checkpw(
-            password.encode("UTF-8"), user.password_hash.encode("UTF-8")
+            password.encode("UTF-8"), user.hashed_password
         )
-
 
         if not password_match:
             raise InvalidCredentialsException()
 
+        return self.create_access_token_for_user(user)
 
+    def create_access_token_for_user(self, user):
+        access_token_expires = timedelta(minutes=self.__access_token_expire_after_minutes)
 
-        return user
+        data = {"sub": user.email, "id": user.id, "is_superuser": user.is_superuser}
 
-    def find_user_by_access_token(self, access_token: str) -> User:
-        user = self.user_repository.get_by_access_token(access_token)
-        return user
+        to_encode = data.copy()
+
+        expire = datetime.datetime.now(datetime.UTC) + access_token_expires
+
+        to_encode.update({"exp": expire})
+        encoded_jwt = jwt.encode(to_encode, self.__secret_key, algorithm=self.__algorithm)
+        return encoded_jwt
+
+    def get_userid_from_token(self, token: str):
+        payload = jwt.decode(token, self.__secret_key, algorithms=[self.__algorithm])
+        expired: float = payload["exp"]
+        if datetime.datetime.now(datetime.UTC) > datetime.datetime.fromtimestamp(expired, tz=datetime.UTC):
+            raise ExpiredTokenError()
+
+        return IamUserInfo(email=payload["sub"], user_id=payload["id"], is_superuser=payload["is_superuser"])

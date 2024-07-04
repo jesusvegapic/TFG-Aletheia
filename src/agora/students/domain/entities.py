@@ -5,6 +5,7 @@ from src.agora.students.domain.value_objects import LectioStatus
 from src.akademos.courses.domain.value_objects import Topic
 from src.framework_ddd.core.domain.entities import Entity
 from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.framework_ddd.iam.application.services import IamService
 from src.framework_ddd.iam.domain.entities import PersonalUser
 from src.shared.utils.list import find
 
@@ -40,22 +41,22 @@ class Student(PersonalUser):
 
     @classmethod
     def create(cls,
-           id: str,
-           name: str,
-           firstname: str,
-           second_name: str,
-           email: str,
-           password_hash: bytes,
-           faculty: 'StudentFaculty',
-           degree: str
-    ):
+               id: str,
+               name: str,
+               firstname: str,
+               second_name: str,
+               email: str,
+               password: str,
+               faculty: 'StudentFaculty',
+               degree: str
+               ):
         args = {
             "id": id,
             "name": name,
             "firstname": firstname,
             "second_name": second_name,
             "email": email,
-            "password_hash": password_hash,
+            "password_hash": IamService.hash_password(password),
             "faculty": faculty,
             "degree": degree
         }
@@ -79,8 +80,13 @@ class Student(PersonalUser):
     def finish_lectio(self, course_id: str, lectio_id: str):
         self.__find_lectio(course_id, lectio_id).finish()
 
-    def set_last_visited_lectio(self, lectio_id: str):
-        self.__last_visited_lectio = GenericUUID(lectio_id)
+    def set_last_visited_lectio(self, lectio_id: str, course_id: str):
+        course = find(lambda course: course.id == course_id, self.__courses_in_progress)
+        course.set_last_visited_lectio(lectio_id)
+
+    def get_last_visited_lectio(self, course_id: str):
+        course = find(lambda course: course.id == course_id, self.__courses_in_progress)
+        return course.last_visited_lectio
 
     def __find_lectio(self, course_id: str, lectio_id: str) -> 'StudentLectio':
         lectios = find(lambda course: course.id == course_id, self.__courses_in_progress)
@@ -109,17 +115,33 @@ class Student(PersonalUser):
 
 class StudentCourse(Entity):
     __lectios: List['StudentLectio']
+    __last_visited_lectio: Optional[GenericUUID]
 
-    def __init__(self, id: str, lectios: Optional[List['StudentLectio']] = None):
+    def __init__(
+            self,
+            id: str,
+            lectios: Optional[List['StudentLectio']] = None,
+            last_visited_lectio: Optional['GenericUUID'] = None
+    ):
         super().__init__(id)
         self.__lectios = lectios if lectios else []
+        self.__last_visited_lectio = last_visited_lectio
 
     def start_lectio(self, lectio: 'StudentLectio'):
         self.__lectios.append(lectio)
 
+    def set_last_visited_lectio(self, lectio_id: str):
+        if lectio_id not in [lectio.id for lectio in self.__lectios]:
+            raise LectioNotExistsInCourse(lectio_id=lectio_id, course_id=self.id)
+        self.__last_visited_lectio = GenericUUID(lectio_id)
+
     @property
     def lectios(self):
         return self.__lectios
+
+    @property
+    def last_visited_lectio(self):
+        return self.__last_visited_lectio
 
 
 class StudentLectio(Entity):
