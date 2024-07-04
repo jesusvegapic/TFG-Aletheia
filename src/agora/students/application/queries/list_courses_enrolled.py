@@ -1,7 +1,5 @@
 from fastapi import Query
 
-from src.agora.students.domain.repository import StudentRepository
-
 
 class ListCoursesEnrolled(Query):
     student_id: str
