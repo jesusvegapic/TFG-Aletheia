@@ -1,8 +1,5 @@
-from typing import Optional, List
 from unittest.mock import AsyncMock
-
 from lato.message import Message
-
 from src.akademos.faculties.application.queries.get_faculty import GetFaculty, GetFacultyResponse
 from src.akademos.teachers.application.commands.sign_up_teacher import SignUpTeacher, sign_up_teacher
 from src.akademos.teachers.domain.entities import Teacher, TeacherFaculty
@@ -64,11 +61,11 @@ class SignupTeacherShould(TestTeachersModule):
 
         args, kwargs = self.repository.add.call_args
 
-        self.assertEqual(args[0], teacher_expected)
+        self.assertEqual(args[0].model_dump(), teacher_expected.model_dump())
 
         expected_event = TeacherCreated(
             entity_id=teacher_expected.id,
-            mail=command.email,
+            email=command.email,
             hashed_password=hashed_password,
             name=command.name,
             firstname=command.firstname,
@@ -78,4 +75,4 @@ class SignupTeacherShould(TestTeachersModule):
             position=command.position
         )
 
-        self.assertEqual(events[0], expected_event)
+        self.assertEqual(events[0].event_dump(), expected_event.event_dump())

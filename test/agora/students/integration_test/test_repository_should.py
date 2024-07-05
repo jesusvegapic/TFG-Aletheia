@@ -28,6 +28,8 @@ class SqlAlchemyStudentRepositoryShould(TestInMemorySqlDatabase):
 
         await self.session.commit()
 
+        lectio_id = GenericUUID.next_id().hex
+
         student = Student(
             id=Student.next_id().hex,
             name="pepe",
@@ -45,12 +47,13 @@ class SqlAlchemyStudentRepositoryShould(TestInMemorySqlDatabase):
                     id=StudentCourse.next_id().hex,
                     lectios=[
                         StudentLectio(
-                            id=StudentLectio.next_id().hex
+                            id=lectio_id
                         )
-                    ]
+                    ],
+                    last_visited_lectio=GenericUUID.next_id().hex
                 )
             ],
-            last_visited_lectio=GenericUUID.next_id().hex
+
 
         )
 

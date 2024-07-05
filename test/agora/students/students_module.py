@@ -1,5 +1,5 @@
 from random import randint
-from typing import Optional
+from typing import Optional, List
 from unittest import IsolatedAsyncioTestCase
 
 from src.agora.students.domain.entities import Student, StudentFaculty, StudentCourse, StudentLectio
@@ -41,30 +41,41 @@ class TestStudentsModule(IsolatedAsyncioTestCase):
 
 class StudentMother:
     @classmethod
-    def full_fields_random(cls):
+    def random(
+            cls,
+            id: Optional[str] = None,
+            name: Optional[str] = None,
+            firstname: Optional[str] = None,
+            second_name: Optional[str] = None,
+            email: Optional[str] = None,
+            password_hash: Optional[bytes] = None,
+            faculty: Optional[StudentFaculty] = None,
+            degree: Optional[str] = None,
+            courses_in_progress: Optional[List[StudentCourse]] = None,
+    ):
         degree_id = GenericUUID.next_id()
+        lectio_id = GenericUUID.next_id()
         return Student(
-            id=Student.next_id().hex,
-            name=random_str(randint(1, 30)),
-            firstname=random_str(randint(1, 30)),
-            second_name=random_str(randint(1, 30)),
-            email=random_str(randint(1, 30))+"@gmail.com",
-            password_hash=bytes(random_str(randint(1, 30)), 'utf-8'),
-            faculty=StudentFaculty(
+            id=id or Student.next_id().hex,
+            name=name or random_str(randint(1, 20)),
+            firstname=firstname or random_str(randint(1, 20)),
+            second_name=second_name or random_str(randint(1, 20)),
+            email=email or random_str(randint(1, 30))+"@gmail.com",
+            password_hash=password_hash or bytes(random_str(randint(1, 30)), 'utf-8'),
+            faculty= faculty or StudentFaculty(
                 id=StudentFaculty.next_id().hex,
                 degrees=[degree_id]
             ),
-            degree=degree_id.hex,
-            courses_in_progress=[
+            degree=degree or degree_id.hex,
+            courses_in_progress=courses_in_progress or [
                 StudentCourse(
                     id=StudentCourse.next_id().hex,
                     lectios=[
                         StudentLectio(
-                            id=StudentLectio.next_id().hex
+                            id=lectio_id
                         )
-                    ]
+                    ],
+                    last_visited_lectio=GenericUUID(lectio_id)
                 )
-            ],
-            last_visited_lectio=GenericUUID.next_id().hex
-
+            ]
         )

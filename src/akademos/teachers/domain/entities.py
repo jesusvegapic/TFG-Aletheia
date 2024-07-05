@@ -1,5 +1,6 @@
 from typing import List
 
+from src.akademos.teachers.domain.errors import DegreeNotExistsInTeacherFacultyError
 from src.akademos.teachers.domain.events import TeacherCreated
 from src.akademos.teachers.domain.value_objects import TeacherPosition
 from src.framework_ddd.core.domain.entities import Entity
@@ -31,6 +32,8 @@ class Teacher(PersonalUser):
             self.__faculty = faculty
             self.__position = TeacherPosition(position)
             self.__degrees = [GenericUUID(degree) for degree in degrees]
+        else:
+            raise DegreeNotExistsInTeacherFacultyError(degrees_ids=degrees, faculty_id=faculty.id)
 
     @classmethod
     def create(
@@ -78,7 +81,7 @@ class Teacher(PersonalUser):
 
     @property
     def degrees(self):
-        return [degree for degree in self.__degrees]
+        return [degree.hex for degree in self.__degrees]
 
     @property
     def position(self) -> str:
@@ -94,6 +97,6 @@ class TeacherFaculty(Entity):
 
     def has_degrees(self, degrees: List[str]):
         for degree in degrees:
-            if GenericUUID not in self.__degrees:
+            if GenericUUID(degree) not in self.__degrees:
                 return False
         return True

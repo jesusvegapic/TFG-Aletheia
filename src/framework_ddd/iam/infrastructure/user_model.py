@@ -18,5 +18,5 @@ class PersonalUserModel(Base):
     name = Column(String(255), nullable=False)
     firstname = Column(String(255), nullable=False)
     second_name = Column(String(255), nullable=False)
-    user = relationship(UserModel)
+    user = relationship(UserModel, lazy="selectin")
 

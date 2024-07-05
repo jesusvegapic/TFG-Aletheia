@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from src.framework_ddd.core.domain.errors import EntityNotFoundError
+
 
 class FacultyApplicationError(Exception):
     pass
@@ -20,3 +22,7 @@ class DegreeNameError(CreateFacultyError):
     name: str
     max_length: int
 
+
+@dataclass(frozen=True)
+class FacultyNotFoundError(EntityNotFoundError):
+    pass

@@ -10,7 +10,7 @@ class User(AggregateRoot):
     def __init__(self, id: str, email: str, hashed_password: bytes, is_superuser: bool):
         super().__init__(id)
         self._email = Email(email)
-        self._hashed_password= hashed_password
+        self._hashed_password = hashed_password
         self._is_superuser = is_superuser
 
     @property

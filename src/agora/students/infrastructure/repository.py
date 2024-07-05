@@ -17,8 +17,8 @@ class StudentModel(Base):
     personal_user_id = Column(UUIDType(binary=False), ForeignKey(PersonalUserModel.user_id), primary_key=True)  # type: ignore
     faculty_id = Column(UUIDType(binary=False), ForeignKey(FacultyModel.id), nullable=False)  # type: ignore
     degree_id = Column(UUIDType(binary=False), ForeignKey(DegreeModel.id), nullable=False)  # type: ignore
-    faculty = relationship(FacultyModel, back_populates="student", lazy="selectin")
-    degree = relationship(DegreeModel, back_populates="student", lazy="selectin")
+    faculty = relationship(FacultyModel, backref=None, lazy="selectin")
+    degree = relationship(DegreeModel, backref=None, lazy="selectin")
     personal_user = relationship(PersonalUserModel)
     student_courses = relationship(
         "StudentCourseModel",
@@ -111,7 +111,7 @@ class StudentDataMapper(DataMapper):
                 user=UserModel(
                     id=student.id,
                     email=student.email,
-                    password=student.password_hash,
+                    password=student.hashed_password,
                     is_superuser=student.is_superuser
                 )
             )

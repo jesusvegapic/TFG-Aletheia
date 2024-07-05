@@ -1,5 +1,6 @@
 from typing import Optional, List, Set
-from src.agora.students.domain.errors import NotEnrolledLectioError, DegreeNotExistsInStudentFacultyError
+from src.agora.students.domain.errors import NotEnrolledLectioError, DegreeNotExistsInStudentFacultyError, \
+    LectioNotExistsInCourse
 from src.agora.students.domain.events import StudentCreated, StudentHasBeenEnrolledInACourse
 from src.agora.students.domain.value_objects import LectioStatus
 from src.akademos.courses.domain.value_objects import Topic
@@ -14,7 +15,6 @@ class Student(PersonalUser):
     __faculty: 'StudentFaculty'
     __degree: GenericUUID
     __courses_in_progress: List['StudentCourse']
-    __last_visited_lectio: GenericUUID
 
     def __init__(
             self,
@@ -26,16 +26,13 @@ class Student(PersonalUser):
             password_hash: bytes,
             faculty: 'StudentFaculty',
             degree: str,
-            courses_in_progress: Optional[List['StudentCourse']] = None,
-            last_visited_lectio: Optional[str] = None
+            courses_in_progress: Optional[List['StudentCourse']] = None
     ):
         if faculty.has_degree(degree):
             super().__init__(id, name, firstname, second_name, email, password_hash, False)
             self.__faculty = faculty
             self.__degree = GenericUUID(degree)
             self.__courses_in_progress = courses_in_progress if courses_in_progress else []
-            self.__last_visited_lectio = GenericUUID(
-                last_visited_lectio) if last_visited_lectio else None  # type: ignore
         else:
             raise DegreeNotExistsInStudentFacultyError(degree_id=degree, faculty_id=faculty.id)
 
@@ -60,11 +57,28 @@ class Student(PersonalUser):
             "faculty": faculty,
             "degree": degree
         }
-        student = cls(**args)  # type: ignore
-
-        args.pop("password_hash")
-        args["faculty"] = faculty.id
-        student._register_event(StudentCreated(**args))  # type: ignore
+        student = cls(
+            id=id,
+            name=name,
+            firstname=firstname,
+            second_name=second_name,
+            email=email,
+            password_hash=IamService.hash_password(password),
+            faculty=faculty,
+            degree=degree
+        )
+        student._register_event(
+            StudentCreated(  # type: ignore
+                entity_id=id,
+                name=name,
+                firstname=firstname,
+                second_name=second_name,
+                email=email,
+                password_hash=IamService.hash_password(password),
+                faculty_id=faculty.id,
+                degree_id=degree
+            )
+        )
 
         return student
 
@@ -81,11 +95,11 @@ class Student(PersonalUser):
         self.__find_lectio(course_id, lectio_id).finish()
 
     def set_last_visited_lectio(self, lectio_id: str, course_id: str):
-        course = find(lambda course: course.id == course_id, self.__courses_in_progress)
+        course = next(find(lambda course: course.id == course_id, self.__courses_in_progress))
         course.set_last_visited_lectio(lectio_id)
 
     def get_last_visited_lectio(self, course_id: str):
-        course = find(lambda course: course.id == course_id, self.__courses_in_progress)
+        course = next(find(lambda course: course.id == course_id, self.__courses_in_progress))
         return course.last_visited_lectio
 
     def __find_lectio(self, course_id: str, lectio_id: str) -> 'StudentLectio':

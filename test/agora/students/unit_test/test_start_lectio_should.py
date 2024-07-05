@@ -8,7 +8,7 @@ class StartLectioShould(TestStudentsModule):
 
     async def test_start_a_lectio_correctly(self):
         self.repository.get = AsyncMock()
-        fake_student = StudentMother.full_fields_random()
+        fake_student = StudentMother.random()
         self.repository.get.return_value = fake_student
         self.repository.add = AsyncMock()
 

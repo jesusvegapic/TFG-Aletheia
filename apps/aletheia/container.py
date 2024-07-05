@@ -2,10 +2,13 @@ import uuid
 from dataclasses import dataclass
 from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject  # noqa
-from lato import Application, TransactionContext, as_type
+from lato import Application, TransactionContext, as_type, Query
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket, AsyncIOMotorClientSession
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession
 from src.agora.courses.application import agora_courses_module
+from src.agora.students.application import students_module
+from src.agora.students.domain.repository import StudentRepository
+from src.agora.students.infrastructure.repository import SqlAlchemyStudentRepository
 from src.akademos.courses.application import akademos_courses_module
 from src.akademos.courses.domain.repository import CourseRepository
 from src.akademos.courses.infrastructure.repository import SqlCourseRepository
@@ -59,11 +62,15 @@ def create_application(
 
     application.include_submodule(akademos_courses_module)
     application.include_submodule(videos_module)
-
+    application.include_submodule(students_module)
     application.include_submodule(agora_courses_module)
 
     @application.on_enter_transaction_context
     async def on_enter_transaction_context(ctx: TransactionContext):
+        async def publish_query(message: Query):
+            result_list = list((await ctx.publish_async(message)).values())
+            return result_list if len(result_list) > 1 else None
+
         engine = application.get_dependency("db_engine")
         db_session = AsyncSession(engine)
         bucket_session_factory: AsyncIOMotorClient = application.get_dependency("bucket_session_factory")
@@ -75,10 +82,12 @@ def create_application(
             logger=logger,
             transaction_id=transaction_id,
             publish=ctx.publish_async,
+            publish_query=publish_query,
             db_session=db_session,
             bucket_session=bucket_session,
             course_repository=as_type(SqlCourseRepository(db_session), CourseRepository),
-            video_repository=as_type(AsyncMotorGridFsVideoRepository(bucket, bucket_session), VideoRepository)
+            video_repository=as_type(AsyncMotorGridFsVideoRepository(bucket, bucket_session), VideoRepository),
+            student_repository=as_type(SqlAlchemyStudentRepository(db_session), StudentRepository)
         )
         logger.debug("<<< Begin transaction")
 

@@ -10,7 +10,8 @@ class FacultyModel(Base):
     id = Column(UUIDType(binary=False), primary_key=True)  # type: ignore
     name = Column(String(FacultyName.max_length()), nullable=False)
     degrees = relationship('DegreeModel', back_populates="faculty", lazy="selectin")
-    student = relationship('StudentModel', back_populates="faculty")
+    #student = relationship('StudentModel', back_populates="faculty")
+    #teacher = relationship('TeacherModel', back_populates="faculty")
 
 
 class DegreeModel(Base):
@@ -19,4 +20,5 @@ class DegreeModel(Base):
     faculty_id = Column(UUIDType(binary=False), ForeignKey(FacultyModel.id))  # type: ignore
     name = Column(String(FacultyName.max_length()), nullable=False)
     faculty = relationship(FacultyModel, back_populates="degrees")
-    student = relationship('StudentModel', back_populates="degree")
+    #student = relationship('StudentModel', back_populates="degree")
+

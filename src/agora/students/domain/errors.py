@@ -25,3 +25,7 @@ class NotEnrolledLectioError(StudentsModuleError):
     course_id: str
     lectio_id: str
 
+@dataclass(frozen=True)
+class LectioNotExistsInCourse(StudentsModuleError):
+    lectio_id: str
+    course_id: str

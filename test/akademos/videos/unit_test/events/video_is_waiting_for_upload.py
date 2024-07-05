@@ -1,6 +1,5 @@
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import MagicMock, AsyncMock
-
 from src.akademos.shared.application.dtos import VideoDto
 from src.akademos.shared.application.events import LectioAdded
 from src.akademos.videos.application.events.create_video_on_lectio_added_to_course import \
