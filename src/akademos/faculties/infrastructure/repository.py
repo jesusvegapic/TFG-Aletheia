@@ -10,10 +10,10 @@ class FacultyDataMapper(DataMapper):
     def model_to_entity(self, instance: FacultyModel) -> Faculty:
         return Faculty(
             id=instance.id.hex,
-            name=instance.name,
+            name=instance.name,  # type: ignore
             degrees=[
                 Degree(
-                    id=degree.id,
+                    id=degree.id.hex,
                     name=degree.name
                 )
                 for degree in instance.degrees

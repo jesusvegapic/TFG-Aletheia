@@ -1,7 +1,6 @@
 from typing import Coroutine, Any
 from lato import Application
 from fastapi import Request, UploadFile
-
 from src.framework_ddd.core.domain.files import BinaryIOProtocol
 
 

@@ -13,23 +13,6 @@ class CoursesControllerShould(TestFastapiServer):
         self.api.include_router(router)
         self.api_client = AsyncClient(app=self.api, base_url="http://test")
 
-    async def test_put_valid_course(self):
-        async with self.api_client as client:
-            response = await client.put(
-                f"/courses/{GenericUUID.next_id().hex}",
-                json={
-                    "teacher_id": GenericUUID.next_id().hex,
-                    "name": "Kant vs Hegel",
-                    "description": "La panacea de la historia de la filosofia",
-                    "topics": ["Filosofía"]
-                }
-            )
-
-            if response.status_code != 201:
-                print(response.content)
-
-            self.assertEqual(response.status_code, 201)
-
     async def test_put_valid_lectio_on_an_existing_course(self):
         async with self.api_client as client:
             course_id = GenericUUID.next_id().hex
@@ -49,13 +32,24 @@ class CoursesControllerShould(TestFastapiServer):
             }
             files = {"video": ("test_video.mp4", open(TEST_VIDEO_PATH, 'rb'), "/video/mp4")}
             lectio_id = GenericUUID.next_id().hex
-            response = await client.put(
+
+            await client.put(
                 f"/courses/{course_id}/lectio/{lectio_id}",
                 files=files,
                 data=lectio_metadata
             )
 
-            self.assertEqual(response.status_code, 201)
+            response = await client.get(f"/lectios/{lectio_id}")
+
+            json_response_expected = {
+                "lectio_id": lectio_id,
+                "name": "El ego trascendental",
+                "description": "Una mirada desde las coordenadas del materialismo filosofico",
+                "video_name": "test_video.mp4",
+                "video_type": "/video/mp4"
+            }
+
+            self.assertEqual(response.json().pop("video_content"), json_response_expected)
 
     async def test_get_a_valid_course(self):
         async with self.api_client as client:

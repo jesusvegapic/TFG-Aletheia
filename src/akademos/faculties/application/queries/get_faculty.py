@@ -2,7 +2,6 @@ from typing import List
 from lato import Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.agora.shared.infrastructure.models import FacultyModel
 from src.akademos.faculties.application import faculties_module
 from src.akademos.faculties.domain.errors import FacultyNotFoundError

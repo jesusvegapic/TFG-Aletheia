@@ -15,7 +15,7 @@ class Faculty(AggregateRoot):
 
     @classmethod
     def create(cls, id: str, name: str, degrees: List['Degree']):
-        faculty = cls(id=id, name=name, degrees=[degree.id for degree in degrees])
+        faculty = cls(id=id, name=name, degrees=degrees)
         faculty._register_event(
             FacultyCreated(
                 entity_id=id,

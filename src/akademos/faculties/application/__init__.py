@@ -1,5 +1,4 @@
 import importlib
-
 from lato import ApplicationModule
 
 faculties_module = ApplicationModule("faculties")

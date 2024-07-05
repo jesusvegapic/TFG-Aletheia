@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 from apps.aletheia.api.dependencies import get_application, UploadFileWrapper
 from apps.aletheia.api.models.courses import PostCourseRequest
 from src.agora.courses.application.queries.list_courses import ListCourses
-from src.agora.shared.application.queries import GetCourse, GetCourseResponse
+from src.agora.shared.application.queries import GetCourse, GetCourseResponse, GetLectio
 from src.akademos.courses.application.commands import CreateCourse, AddLectio
 from src.akademos.shared.application.dtos import VideoDto
 
@@ -96,5 +96,18 @@ async def list_courses(
         limit: int = Query(15, alias="limit")  # type: ignore
 ):
     query = ListCourses(page_number=start, courses_by_page=limit)
+    response = await application.execute_async(query)
+    return response
+
+
+@router.get(
+    "/lectios/{lectio_id}", status_code=200
+)
+@inject
+async def get_lectio(
+        lectio_id: str,
+        application: Annotated[Application, Depends(get_application)]
+):
+    query = GetLectio(lectio_id=lectio_id)
     response = await application.execute_async(query)
     return response

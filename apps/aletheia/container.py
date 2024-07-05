@@ -9,9 +9,16 @@ from src.agora.courses.application import agora_courses_module
 from src.agora.students.application import students_module
 from src.agora.students.domain.repository import StudentRepository
 from src.agora.students.infrastructure.repository import SqlAlchemyStudentRepository
+from src.agora.videos.application import agora_videos_module
 from src.akademos.courses.application import akademos_courses_module
 from src.akademos.courses.domain.repository import CourseRepository
 from src.akademos.courses.infrastructure.repository import SqlCourseRepository
+from src.akademos.faculties.application import faculties_module
+from src.akademos.faculties.domain.repository import FacultyRepository
+from src.akademos.faculties.infrastructure.repository import SqlAlchemyFacultyRepository
+from src.akademos.teachers.application import teachers_module
+from src.akademos.teachers.domain.repository import TeacherRepository
+from src.akademos.teachers.infrastructure.repository import SqlAlchemyTeacherRepository
 from src.akademos.videos.application import videos_module
 from src.akademos.videos.domain.repository import VideoRepository
 from src.akademos.videos.infrastructure.repository import AsyncMotorGridFsVideoRepository
@@ -64,12 +71,16 @@ def create_application(
     application.include_submodule(videos_module)
     application.include_submodule(students_module)
     application.include_submodule(agora_courses_module)
+    application.include_submodule(faculties_module)
+    application.include_submodule(teachers_module)
+    application.include_submodule(agora_videos_module)
 
     @application.on_enter_transaction_context
     async def on_enter_transaction_context(ctx: TransactionContext):
         async def publish_query(message: Query):
-            result_list = list((await ctx.publish_async(message)).values())
-            return result_list if len(result_list) > 1 else None
+            result = await ctx.publish_async(message)
+            result_list = list(result.values())
+            return result_list[0] if len(result_list) > 0 else None
 
         engine = application.get_dependency("db_engine")
         db_session = AsyncSession(engine)
@@ -87,7 +98,9 @@ def create_application(
             bucket_session=bucket_session,
             course_repository=as_type(SqlCourseRepository(db_session), CourseRepository),
             video_repository=as_type(AsyncMotorGridFsVideoRepository(bucket, bucket_session), VideoRepository),
-            student_repository=as_type(SqlAlchemyStudentRepository(db_session), StudentRepository)
+            student_repository=as_type(SqlAlchemyStudentRepository(db_session), StudentRepository),
+            faculty_repository=as_type(SqlAlchemyFacultyRepository(db_session), FacultyRepository),
+            teacher_repository=as_type(SqlAlchemyTeacherRepository(db_session), TeacherRepository)
         )
         logger.debug("<<< Begin transaction")
 
