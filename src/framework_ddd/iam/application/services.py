@@ -2,6 +2,8 @@ import datetime
 from datetime import timedelta
 import bcrypt
 import jwt
+from fastapi import HTTPException
+from jwt import PyJWTError
 from pydantic import BaseModel
 from src.framework_ddd.iam.domain.errors import InvalidCredentialsException, ExpiredTokenError
 from src.framework_ddd.iam.domain.repository import UserRepository, User
@@ -64,10 +66,13 @@ class IamService:
         encoded_jwt = jwt.encode(to_encode, self.__secret_key, algorithm=self.__algorithm)
         return encoded_jwt
 
-    def get_userid_from_token(self, token: str):
-        payload = jwt.decode(token, self.__secret_key, algorithms=[self.__algorithm])
+    def auth_by_token(self, token: str):
+        try:
+            payload = jwt.decode(token, self.__secret_key, algorithms=[self.__algorithm])
+        except PyJWTError:
+            return None
         expired: float = payload["exp"]
         if datetime.datetime.now(datetime.UTC) > datetime.datetime.fromtimestamp(expired, tz=datetime.UTC):
-            raise ExpiredTokenError()
+            return None
 
         return IamUserInfo(email=payload["sub"], user_id=payload["id"], is_superuser=payload["is_superuser"])

@@ -30,7 +30,7 @@ class CoursesControllerShould(TestFastapiServer):
                 "name": "El ego trascendental",
                 "description": "Una mirada desde las coordenadas del materialismo filosofico"
             }
-            files = {"video": ("test_video.mp4", open(TEST_VIDEO_PATH, 'rb'), "/video/mp4")}
+            files = {"video": ("test_video.mp4", open(TEST_VIDEO_PATH, 'rb'), "video/mp4")}
             lectio_id = GenericUUID.next_id().hex
 
             await client.put(
@@ -45,11 +45,10 @@ class CoursesControllerShould(TestFastapiServer):
                 "lectio_id": lectio_id,
                 "name": "El ego trascendental",
                 "description": "Una mirada desde las coordenadas del materialismo filosofico",
-                "video_name": "test_video.mp4",
-                "video_type": "/video/mp4"
+                "video_url": f"/video/{lectio_id}"
             }
 
-            self.assertEqual(response.json().pop("video_content"), json_response_expected)
+            self.assertEqual(response.json(), json_response_expected)
 
     async def test_get_a_valid_course(self):
         async with self.api_client as client:

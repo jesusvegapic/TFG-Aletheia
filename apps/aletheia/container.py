@@ -33,6 +33,7 @@ class Config:
     DATABASE_URL: str
     BUCKET_URL: str
     LOGGER_NAME: str
+    SECRET_KEY: str
 
 
 def create_db_engine(config: Config) -> AsyncEngine:

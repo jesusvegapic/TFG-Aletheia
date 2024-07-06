@@ -1,13 +1,16 @@
 import time
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.params import Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from lato import Application
+from sqlalchemy.ext.asyncio import AsyncSession
 from apps.aletheia.api.routers import courses, students, faculties, teachers
 from apps.aletheia.api.config.api_config import ApiConfig
 from apps.aletheia.container import ApplicationContainer
-from src.framework_ddd.core.domain.errors import DomainError, EntityNotFoundError
 from src.framework_ddd.core.infrastructure.custom_loggin import LoggerFactory, logger
 from src.framework_ddd.core.infrastructure.database import Base
+from src.framework_ddd.iam.application.services import IamService
+from src.framework_ddd.iam.infrastructure.repository import SqlAlchemyUserRepository
 
 # dependency injection container
 
@@ -21,27 +24,6 @@ api.include_router(students.router)
 api.include_router(faculties.router)
 api.include_router(teachers.router)
 api.container = container  # type: ignore
-
-
-@api.exception_handler(DomainError)
-async def unicorn_exception_handler(request: Request, exc: DomainError):
-    if container.config.DEBUG:
-        raise exc
-
-    return JSONResponse(
-        status_code=500,
-        content={"message": f"Oops! {exc} did something. There goes a rainbow..."},
-    )
-
-
-@api.exception_handler(EntityNotFoundError)  # type: ignore
-async def unicorn_exception_handler(request: Request, exc: EntityNotFoundError):
-    return JSONResponse(
-        status_code=404,
-        content={
-            "message": f"Entity {exc.kwargs} not found in {exc.repository.__class__.__name__}"
-        },
-    )
 
 
 @api.middleware("http")

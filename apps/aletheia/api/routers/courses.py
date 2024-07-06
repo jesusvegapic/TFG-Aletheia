@@ -1,15 +1,17 @@
 from typing import Annotated
 from dependency_injector.wiring import inject
-from fastapi import APIRouter, UploadFile
-from fastapi.params import Depends, File, Form, Query
+from fastapi import APIRouter
+from fastapi.params import Depends, Query
 from lato import Application
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, StreamingResponse
 from apps.aletheia.api.dependencies import get_application, UploadFileWrapper
+from apps.aletheia.api.main import auth_by_token
 from apps.aletheia.api.models.courses import PostCourseRequest
 from src.agora.courses.application.queries.list_courses import ListCourses
-from src.agora.shared.application.queries import GetCourse, GetCourseResponse, GetLectio
+from src.agora.shared.application.queries import GetCourse, GetCourseResponse, GetLectio, GetLectioResponse
 from src.akademos.courses.application.commands import CreateCourse, AddLectio
 from src.akademos.shared.application.dtos import VideoDto
+from src.framework_ddd.iam.application.services import IamUserInfo
 
 router = APIRouter()
 
@@ -41,6 +43,7 @@ async def put_course(
 async def put_lectio(
         course_id: str,
         lectio_id: str,
+        iam_user_info: Annotated[IamUserInfo, Depends(auth_by_token)]
         application: Annotated[Application, Depends(get_application)],
         name: str = Form(...),  # type: ignore
         description: str = Form(...),  # type: ignore
@@ -108,6 +111,19 @@ async def get_lectio(
         lectio_id: str,
         application: Annotated[Application, Depends(get_application)]
 ):
+    async def stream_video(binaryio_protocol):
+        chunk_size = 1024 * 1024  # Tamaño del chunk (1 MB)
+        while True:
+            data = await binaryio_protocol.read(chunk_size)
+            if not data:
+                break
+            yield data
     query = GetLectio(lectio_id=lectio_id)
-    response = await application.execute_async(query)
-    return response
+    response: GetLectioResponse = await application.execute_async(query)
+    return StreamingResponse(
+        stream_video(response.video_content),
+        media_type=response.video_type,
+        headers={
+            "Content-Disposition": f"attachment; filename={response.video_name}"
+        }
+    )

@@ -19,10 +19,11 @@ class StudentModel(Base):
     degree_id = Column(UUIDType(binary=False), ForeignKey(DegreeModel.id), nullable=False)  # type: ignore
     faculty = relationship(FacultyModel, backref=None, lazy="selectin")
     degree = relationship(DegreeModel, backref=None, lazy="selectin")
-    personal_user = relationship(PersonalUserModel)
+    personal_user = relationship(PersonalUserModel, lazy="selectin")
     student_courses = relationship(
         "StudentCourseModel",
-        back_populates="student"
+        back_populates="student",
+        lazy="selectin"
     )
 
 
@@ -30,7 +31,7 @@ class StudentCourseModel(Base):
     __tablename__ = "students_courses"
     id = Column(UUIDType(binary=False), ForeignKey(CourseModel.id))  # type: ignore
     student_id = Column(UUIDType(binary=False), ForeignKey(StudentModel.personal_user_id))  # type: ignore
-    last_visited_lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id), nullable=False)  # type: ignore
+    last_visited_lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id))  # type: ignore
     course = relationship(CourseModel)
     student = relationship(
         StudentModel,

@@ -12,5 +12,5 @@ class GridOutWrapper(BinaryIOProtocol):
     def __init__(self, grid_out: AsyncIOMotorGridOut):
         self._grid_out = grid_out
 
-    async def read(self, size: int = -1) -> Coroutine[Any, Any, bytes]:
-        return self._grid_out.read(size)
+    async def read(self, size: int = -1) -> bytes:
+        return await self._grid_out.read(size)

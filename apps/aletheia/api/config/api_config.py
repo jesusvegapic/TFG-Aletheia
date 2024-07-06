@@ -27,3 +27,4 @@ class ApiConfig(Config):
         f"{env_gridfs['host']}:{env_gridfs['port']}/{env_gridfs['name']}"
     )
     LOGGER_NAME: str = "api"
+    SECRET_KEY: str = os.getenv("SECRET_KEY")  # type: ignore

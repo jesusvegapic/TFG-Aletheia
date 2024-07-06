@@ -49,3 +49,54 @@ class StudentsControllerShould(TestFastapiServer):
         )
 
         self.assertEqual(response.status_code, 201)
+
+    async def test_put_enrolled_course_on_student(self):
+        course_id = GenericUUID.next_id().hex
+        await self.api_client.put(
+            f"/courses/{course_id}",
+            json={
+                "teacher_id": GenericUUID.next_id().__str__(),
+                "name": "Kant vs Hegel",
+                "description": "La panacea de la historia de la filosofia",
+                "topics": ["Filosofía"]
+            }
+        )
+        faculty_id = GenericUUID.next_id().hex
+        first_degree_id = GenericUUID.next_id().hex
+        second_degree_id = GenericUUID.next_id().hex
+        uri = f"/faculties/{faculty_id}"
+        await self.api_client.put(
+            uri,
+            json={
+                "name": "Derecho",
+                "degrees": [
+                    {
+                        "id": first_degree_id,
+                        "name": "Ade"
+                    },
+                    {
+                        "id": second_degree_id,
+                        "name": "Derecho"
+                    }
+                ]
+            }
+        )
+
+        students_uri = f"/students/{GenericUUID.next_id().hex}"
+
+        await self.api_client.put(
+            students_uri,
+            json={
+                "name": "pepe",
+                "firstname": "gonzalez",
+                "second_name": "sanchez",
+                "email": "pepe@gmail.com",
+                "password": "fd23sdf23",
+                "faculty": faculty_id,
+                "degree": first_degree_id
+            }
+        )
+
+        response = await self.api_client.put(students_uri+f"/courses/{course_id}")
+
+        self.assertEqual(response.status_code, 201)
