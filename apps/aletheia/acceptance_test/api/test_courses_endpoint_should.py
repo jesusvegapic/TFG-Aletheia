@@ -110,12 +110,12 @@ class CoursesControllerShould(TestFastapiServer):
                         "teacher_id": GenericUUID.next_id().hex,
                         "name": "Kant vs Hegel",
                         "description": "La panacea de la historia de la filosofia",
-                        "topics": ["Filosofía"]
+                        "topics": ["Filosofía", "Historia"]
                     }
                 )
 
             first_response = await client.get("/courses")
-            second_response = await client.get("/courses?start=1")
+            second_response = await client.get("/courses?start=1&topics=Filosofía&topics=Historia")
 
             print(first_response.json())
 

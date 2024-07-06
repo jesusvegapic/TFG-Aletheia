@@ -1,11 +1,10 @@
-from typing import Annotated
+from typing import Annotated, List
 from dependency_injector.wiring import inject
-from fastapi import APIRouter
-from fastapi.params import Depends, Query
+from fastapi import APIRouter, UploadFile
+from fastapi.params import Depends, Query, Form, File
 from lato import Application
 from starlette.responses import JSONResponse, StreamingResponse
 from apps.aletheia.api.dependencies import get_application, UploadFileWrapper
-from apps.aletheia.api.main import auth_by_token
 from apps.aletheia.api.models.courses import PostCourseRequest
 from src.agora.courses.application.queries.list_courses import ListCourses
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, GetLectio, GetLectioResponse
@@ -43,11 +42,10 @@ async def put_course(
 async def put_lectio(
         course_id: str,
         lectio_id: str,
-        iam_user_info: Annotated[IamUserInfo, Depends(auth_by_token)]
         application: Annotated[Application, Depends(get_application)],
-        name: str = Form(...),  # type: ignore
+        name: str = Form(...),
         description: str = Form(...),  # type: ignore
-        video: UploadFile = File(...)  # type: ignore
+        video: UploadFile = File(...)
 ):
     filename = video.filename
     content_type = video.content_type
@@ -96,9 +94,10 @@ async def get_course(
 async def list_courses(
         application: Annotated[Application, Depends(get_application)],
         start: int = Query(0, alias="start"),  # type: ignore
-        limit: int = Query(15, alias="limit")  # type: ignore
+        limit: int = Query(15, alias="limit"),  # type: ignore
+        topics: List[str] = Query(None)  # type: ignore
 ):
-    query = ListCourses(page_number=start, courses_by_page=limit)
+    query = ListCourses(page_number=start, courses_by_page=limit, topics=topics)
     response = await application.execute_async(query)
     return response
 

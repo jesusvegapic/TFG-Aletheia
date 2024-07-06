@@ -14,7 +14,8 @@ class TestFastapiServer(IsolatedAsyncioTestCase):
             BUCKET_URL="mongodb://root:example@localhost:27017/",
             DATABASE_ECHO=True,
             DEBUG=True,
-            LOGGER_NAME="aletheia acceptance_test"
+            LOGGER_NAME="aletheia acceptance_test",
+            SECRET_KEY="asbcfd"
         )
         LoggerFactory.configure(logger_name="api_test")
         container = ApplicationContainer(config=config)
