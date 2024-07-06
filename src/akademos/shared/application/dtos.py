@@ -1,10 +1,10 @@
 from pydantic import BaseModel
-
-from src.framework_ddd.core.domain.files import BinaryIOProtocol
+from src.framework_ddd.core.domain.files import AsyncBinaryIOProtocol
 
 
 class VideoDto(BaseModel):
-    file: BinaryIOProtocol
+    video_id: str
+    file: AsyncBinaryIOProtocol
     filename: str
     content_type: str
 

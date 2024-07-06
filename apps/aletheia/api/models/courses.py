@@ -14,3 +14,10 @@ class PutLectioRequest(BaseModel):
     name: str
     description: str
 
+
+class GetLectioHttpResponse(BaseModel):
+    lectio_id: str
+    name: str
+    description: str
+    video_url: str
+    

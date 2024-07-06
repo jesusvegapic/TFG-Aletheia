@@ -5,12 +5,11 @@ from fastapi.params import Depends, Query, Form, File
 from lato import Application
 from starlette.responses import JSONResponse, StreamingResponse
 from apps.aletheia.api.dependencies import get_application, UploadFileWrapper
-from apps.aletheia.api.models.courses import PostCourseRequest
+from apps.aletheia.api.models.courses import PostCourseRequest, GetLectioHttpResponse
 from src.agora.courses.application.queries.list_courses import ListCourses
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, GetLectio, GetLectioResponse
 from src.akademos.courses.application.commands import CreateCourse, AddLectio
 from src.akademos.shared.application.dtos import VideoDto
-from src.framework_ddd.iam.application.services import IamUserInfo
 
 router = APIRouter()
 
@@ -43,9 +42,10 @@ async def put_lectio(
         course_id: str,
         lectio_id: str,
         application: Annotated[Application, Depends(get_application)],
-        name: str = Form(...),
+        name: str = Form(...),  # type: ignore
         description: str = Form(...),  # type: ignore
-        video: UploadFile = File(...)
+        video_id: str = Form(...),  # type: ignore
+        video: UploadFile = File(...)  # type: ignore
 ):
     filename = video.filename
     content_type = video.content_type
@@ -58,6 +58,7 @@ async def put_lectio(
             name=name,
             description=description,
             video=VideoDto(
+                video_id=video_id,
                 file=UploadFileWrapper(video),
                 filename=filename,
                 content_type=content_type
@@ -95,7 +96,7 @@ async def list_courses(
         application: Annotated[Application, Depends(get_application)],
         start: int = Query(0, alias="start"),  # type: ignore
         limit: int = Query(15, alias="limit"),  # type: ignore
-        topics: List[str] = Query(None)  # type: ignore
+        topics: List[str] = Query([], alias="topics")  # type: ignore
 ):
     query = ListCourses(page_number=start, courses_by_page=limit, topics=topics)
     response = await application.execute_async(query)
@@ -110,19 +111,13 @@ async def get_lectio(
         lectio_id: str,
         application: Annotated[Application, Depends(get_application)]
 ):
-    async def stream_video(binaryio_protocol):
-        chunk_size = 1024 * 1024  # Tamaño del chunk (1 MB)
-        while True:
-            data = await binaryio_protocol.read(chunk_size)
-            if not data:
-                break
-            yield data
+
     query = GetLectio(lectio_id=lectio_id)
     response: GetLectioResponse = await application.execute_async(query)
-    return StreamingResponse(
-        stream_video(response.video_content),
-        media_type=response.video_type,
-        headers={
-            "Content-Disposition": f"attachment; filename={response.video_name}"
-        }
+
+    return GetLectioHttpResponse(
+        lectio_id=response.lectio_id,
+        name=response.name,
+        description=response.description,
+        video_url=f"/videos/{response.video_id}"
     )

@@ -116,13 +116,11 @@ class CoursesControllerShould(TestFastapiServer):
 
             first_response = await client.get("/courses")
             second_response = await client.get("/courses?start=1&topics=Filosofía&topics=Historia")
-
-            print(first_response.json())
-
-            print(second_response.json())
+            void_response = await client.get("/courses?start=1&topics=Linguistica")
 
             self.assertEqual(len(first_response.json()["courses"]), 15)
             self.assertEqual(len(second_response.json()["courses"]), 15)
+            self.assertEqual(len(void_response.json()["courses"]), 0)
 
             for course in first_response.json()["courses"]:
                 for other_couser in second_response.json()["courses"]:

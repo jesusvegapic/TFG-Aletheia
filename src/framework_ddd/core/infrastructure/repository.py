@@ -5,10 +5,10 @@ import bson
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorGridFSBucket
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.framework_ddd.core.domain.errors import EntityNotFoundError
-from src.framework_ddd.core.domain.files import BinaryIOProtocol
+from src.framework_ddd.core.domain.files import BinaryIOProtocol, AsyncBinaryIOProtocol
 from src.framework_ddd.core.domain.repository import GenericRepository, Entity, EntityId
 from src.framework_ddd.core.domain.value_objects import GenericUUID
-from src.framework_ddd.core.infrastructure.database import Base, GridOutWrapper
+from src.framework_ddd.core.infrastructure.database import Base, GridOutWrapper, AsyncGridOutWrapper
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.core.infrastructure.errors import NullFilename
 
@@ -134,7 +134,7 @@ class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
         await self._bucket.upload_from_stream_with_id(
             file_id=bson.Binary.from_uuid(instance.file_id),
             filename=instance.filename,
-            source=instance.content,
+            source=instance.content.sync_mode(),
             metadata=instance.metadata,
             session=self._session
         )
@@ -154,7 +154,7 @@ class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
             instance = GridFsPersistenceModel(
                 file_id=id,
                 filename=filename,
-                content=GridOutWrapper(download),
+                content=AsyncGridOutWrapper(download),
                 metadata=download.metadata
             )
             if instance is None:
@@ -198,5 +198,5 @@ class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
 class GridFsPersistenceModel:
     file_id: UUID
     filename: str
-    content: BinaryIOProtocol
+    content: AsyncBinaryIOProtocol
     metadata: Optional[Mapping[str, Any]]

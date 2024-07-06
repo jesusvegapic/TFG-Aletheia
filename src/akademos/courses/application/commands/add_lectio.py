@@ -22,12 +22,12 @@ class AddLectio(Command):  # type: ignore
 async def add_lectio(command: AddLectio, course_repository: CourseRepository, publish):
     course = await course_repository.get(GenericUUID(command.course_id))
     if course:
-        lectio = Lectio.create(
+        course.add_lectio(
             command.lectio_id,
             command.name,
-            command.description
+            command.description,
+            command.video
         )
-        course.add_lectio(lectio, command.video)
 
         await course_repository.add(course)
         for event in course.pull_domain_events():

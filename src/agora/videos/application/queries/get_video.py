@@ -5,12 +5,13 @@ from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorGridFSBuc
 from src.agora.videos.application import agora_videos_module
 from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID
-from src.framework_ddd.core.infrastructure.database import GridOutWrapper
+from src.framework_ddd.core.infrastructure.database import GridOutWrapper, AsyncGridOutWrapper
 from src.framework_ddd.core.infrastructure.errors import NullFilename, NullContentType
 
 
 class GetVideo(Query):
     video_id: str
+
 
 @agora_videos_module.handler(GetVideo)
 async def get_video(query: GetVideo, session: AsyncIOMotorClientSession, bucket: AsyncIOMotorGridFSBucket):
@@ -18,7 +19,8 @@ async def get_video(query: GetVideo, session: AsyncIOMotorClientSession, bucket:
     filename, content_type = (grid_out.filename, grid_out.content_type)
     if filename and content_type:
         return VideoDto(
-            file=GridOutWrapper(grid_out),
+            video_id=query.video_id,
+            file=AsyncGridOutWrapper(grid_out),
             filename=filename,
             content_type=content_type
         )

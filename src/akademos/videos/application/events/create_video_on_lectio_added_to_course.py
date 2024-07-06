@@ -7,7 +7,7 @@ from src.akademos.videos.domain.repository import VideoRepository
 @videos_module.handler(LectioAdded)
 async def create_video_on_lectio_added_to_course(event: LectioAdded, video_repository: VideoRepository, publish):
     video = Video(
-        event.lectio_id,
+        event.video.video_id,
         event.video.file,
         event.video.filename,
         event.video.content_type

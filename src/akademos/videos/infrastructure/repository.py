@@ -7,7 +7,12 @@ from src.framework_ddd.core.infrastructure.repository import GridFsPersistenceMo
 
 class VideoDataMapper(DataMapper):
     def model_to_entity(self, instance: GridFsPersistenceModel) -> Video:
-        raise NotImplementedError()
+        return Video(
+            id=instance.file_id.hex,
+            content=instance.content,  # type: ignore
+            name=instance.filename,
+            type=instance.metadata["content_type"]  # type: ignore
+        )
 
     def entity_to_model(self, video: Video) -> GridFsPersistenceModel:
         return GridFsPersistenceModel(

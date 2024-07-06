@@ -35,9 +35,7 @@ class GetLectioResponse(BaseModel):
     lectio_id: str
     name: str
     description: str
-    video_content: BinaryIOProtocol
-    video_name: str
-    video_type: str
+    video_id: str
 
     class Config:
         arbitrary_types_allowed = True

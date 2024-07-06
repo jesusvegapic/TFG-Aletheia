@@ -6,7 +6,7 @@ from src.akademos.shared.application.dtos import VideoDto
 from src.akademos.shared.application.events import LectioAdded
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from test.akademos.courses.unit_test.courses_module import TestCoursesModule
-from test.shared.files import TestBinaryIOProtocol
+from test.shared.files import TestAsyncBinaryIOProtocol
 
 
 class CreateLectioShould(TestCoursesModule):
@@ -18,7 +18,7 @@ class CreateLectioShould(TestCoursesModule):
         publish_mock = AsyncMock()
         course_id = Course.next_id().hex
         lectio_id = Lectio.next_id().hex
-        file = TestBinaryIOProtocol()
+        file = TestAsyncBinaryIOProtocol()
         command = AddLectio(
             course_id=course_id,
             lectio_id=lectio_id,

@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from re import split
 from typing import List, Iterable
 from lato import Query

@@ -14,13 +14,10 @@ async def get_lectio(
         publish_query
 ) -> GetLectioResponse:
     lectio_model = await session.get(LectioModel, GenericUUID(query.lectio_id))
-    video_dto: VideoDto = await publish_query(GetVideo(video_id=query.lectio_id))
 
     return GetLectioResponse(
         lectio_id=lectio_model.id.hex,  # type: ignore
         name=lectio_model.name,  # type: ignore
         description=lectio_model.description,  # type: ignore
-        video_content=video_dto.file,
-        video_name=video_dto.filename,
-        video_type=video_dto.content_type
+        video_id=lectio_model.video_id.hex
     )
