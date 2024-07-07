@@ -1,9 +1,7 @@
 import uuid
-
-from sqlalchemy import Column, String, Enum, ForeignKey, ARRAY, PrimaryKeyConstraint
+from sqlalchemy import Column, String, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType  # type: ignore
-
 from src.akademos.courses.domain.value_objects import CourseState, Topic
 from src.framework_ddd.core.infrastructure.database import Base
 
@@ -29,4 +27,5 @@ class LectioModel(Base):
     course_id = Column(UUIDType(binary=False), ForeignKey(CourseModel.id))  # type: ignore
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
+    video_id = Column(UUIDType(binary=False))  # type: ignore
     course = relationship(CourseModel, back_populates="lectios")

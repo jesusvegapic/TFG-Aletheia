@@ -19,12 +19,13 @@ class CreateLectioShould(TestCoursesModule):
         course_id = Course.next_id().hex
         lectio_id = Lectio.next_id().hex
         file = TestAsyncBinaryIOProtocol()
+        video_id = GenericUUID.next_id().hex
         command = AddLectio(
             course_id=course_id,
             lectio_id=lectio_id,
             name="El ego trascendental",
             description="Una mirada desde las coordenadas del materialismo filosofico",
-            video=VideoDto(file=file, filename="garfield.mp4", content_type="/video/mp4")
+            video=VideoDto(file=file, filename="garfield.mp4", content_type="/video/mp4", video_id=video_id)
         )
 
         get_mock = AsyncMock()
@@ -32,7 +33,8 @@ class CreateLectioShould(TestCoursesModule):
         expected_lectio = Lectio(
             id=lectio_id,
             name="El ego trascendental",
-            description="Una mirada desde las coordenadas del materialismo filosofico"
+            description="Una mirada desde las coordenadas del materialismo filosofico",
+            video_id=video_id
         )
 
         course_id = Course.next_id().hex
@@ -65,7 +67,7 @@ class CreateLectioShould(TestCoursesModule):
             lectio_id=lectio_id,
             name="El ego trascendental",
             description="Una mirada desde las coordenadas del materialismo filosofico",
-            video=VideoDto(file=file, filename="garfield.mp4", content_type="/video/mp4")
+            video=VideoDto(file=file, filename="garfield.mp4", content_type="/video/mp4", video_id=video_id)
         )
 
         args, kwargs = publish_mock.call_args

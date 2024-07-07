@@ -21,7 +21,7 @@ class IamServiceShould(TestIamModule):
             "1lkjas232134"
         )
 
-        user_info = self.iam_service.get_userid_from_token(token)
+        user_info = self.iam_service.auth_by_token(token)
 
         self.assertEqual(user_info.user_id, user.id)
         self.assertEqual(user_info.email, user.email)

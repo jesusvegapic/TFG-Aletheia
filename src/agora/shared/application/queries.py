@@ -2,7 +2,6 @@ from typing import List
 from lato import Query
 from pydantic import BaseModel
 from src.framework_ddd.core.domain.errors import DomainError
-from src.framework_ddd.core.domain.files import BinaryIOProtocol
 
 
 class GetCourse(Query):  # type: ignore
@@ -39,3 +38,13 @@ class GetLectioResponse(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class ListCoursesResponse(BaseModel):
+    courses: List['ListedCourseDto']
+
+
+class ListedCourseDto(BaseModel):
+    id: str
+    owner: str
+    name: str

@@ -15,7 +15,8 @@ class CourseDataMapper(DataMapper):
             return Lectio(
                 id=lectio_instance.id.hex,
                 name=lectio_instance.name,  # type: ignore
-                description=lectio_instance.description  # type: ignore
+                description=lectio_instance.description,  # type: ignore
+                video_id=lectio_instance.video_id.hex
             )
 
         return Course(
@@ -34,7 +35,8 @@ class CourseDataMapper(DataMapper):
                 id=lectio.id,
                 course_id=course.id,
                 name=lectio.name,
-                description=lectio.description
+                description=lectio.description,
+                video_id=lectio.video_id
             )
 
         return CourseModel(

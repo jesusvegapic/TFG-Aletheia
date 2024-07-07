@@ -5,7 +5,7 @@ from src.agora.shared.application.queries import GetLectio, GetLectioResponse
 from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.shared.infrastructure.sql_alchemy.models import LectioModel
-from test.shared.files import TestBinaryIOProtocol
+from test.shared.files import TestAsyncBinaryIOProtocol
 
 
 class GetLectioShould(IsolatedAsyncioTestCase):
@@ -15,19 +15,23 @@ class GetLectioShould(IsolatedAsyncioTestCase):
             lectio_id=GenericUUID.next_id().hex
         )
 
+        video_id = GenericUUID.next_id()
+
         session = AsyncMock()
         session.get = AsyncMock()
         session.get.return_value = LectioModel(
             id=query.lectio_id,
             course_id=GenericUUID.next_id(),
             name="contexto histórico",
-            description="Análisis desde una perpectiva materialista"
+            description="Análisis desde una perpectiva materialista",
+            video_id=video_id
         )
 
         publish = AsyncMock()
 
         video = VideoDto(
-            file=TestBinaryIOProtocol(),
+            video_id=video_id.hex,
+            file=TestAsyncBinaryIOProtocol(),
             filename="los cuatro astros",
             content_type="video/mp4"
         )
@@ -38,9 +42,7 @@ class GetLectioShould(IsolatedAsyncioTestCase):
             lectio_id=query.lectio_id,
             name="contexto histórico",
             description="Análisis desde una perpectiva materialista",
-            video_content=video.file,
-            video_name=video.filename,
-            video_type=video.content_type
+            video_id=video_id.hex
         )
 
         response = await get_lectio(query, session, publish)

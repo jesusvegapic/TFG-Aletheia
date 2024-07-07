@@ -9,13 +9,14 @@ from src.framework_ddd.core.domain.value_objects import GenericUUID
 from test.shared.files import TestAsyncBinaryIOProtocol
 
 
-class VideoIsWaitingForDownloadShould(IsolatedAsyncioTestCase):
+class CreateVideoOnLectioAddedToCourseShould(IsolatedAsyncioTestCase):
 
     def setUp(self):
         self.repository = MagicMock()
 
     async def test_create_a_valid_video_on_lectio_added_to_course(self):
-        lectio_id = Video.next_id().hex
+        lectio_id = GenericUUID.next_id().hex
+        video_id = Video.next_id().hex
         video = TestAsyncBinaryIOProtocol()
         event = LectioAdded(
             entity_id=GenericUUID.next_id().hex,
@@ -25,7 +26,8 @@ class VideoIsWaitingForDownloadShould(IsolatedAsyncioTestCase):
             video=VideoDto(
                 file=video,
                 filename="garfield",
-                content_type="video/mp4"
+                content_type="video/mp4",
+                video_id=video_id
             )
         )
 
@@ -39,7 +41,7 @@ class VideoIsWaitingForDownloadShould(IsolatedAsyncioTestCase):
         actual_video = args[0]
 
         expected_video = Video(
-            id=lectio_id,
+            id=video_id,
             content=video,
             name="garfield",
             type="video/mp4"

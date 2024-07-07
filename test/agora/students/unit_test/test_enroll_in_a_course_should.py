@@ -5,6 +5,7 @@ from src.agora.shared.application.queries import GetCourse, GetCourseResponse, L
 from src.agora.students.application.commands.enroll_in_a_course import EnrollInACourse, enroll_in_a_course
 from src.agora.students.domain.entities import Student, StudentCourse, StudentLectio, StudentFaculty
 from src.agora.students.domain.events import StudentHasBeenEnrolledInACourse
+from src.framework_ddd.core.domain.events import DomainEvent
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from test.agora.students.students_module import TestStudentsModule
 
@@ -24,23 +25,23 @@ class EnrollInACourseShould(TestStudentsModule):
 
         events = []
 
-        async def publish(message: Union[Query, List]):
-            if isinstance(message, GetCourse):
-                return GetCourseResponse(
-                    id=course_id,
-                    name="kant vs hegel",
-                    owner=owner_id,
-                    description="la panacea de la filosofia",
-                    topics=["Filosofía", "Linguistica"],
-                    lectios=[
-                        LectioDto(
-                            id=lectio_id,
-                            name="Contexto histórico"
-                        )
-                    ]
+        async def publish(event: DomainEvent):
+            events.append(event)
+
+        publish_query = AsyncMock()
+        publish_query.return_value = GetCourseResponse(
+            id=course_id,
+            name="kant vs hegel",
+            owner=owner_id,
+            description="la panacea de la filosofia",
+            topics=["Filosofía", "Linguistica"],
+            lectios=[
+                LectioDto(
+                    id=lectio_id,
+                    name="Contexto histórico"
                 )
-            elif isinstance(message, List):
-                events.extend(message)
+            ]
+        )
 
         course_expected = StudentCourse(
             id=course_id,
@@ -76,7 +77,7 @@ class EnrollInACourseShould(TestStudentsModule):
 
         self.repository.add = AsyncMock()
 
-        await enroll_in_a_course(command, self.repository, publish)
+        await enroll_in_a_course(command, self.repository, publish_query, publish)
 
         args, kwargs = self.repository.add.call_args
 

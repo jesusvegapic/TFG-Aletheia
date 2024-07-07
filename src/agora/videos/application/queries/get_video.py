@@ -1,7 +1,6 @@
 import bson
 from lato import Query
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorGridFSBucket
-
 from src.agora.videos.application import agora_videos_module
 from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID

@@ -1,5 +1,4 @@
 from unittest.mock import AsyncMock
-
 from src.akademos.faculties.application.commands import CreateFaculty
 from src.akademos.faculties.application.commands.create_faculty import DegreeDto, create_faculty
 from src.akademos.faculties.domain.entities import Faculty, Degree

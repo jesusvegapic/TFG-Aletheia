@@ -1,6 +1,5 @@
 from typing import List
 from lato import Command
-
 from src.akademos.courses.application import akademos_courses_module
 from src.akademos.courses.domain.entities import Course
 from src.akademos.courses.domain.repository import CourseRepository

@@ -43,17 +43,17 @@ class SignupStudentShould(TestStudentsModule):
 
         events = []
 
-        async def publish(message: Message):
-            if isinstance(message, GetFaculty):
-                return GetFacultyResponse(
-                    id=command.faculty,
-                    name="Derecho",
-                    degrees=[command.degree]
-                )
-            elif isinstance(message, DomainEvent):
-                events.append(message)
+        async def publish(event: DomainEvent):
+            events.append(event)
 
-        await sign_up_student(command, self.repository, publish)
+        publish_query = AsyncMock()
+        publish_query.return_value = GetFacultyResponse(
+            id=command.faculty,
+            name="Derecho",
+            degrees=[command.degree]
+        )
+
+        await sign_up_student(command, self.repository, publish_query, publish)
 
         args, kwargs = self.repository.add.call_args
 

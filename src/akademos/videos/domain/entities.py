@@ -1,7 +1,7 @@
 from src.akademos.videos.domain.events import VideoCreated
 from src.akademos.videos.domain.value_objects import VideoName, VideoType
 from src.framework_ddd.core.domain.entities import AggregateRoot
-from src.framework_ddd.core.domain.files import BinaryIOProtocol, AsyncBinaryIOProtocol
+from src.framework_ddd.core.domain.files import AsyncBinaryIOProtocol
 
 
 class Video(AggregateRoot):

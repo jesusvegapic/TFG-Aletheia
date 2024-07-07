@@ -1,6 +1,5 @@
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock
-
 from src.agora.courses.application.queries.get_course import get_course
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, LectioDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID

@@ -1,11 +1,10 @@
 from re import split
 from typing import List, Iterable
 from lato import Query
-from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.agora.courses.application import agora_courses_module
+from src.agora.shared.application.queries import ListCoursesResponse, ListedCourseDto
 from src.shared.infrastructure.sql_alchemy.models import CourseModel
 
 
@@ -13,16 +12,6 @@ class ListCourses(Query):
     page_number: int
     courses_by_page: int
     topics: List[str]
-
-
-class ListCoursesResponse(BaseModel):
-    courses: List['ListedCourseDto']
-
-
-class ListedCourseDto(BaseModel):
-    id: str
-    owner: str
-    name: str
 
 
 @agora_courses_module.handler(ListCourses)

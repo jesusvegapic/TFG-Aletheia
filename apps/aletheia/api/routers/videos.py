@@ -7,9 +7,10 @@ from starlette.responses import StreamingResponse
 from apps.aletheia.api.dependencies import get_application
 from src.agora.videos.application.queries import GetVideo
 from src.akademos.shared.application.dtos import VideoDto
+from src.framework_ddd.core.domain.files import AsyncBinaryIOProtocol
 
 
-async def stream_video(binaryio_protocol):
+async def stream_video(binaryio_protocol: AsyncBinaryIOProtocol):
     chunk_size = 1024 * 1024  # Tamaño del chunk (1 MB)
     while True:
         data = await binaryio_protocol.read(chunk_size)
@@ -33,6 +34,6 @@ async def get_video(
     response: VideoDto = await application.execute_async(query)
     return StreamingResponse(
         stream_video(response.file),
-        media_type="video/mp4",
+        media_type=response.content_type,
         headers={"Content-Disposition": f'attachment; filename="{response.filename}"'}
     )

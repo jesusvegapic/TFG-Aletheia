@@ -24,7 +24,8 @@ class SqlAlchemyCourseRepositoryShould(TestInMemorySqlDatabase):
                 Lectio(
                     id=GenericUUID.next_id().hex,
                     name="contexto historico",
-                    description="perspectiva materialista"
+                    description="perspectiva materialista",
+                    video_id=GenericUUID.next_id().hex
                 )
             ]
         )
