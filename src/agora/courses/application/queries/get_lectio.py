@@ -10,8 +10,7 @@ from src.shared.infrastructure.sql_alchemy.models import LectioModel
 @agora_courses_module.handler(GetLectio)
 async def get_lectio(
         query: GetLectio,
-        session: AsyncSession,
-        publish_query
+        session: AsyncSession
 ) -> GetLectioResponse:
     lectio_model = await session.get(LectioModel, GenericUUID(query.lectio_id))
 
@@ -19,5 +18,5 @@ async def get_lectio(
         lectio_id=lectio_model.id.hex,  # type: ignore
         name=lectio_model.name,  # type: ignore
         description=lectio_model.description,  # type: ignore
-        video_id=lectio_model.video_id.hex
+        video_id=lectio_model.video_id.hex  # type: ignore
     )

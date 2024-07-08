@@ -15,4 +15,5 @@ async def create_video_on_lectio_added_to_course(event: LectioAdded, video_repos
 
     await video_repository.add(video)
 
-    await publish(video.pull_domain_events())
+    for event in video.pull_domain_events():
+        await publish(event)

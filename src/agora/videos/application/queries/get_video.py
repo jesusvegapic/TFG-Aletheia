@@ -15,13 +15,13 @@ class GetVideo(Query):
 @agora_videos_module.handler(GetVideo)
 async def get_video(query: GetVideo, session: AsyncIOMotorClientSession, bucket: AsyncIOMotorGridFSBucket):
     grid_out = await bucket.open_download_stream(bson.Binary.from_uuid(GenericUUID(query.video_id)), session)
-    filename, content_type = (grid_out.filename, grid_out.content_type)
-    if filename and content_type:
+    filename, metadata = (grid_out.filename, grid_out.metadata)
+    if filename and metadata:
         return VideoDto(
             video_id=query.video_id,
             file=AsyncGridOutWrapper(grid_out),
             filename=filename,
-            content_type=content_type
+            content_type=metadata["content_type"]
         )
     else:
         if not filename:

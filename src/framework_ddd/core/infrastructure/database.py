@@ -14,15 +14,15 @@ class GridOutWrapper(BinaryIOProtocol):
         self._grid_out = grid_out
 
     def read(self, size: int = -1) -> bytes:  # type: ignore
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
+        try:
+            loop = asyncio.get_event_loop()
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 future = loop.run_in_executor(pool, lambda:
                     asyncio.run(self._grid_out.read(size))  # type: ignore
-                                              )
+                )
                 result = future.result()  # type: ignore
                 return result
-        else:
+        except Exception:
             result = asyncio.run(self._grid_out.read(size))
             return result
 

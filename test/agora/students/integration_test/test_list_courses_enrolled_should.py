@@ -9,7 +9,7 @@ from test.agora.students.students_module import StudentMother
 from test.shared.database import TestInMemorySqlDatabase
 
 
-class ListCoursesEnrollesShould(TestInMemorySqlDatabase):
+class ListCoursesEnrolledShould(TestInMemorySqlDatabase):
     async def asyncSetUp(self):
         await super().asyncSetUp()
         self.repository = SqlAlchemyStudentRepository(self.session)
@@ -25,27 +25,30 @@ class ListCoursesEnrollesShould(TestInMemorySqlDatabase):
         first_owner = GenericUUID.next_id()
         second_owner = GenericUUID.next_id()
 
-        for course in test_student.courses_in_progress:
-            self.session.add(
-                CourseModel(
-                    id=GenericUUID(course.id),
-                    owner=first_owner,
-                    name="Kant vs Hegel",
-                    description="La panacea de la historía de la filosofía",
-                    state=CourseState.CREATED,
-                    topics="Filosofía;Derecho"
-                ),
-                CourseModel(
-                    id=GenericUUID(course.id),
-                    owner=second_owner,
-                    name="Filosofía de Gustavo Bueno",
-                    description="Un comentario de los ensayos materialistas",
-                    state=CourseState.CREATED,
-                    topics="Filosofía;Derecho"
-                )
+        self.session.add(
+            CourseModel(
+                id=GenericUUID(test_student.courses_in_progress[0].id),
+                owner=first_owner,
+                name="Kant vs Hegel",
+                description="La panacea de la historía de la filosofía",
+                state=CourseState.CREATED,
+                topics="Filosofía;Derecho"
             )
+        )
+
+        self.session.add(
+            CourseModel(
+                id=GenericUUID(test_student.courses_in_progress[1].id),
+                owner=second_owner,
+                name="Filosofía de Gustavo Bueno",
+                description="Un comentario de los ensayos materialistas",
+                state=CourseState.CREATED,
+                topics="Filosofía;Derecho"
+            )
+        )
 
         await self.repository.add(test_student)
+
         await self.session.commit()
 
         query = ListCoursesEnrolled(student_id=test_student.id)

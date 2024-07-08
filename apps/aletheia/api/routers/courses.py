@@ -35,7 +35,7 @@ async def put_course(
 
 
 @router.put(
-    "/courses/{course_id}/lectio/{lectio_id}", status_code=201
+    "/courses/{course_id}/lectios/{lectio_id}", status_code=201
 )
 @inject
 async def put_lectio(

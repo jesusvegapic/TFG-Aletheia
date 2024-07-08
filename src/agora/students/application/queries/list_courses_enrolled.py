@@ -32,10 +32,10 @@ async def get_courses(
         query: ListCoursesEnrolled,
         session: AsyncSession
 ):
-    result = await session.execute(
+    result = (await session.execute(
         select(CourseModel)
         .join(StudentCourseModel)
         .where(StudentCourseModel.student_id == GenericUUID(query.student_id))
-    )
+    )).scalars().all()
 
-    return result.scalars().all()
+    return result
