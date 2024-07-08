@@ -10,6 +10,9 @@ class CourseApplicationError(Exception):
 class CreateCourseError(CourseApplicationError):
     pass
 
+class AddLectioError(CourseApplicationError):
+    pass
+
 
 @dataclass(frozen=True)
 class TeacherIdError(CreateCourseError, DomainError):
@@ -26,3 +29,8 @@ class CourseNameError(CreateCourseError, DomainError):
 class CourseDescriptionError(CreateCourseError, DomainError):
     value: str
     max_length: int
+
+
+@dataclass(frozen=True)
+class NotAuthorizedTeacherError(AddLectioError, DomainError):
+    ...

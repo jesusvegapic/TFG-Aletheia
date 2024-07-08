@@ -2,11 +2,10 @@ import datetime
 from datetime import timedelta
 import bcrypt
 import jwt
-from fastapi import HTTPException
 from jwt import PyJWTError
 from pydantic import BaseModel
-from src.framework_ddd.iam.domain.errors import InvalidCredentialsException, ExpiredTokenError
-from src.framework_ddd.iam.domain.repository import UserRepository, User
+from src.framework_ddd.iam.domain.errors import InvalidCredentialsException
+from src.framework_ddd.iam.domain.repository import UserRepository
 from src.framework_ddd.iam.domain.value_objects import Email
 
 
@@ -14,6 +13,12 @@ class IamUserInfo(BaseModel):
     email: str
     user_id: str
     is_superuser: bool
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    expires_in: int
+    user_email: str
 
 
 class IamService:
@@ -51,7 +56,9 @@ class IamService:
         if not password_match:
             raise InvalidCredentialsException()
 
-        return self.create_access_token_for_user(user)
+        response = self.create_access_token_for_user(user)
+
+        return response
 
     def create_access_token_for_user(self, user):
         access_token_expires = timedelta(minutes=self.__access_token_expire_after_minutes)
@@ -64,7 +71,14 @@ class IamService:
 
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, self.__secret_key, algorithm=self.__algorithm)
-        return encoded_jwt
+
+        return LoginResponse(
+            access_token=encoded_jwt,
+            expires_in=int((
+                datetime.datetime.now(datetime.UTC) - to_encode["exp"]
+            ).total_seconds()),
+            user_email=user.email
+        )
 
     def auth_by_token(self, token: str):
         try:

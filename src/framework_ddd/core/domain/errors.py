@@ -1,3 +1,6 @@
+from dataclasses import dataclass
+
+
 class DomainError(Exception):
     pass
 
@@ -5,10 +8,9 @@ class DomainError(Exception):
 class ApplicationError(Exception):
     pass
 
-
+@dataclass(frozen=True)
 class EntityNotFoundError(DomainError):
-    def __init__(self, entity_id: str):
-        self.entity_id = entity_id
+    entity_id: str
 
 
 class BusinessRuleValidationError(DomainError):

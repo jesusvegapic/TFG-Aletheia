@@ -12,7 +12,6 @@ class GetVideoShould(IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         client = AsyncIOMotorClient("mongodb://root:example@localhost:27017/")
         self.bucket = AsyncIOMotorGridFSBucket(client.admin)
-        self.session = await client.start_session()
 
     async def test_get_valid_course(self):
         model_instance = GridFsPersistenceModel(
@@ -26,13 +25,12 @@ class GetVideoShould(IsolatedAsyncioTestCase):
             bson.Binary.from_uuid(model_instance.file_id),
             model_instance.filename,
             model_instance.content.sync_mode(),
-            metadata=model_instance.metadata,
-            session=self.session
+            metadata=model_instance.metadata
         )
 
         query = GetVideo(video_id=model_instance.file_id.hex)
 
-        response = await get_video(query, self.session, self.bucket)
+        response = await get_video(query, self.bucket)
 
         expected_response = VideoDto(
             video_id=model_instance.file_id.hex,

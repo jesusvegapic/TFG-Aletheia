@@ -2,8 +2,8 @@ import uuid
 from sqlalchemy import Column, String, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType  # type: ignore
-from src.akademos.courses.domain.value_objects import CourseState, Topic
 from src.framework_ddd.core.infrastructure.database import Base
+from src.shared.domain.value_objects import CourseState
 
 
 class CourseModel(Base):

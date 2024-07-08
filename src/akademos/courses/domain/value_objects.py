@@ -4,8 +4,6 @@ from enum import StrEnum
 from src.akademos.courses.domain.errors import CourseNameError, CourseDescriptionError
 
 
-class CourseState(StrEnum):
-    CREATED = "CREATED"
 
 
 class CourseName(str):

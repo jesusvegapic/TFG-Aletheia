@@ -1,16 +1,11 @@
 import time
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.params import Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import FastAPI, Request
 from lato import Application
-from sqlalchemy.ext.asyncio import AsyncSession
 from apps.aletheia.api.routers import courses, students, faculties, teachers
 from apps.aletheia.api.config.api_config import ApiConfig
 from apps.aletheia.container import ApplicationContainer
 from src.framework_ddd.core.infrastructure.custom_loggin import LoggerFactory, logger
 from src.framework_ddd.core.infrastructure.database import Base
-from src.framework_ddd.iam.application.services import IamService
-from src.framework_ddd.iam.infrastructure.repository import SqlAlchemyUserRepository
 
 # dependency injection container
 

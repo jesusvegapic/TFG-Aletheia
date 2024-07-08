@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.agora.courses.application import agora_courses_module
 from src.agora.shared.application.queries import ListCoursesResponse, ListedCourseDto
+from src.shared.domain.value_objects import CourseState
 from src.shared.infrastructure.sql_alchemy.models import CourseModel
 
 
@@ -32,7 +33,13 @@ async def get_paged_courses(
         start_index: int,
         page_size: int
 ) -> Iterable[CourseModel]:
-    instances = (await session.execute(select(CourseModel).offset(start_index).limit(page_size))).scalars().all()
+    instances = (
+        await session.execute(
+            select(CourseModel)
+            .offset(start_index)
+            .limit(page_size)
+        )
+    ).scalars().all()
     return instances
 
 

@@ -1,5 +1,6 @@
 from lato import Command
 
+from src.agora.students.application import students_module
 from src.agora.students.domain.errors import StudentNotFoundError
 from src.agora.students.domain.repository import StudentRepository
 from src.framework_ddd.core.domain.value_objects import GenericUUID
@@ -11,6 +12,7 @@ class SetLastVisitedLectio(Command):
     lectio_id: str
 
 
+@students_module.handler(SetLastVisitedLectio)
 async def set_last_visited_lectio(command: SetLastVisitedLectio, repository: StudentRepository, publish):
     student = await repository.get(GenericUUID(command.student_id))
     if student:

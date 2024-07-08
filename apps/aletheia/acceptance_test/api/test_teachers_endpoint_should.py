@@ -1,5 +1,4 @@
 from httpx import AsyncClient
-
 from apps.aletheia.acceptance_test.api.test_fastapi_server import TestFastapiServer
 from apps.aletheia.api.routers import teachers, faculties
 from src.framework_ddd.core.domain.value_objects import GenericUUID
@@ -13,7 +12,7 @@ class TeachersControllerShould(TestFastapiServer):
         self.api.include_router(faculties.router)
         self.api_client = AsyncClient(app=self.api, base_url="http://test")
 
-    async def test_put_student(self):
+    async def test_put_teacher(self):
         faculty_id = GenericUUID.next_id().hex
         first_degree_id = GenericUUID.next_id().hex
         second_degree_id = GenericUUID.next_id().hex

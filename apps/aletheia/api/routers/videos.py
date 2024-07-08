@@ -10,10 +10,10 @@ from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.files import AsyncBinaryIOProtocol
 
 
-def stream_video(binaryio_protocol: AsyncBinaryIOProtocol):
+async def stream_video(binaryio_protocol: AsyncBinaryIOProtocol):
     chunk_size = 1024 * 1024  # Tamaño del chunk (1 MB)
     while True:
-        data = binaryio_protocol.sync_mode().read(chunk_size)
+        data = await binaryio_protocol.read(chunk_size)
         if not data:
             break
         yield data
@@ -35,5 +35,5 @@ async def get_video(
     return StreamingResponse(
         stream_video(response.file),
         media_type=response.content_type,
-        headers={"Filename": f'attachment; filename="{response.filename}"'}
+        headers={"Content-Disposition": f'attachment; filename="{response.filename}"'}
     )

@@ -1,5 +1,4 @@
 import asyncio
-import concurrent.futures
 from motor.motor_asyncio import AsyncIOMotorGridOut
 from sqlalchemy.orm import declarative_base
 from sqlalchemy_utils import force_auto_coercion  # type: ignore
@@ -15,16 +14,22 @@ class GridOutWrapper(BinaryIOProtocol):
 
     def read(self, size: int = -1) -> bytes:  # type: ignore
         try:
-            loop = asyncio.get_event_loop()
-            with concurrent.futures.ThreadPoolExecutor() as pool:
-                future = loop.run_in_executor(pool, lambda:
-                    asyncio.run(self._grid_out.read(size))  # type: ignore
-                )
-                result = future.result()  # type: ignore
-                return result
-        except Exception:
-            result = asyncio.run(self._grid_out.read(size))
-            return result
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            # Ejecutar la función asíncrona y obtener el Future
+            future = asyncio.run_coroutine_threadsafe(self._grid_out.read(size), loop)
+            result = future.result()  # type: ignore
+        else:
+            async def run_async_function():
+                future = await self._grid_out.read(size)
+                return await future
+
+            result = asyncio.run(run_async_function())
+
+        return result
 
 
 class AsyncGridOutWrapper(AsyncBinaryIOProtocol):

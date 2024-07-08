@@ -3,29 +3,33 @@ from dependency_injector.wiring import inject
 from fastapi import APIRouter, UploadFile
 from fastapi.params import Depends, Query, Form, File
 from lato import Application
-from starlette.responses import JSONResponse, StreamingResponse
-from apps.aletheia.api.dependencies import get_application, UploadFileWrapper
+from starlette.responses import JSONResponse
+from apps.aletheia.api.dependencies import get_application, UploadFileWrapper, get_authenticated_super_user_info, \
+    get_authenticated_user_info
 from apps.aletheia.api.models.courses import PostCourseRequest, GetLectioHttpResponse
 from src.agora.courses.application.queries.list_courses import ListCourses
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, GetLectio, GetLectioResponse
 from src.akademos.courses.application.commands import CreateCourse, AddLectio
+from src.akademos.courses.application.commands.publish_course import PublishCourse
 from src.akademos.shared.application.dtos import VideoDto
+from src.framework_ddd.iam.application.services import IamUserInfo
 
 router = APIRouter()
 
 
 @router.put(
-    "/courses/{course_id}", status_code=201
+    "/courses/{course_id}"
 )
 @inject
 async def put_course(
         request_body: PostCourseRequest,
         course_id: str,
-        application: Annotated[Application, Depends(get_application)]
+        application: Annotated[Application, Depends(get_application)],
+        user_info: Annotated[IamUserInfo, Depends(get_authenticated_super_user_info)]
 ):
     command = CreateCourse(
         course_id=course_id,
-        teacher_id=request_body.teacher_id,
+        teacher_id=user_info.user_id,
         name=request_body.name,
         description=request_body.description,
         topics=request_body.topics
@@ -34,14 +38,28 @@ async def put_course(
     await application.execute_async(command)
 
 
+@router.patch(
+    "/courses/{course_id}/publish"
+)
+@inject
+async def patch_course_as_published(
+        course_id: str,
+        application: Annotated[Application, Depends(get_application)],
+        user_info: Annotated[IamUserInfo, Depends(get_authenticated_super_user_info)]
+):
+    command = PublishCourse(teacher_id=user_info.user_id, course_id=course_id)
+    await application.execute_async(command)
+
+
 @router.put(
-    "/courses/{course_id}/lectios/{lectio_id}", status_code=201
+    "/courses/{course_id}/lectios/{lectio_id}"
 )
 @inject
 async def put_lectio(
         course_id: str,
         lectio_id: str,
         application: Annotated[Application, Depends(get_application)],
+        user_info: Annotated[IamUserInfo, Depends(get_authenticated_super_user_info)],
         name: str = Form(...),  # type: ignore
         description: str = Form(...),  # type: ignore
         video_id: str = Form(...),  # type: ignore
@@ -53,6 +71,7 @@ async def put_lectio(
     if filename and content_type:
 
         command = AddLectio(
+            teacher_id=user_info.user_id,
             lectio_id=lectio_id,
             course_id=course_id,
             name=name,
@@ -76,20 +95,21 @@ async def put_lectio(
 
 
 @router.get(
-    "/courses/{course_id}", status_code=200
+    "/courses/{course_id}"
 )
 @inject
 async def get_course(
         course_id: str,
-        application: Annotated[Application, Depends(get_application)]
+        application: Annotated[Application, Depends(get_application)],
+        user_info: Annotated[IamUserInfo, Depends(get_authenticated_user_info)]
 ):
-    query = GetCourse(course_id=course_id)
+    query = GetCourse(user_info=user_info, course_id=course_id)
     response: GetCourseResponse = await application.execute_async(query)
     return response
 
 
 @router.get(
-    "/courses", status_code=200
+    "/courses"
 )
 @inject
 async def list_courses(
@@ -104,14 +124,14 @@ async def list_courses(
 
 
 @router.get(
-    "/lectios/{lectio_id}", status_code=200
+    "/lectios/{lectio_id}"
 )
 @inject
 async def get_lectio(
         lectio_id: str,
-        application: Annotated[Application, Depends(get_application)]
-):
+        application: Annotated[Application, Depends(get_application)],
 
+):
     query = GetLectio(lectio_id=lectio_id)
     response: GetLectioResponse = await application.execute_async(query)
 

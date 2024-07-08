@@ -13,7 +13,7 @@ router = APIRouter()
     "/teachers/{teacher_id}", status_code=201
 )
 @inject
-async def put_student(
+async def put_teacher(
         teacher_id: str,
         request_body: PutTeacherRequest,
         application: Annotated[Application, Depends(get_application)]

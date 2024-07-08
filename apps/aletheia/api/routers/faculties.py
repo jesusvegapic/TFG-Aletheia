@@ -1,14 +1,13 @@
 from typing import Annotated
-
 from dependency_injector.wiring import inject
 from fastapi import APIRouter
 from fastapi.params import Depends
 from lato import Application
-
-from apps.aletheia.api.dependencies import get_application
+from apps.aletheia.api.dependencies import get_application, get_authenticated_super_user_info
 from apps.aletheia.api.models.faculties import PutFacultyRequest
 from src.akademos.faculties.application.commands import CreateFaculty
 from src.akademos.faculties.application.queries import GetFaculty
+from src.framework_ddd.iam.application.services import IamUserInfo
 
 router = APIRouter()
 
@@ -20,7 +19,8 @@ router = APIRouter()
 async def put_faculty(
         faculty_id: str,
         request_body: PutFacultyRequest,
-        application: Annotated[Application, Depends(get_application)]
+        application: Annotated[Application, Depends(get_application)],
+        user_info: Annotated[IamUserInfo, Depends(get_authenticated_super_user_info)]
 ):
     command = CreateFaculty(
         faculty_id=faculty_id,

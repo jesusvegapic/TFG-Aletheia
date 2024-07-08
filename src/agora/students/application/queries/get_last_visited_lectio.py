@@ -2,6 +2,7 @@ from lato import Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.agora.shared.application.queries import GetLectio, GetLectioResponse
+from src.agora.students.application import students_module
 from src.agora.students.infrastructure.repository import StudentModel, StudentCourseModel
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.shared.infrastructure.sql_alchemy.models import LectioModel
@@ -13,6 +14,7 @@ class GetLastVisitedLectio(Query):
     student_id: str
 
 
+@students_module.handler(GetLastVisitedLectio)
 async def get_last_visited_lectio(
         query: GetLastVisitedLectio,
         session: AsyncSession

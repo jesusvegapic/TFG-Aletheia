@@ -5,6 +5,7 @@ from src.agora.shared.infrastructure.models import FacultyModel, DegreeModel
 from src.agora.students.domain.value_objects import LectioStatus
 from src.agora.students.domain.entities import Student, StudentCourse, StudentFaculty, StudentLectio
 from src.agora.students.domain.repository import StudentRepository
+from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.framework_ddd.core.infrastructure.database import Base
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.iam.infrastructure.user_model import PersonalUserModel, UserModel
@@ -39,6 +40,7 @@ class StudentCourseModel(Base):
     )
     lectios_in_progress = relationship(
         'StudentLectioModel',
+        lazy="selectin",
         back_populates="student_course"
     )
     last_visited_lectio = relationship(LectioModel)  # type: ignore
@@ -76,7 +78,7 @@ class StudentDataMapper(DataMapper):
                         StudentLectio(lectio.lectio_id.hex, lectio.progress)
                         for lectio in course.lectios_in_progress
                     ],
-                    course.last_visited_lectio_id.hex
+                    course.last_visited_lectio_id.hex if course.last_visited_lectio_id else None
                 )
                 for course in instance.student_courses
             ],
@@ -85,17 +87,17 @@ class StudentDataMapper(DataMapper):
 
     def entity_to_model(self, student: Student) -> StudentModel:
         return StudentModel(
-            personal_user_id=student.id,
-            faculty_id=student.faculty.id,
-            degree_id=student.degree,
+            personal_user_id=GenericUUID(student.id),
+            faculty_id=GenericUUID(student.faculty.id),
+            degree_id=GenericUUID(student.degree),
             student_courses=[
                 StudentCourseModel(
-                    id=course.id,
-                    student_id=student.id,
+                    id=GenericUUID(course.id),
+                    student_id=GenericUUID(student.id),
                     lectios_in_progress=[
                         StudentLectioModel(
-                            student_course_id=course.id,
-                            lectio_id=lectio.id,
+                            student_course_id=GenericUUID(course.id),
+                            lectio_id=GenericUUID(lectio.id),
                             progress=lectio.status
                         )
                         for lectio in course.lectios
@@ -105,12 +107,12 @@ class StudentDataMapper(DataMapper):
                 for course in student.courses_in_progress
             ],
             personal_user=PersonalUserModel(
-                user_id=student.id,
+                user_id=GenericUUID(student.id),
                 name=student.name,
                 firstname=student.firstname,
                 second_name=student.second_name,
                 user=UserModel(
-                    id=student.id,
+                    id=GenericUUID(student.id),
                     email=student.email,
                     password=student.hashed_password,
                     is_superuser=student.is_superuser

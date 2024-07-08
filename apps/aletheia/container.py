@@ -23,6 +23,9 @@ from src.akademos.videos.application import videos_module
 from src.akademos.videos.domain.repository import VideoRepository
 from src.akademos.videos.infrastructure.repository import AsyncMotorGridFsVideoRepository
 from src.framework_ddd.core.infrastructure.custom_loggin import logger
+from src.framework_ddd.iam.application.services import IamService
+from src.framework_ddd.iam.domain.repository import UserRepository
+from src.framework_ddd.iam.infrastructure.repository import SqlAlchemyUserRepository
 
 
 @dataclass
@@ -58,14 +61,16 @@ def create_gridfs_client(mongodb_client: AsyncIOMotorClient):
 def create_application(
         db_engine: AsyncEngine,
         bucket_session_factory: AsyncIOMotorClient,
-        bucket: AsyncIOMotorGridFSBucket
+        bucket: AsyncIOMotorGridFSBucket,
+        config: Config
 ):
     application = Application(
         "Aletheia",
         version=0.1,
         db_engine=db_engine,
         bucket_session_factory=bucket_session_factory,
-        bucket=bucket
+        bucket=bucket,
+        secret_key=config.SECRET_KEY
     )
 
     application.include_submodule(akademos_courses_module)
@@ -101,7 +106,14 @@ def create_application(
             video_repository=as_type(AsyncMotorGridFsVideoRepository(bucket, bucket_session), VideoRepository),
             student_repository=as_type(SqlAlchemyStudentRepository(db_session), StudentRepository),
             faculty_repository=as_type(SqlAlchemyFacultyRepository(db_session), FacultyRepository),
-            teacher_repository=as_type(SqlAlchemyTeacherRepository(db_session), TeacherRepository)
+            teacher_repository=as_type(SqlAlchemyTeacherRepository(db_session), TeacherRepository),
+            iam_service=as_type(
+                IamService(
+                    SqlAlchemyUserRepository(db_session),
+                    application.get_dependency("secret_key")
+                ),
+                IamService
+            )
         )
         logger.debug("<<< Begin transaction")
 
@@ -143,4 +155,10 @@ class ApplicationContainer(containers.DeclarativeContainer):
     db_engine = providers.Singleton(create_db_engine, config)
     mongodb_client = providers.Singleton(create_mongodb_client, config)
     gridfs_client = providers.Singleton(create_gridfs_client, mongodb_client)
-    application = providers.Singleton(create_application, db_engine, mongodb_client, gridfs_client)
+    application = providers.Singleton(
+        create_application,
+        db_engine,
+        mongodb_client,
+        gridfs_client,
+        config
+    )

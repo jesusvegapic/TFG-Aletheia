@@ -1,9 +1,8 @@
 from typing import List, Optional
-from src.akademos.courses.domain.events import CourseCreated
+from src.akademos.courses.domain.events import CourseCreated, CourseHasBeenPublished
 from src.akademos.courses.domain.value_objects import (  # type: ignore
     CourseName,
     CourseDescription,
-    CourseState,
     LectioName,
     LectioDescription,
     Topic
@@ -12,6 +11,7 @@ from src.akademos.shared.application.events import LectioAdded
 from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.entities import AggregateRoot, Entity
 from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.shared.domain.value_objects import CourseState
 
 
 class Course(AggregateRoot):
@@ -60,6 +60,11 @@ class Course(AggregateRoot):
                 video=video  # type: ignore
             )
         )
+
+    def publish(self):
+        if self.__state != CourseState.PUBLISHED:
+            self.__state = CourseState.PUBLISHED
+            self._register_event(CourseHasBeenPublished(entity_id=self.id))
 
     @property
     def owner(self) -> str:

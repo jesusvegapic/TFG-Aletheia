@@ -23,6 +23,5 @@ class DegreeNameError(CreateFacultyError):
     max_length: int
 
 
-@dataclass(frozen=True)
 class FacultyNotFoundError(EntityNotFoundError):
-    pass
+    ...

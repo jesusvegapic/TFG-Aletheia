@@ -1,0 +1,2 @@
+from src.agora.students.application.queries.list_courses_enrolled import ListCoursesEnrolled
+from src.agora.students.application.queries.get_last_visited_lectio import GetLastVisitedLectio
