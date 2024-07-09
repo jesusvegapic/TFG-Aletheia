@@ -20,7 +20,9 @@ class CreateLectioShould(TestCoursesModule):
         lectio_id = Lectio.next_id().hex
         file = TestAsyncBinaryIOProtocol()
         video_id = GenericUUID.next_id().hex
+        teacher_id = GenericUUID.next_id().hex
         command = AddLectio(
+            teacher_id=teacher_id,
             course_id=course_id,
             lectio_id=lectio_id,
             name="El ego trascendental",
@@ -38,11 +40,10 @@ class CreateLectioShould(TestCoursesModule):
         )
 
         course_id = Course.next_id().hex
-        owner_id = GenericUUID.next_id().hex
 
         get_mock.return_value = Course(
             id=course_id,
-            owner=owner_id,
+            owner=teacher_id,
             name="Kant vs Hegel",
             description="La panacea de la filosofia moderna",
             topics=["Filosofía"]
@@ -50,7 +51,7 @@ class CreateLectioShould(TestCoursesModule):
 
         expected_course = Course(
             id=course_id,
-            owner=owner_id,
+            owner=teacher_id,
             name="Kant vs Hegel",
             description="La panacea de la filosofia moderna",
             lectios=[expected_lectio],

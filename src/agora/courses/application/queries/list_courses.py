@@ -36,6 +36,7 @@ async def get_paged_courses(
     instances = (
         await session.execute(
             select(CourseModel)
+            .where(CourseModel.state == CourseState.PUBLISHED)
             .offset(start_index)
             .limit(page_size)
         )

@@ -2,8 +2,8 @@ from src.agora.shared.application.queries import ListCoursesResponse, ListedCour
 from src.agora.students.application.queries.list_courses_enrolled import list_courses_enrolled, ListCoursesEnrolled
 from src.agora.students.domain.entities import StudentCourse
 from src.agora.students.infrastructure.repository import SqlAlchemyStudentRepository
-from src.akademos.courses.domain.value_objects import CourseState
 from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.shared.domain.value_objects import CourseState
 from src.shared.infrastructure.sql_alchemy.models import CourseModel
 from test.agora.students.students_module import StudentMother
 from test.shared.database import TestInMemorySqlDatabase
@@ -31,7 +31,7 @@ class ListCoursesEnrolledShould(TestInMemorySqlDatabase):
                 owner=first_owner,
                 name="Kant vs Hegel",
                 description="La panacea de la historía de la filosofía",
-                state=CourseState.CREATED,
+                state=CourseState.PUBLISHED,
                 topics="Filosofía;Derecho"
             )
         )
@@ -42,7 +42,7 @@ class ListCoursesEnrolledShould(TestInMemorySqlDatabase):
                 owner=second_owner,
                 name="Filosofía de Gustavo Bueno",
                 description="Un comentario de los ensayos materialistas",
-                state=CourseState.CREATED,
+                state=CourseState.PUBLISHED,
                 topics="Filosofía;Derecho"
             )
         )

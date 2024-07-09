@@ -29,12 +29,13 @@ class TestFastapiServer(IsolatedAsyncioTestCase):
         self.api = api
         self.admin_email = "admin@aletheia.com"
         self.admin_password = "admin"
+        self.admin_id = GenericUUID.next_id().hex
         async with container.db_engine().connect() as bd:
             await bd.run_sync(Base.metadata.create_all)
             session = AsyncSession(container.db_engine())
             session.add(
                 UserModel(
-                    id=GenericUUID.next_id(),
+                    id=self.admin_id,
                     email=self.admin_email,
                     password=IamService.hash_password(self.admin_password),
                     is_superuser=True

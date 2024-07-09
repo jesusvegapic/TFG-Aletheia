@@ -18,7 +18,7 @@ async def enroll_in_a_course(command: EnrollInACourse, student_repository: Stude
     if not student:
         raise StudentNotFoundError(entity_id=command.student_id)
 
-    response: GetCourseResponse = await publish_query(GetCourse(course_id=command.course_id))
+    response: GetCourseResponse = await publish_query(GetCourse(course_id=command.course_id, user_id=student.id))
 
     student_course = get_course_response_to_entity(response)
     student.enroll_in_a_course(student_course)

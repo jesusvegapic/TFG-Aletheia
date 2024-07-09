@@ -1,6 +1,5 @@
 from unittest.mock import AsyncMock
-from lato.message import Message
-from src.akademos.faculties.application.queries.get_faculty import GetFaculty, GetFacultyResponse
+from src.akademos.faculties.application.queries.get_faculty import GetFacultyResponse
 from src.akademos.teachers.application.commands.sign_up_teacher import SignUpTeacher, sign_up_teacher
 from src.akademos.teachers.domain.entities import Teacher, TeacherFaculty
 from src.akademos.teachers.domain.events import TeacherCreated

@@ -10,7 +10,7 @@ from src.shared.infrastructure.sql_alchemy.models import CourseModel
 @agora_courses_module.handler(GetCourse)
 async def get_course(query: GetCourse, session: AsyncSession) -> GetCourseResponse:
     course_model = await session.get(CourseModel, query.course_id)
-    if query.user_info.user_id != course_model.owner.hex and course_model.state == CourseState.PUBLISHED:
+    if query.user_id != course_model.owner.hex and course_model.state != CourseState.PUBLISHED:
         raise PrivateCourseError()
 
     response = course_model_to_get_course_response(course_model)  # type: ignore

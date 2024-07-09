@@ -1,7 +1,5 @@
-from typing import Union, List
 from unittest.mock import AsyncMock
-from lato.message import Query
-from src.agora.shared.application.queries import GetCourse, GetCourseResponse, LectioDto
+from src.agora.shared.application.queries import GetCourseResponse, LectioDto
 from src.agora.students.application.commands.enroll_in_a_course import EnrollInACourse, enroll_in_a_course
 from src.agora.students.domain.entities import Student, StudentCourse, StudentLectio, StudentFaculty
 from src.agora.students.domain.events import StudentHasBeenEnrolledInACourse

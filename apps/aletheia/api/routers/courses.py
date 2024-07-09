@@ -103,7 +103,7 @@ async def get_course(
         application: Annotated[Application, Depends(get_application)],
         user_info: Annotated[IamUserInfo, Depends(get_authenticated_user_info)]
 ):
-    query = GetCourse(user_info=user_info, course_id=course_id)
+    query = GetCourse(user_id=user_info.user_id, course_id=course_id)
     response: GetCourseResponse = await application.execute_async(query)
     return response
 

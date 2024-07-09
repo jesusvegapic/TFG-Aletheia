@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock
 from src.agora.courses.application.queries.get_course import get_course
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, LectioDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.framework_ddd.iam.application.services import IamUserInfo
 from src.shared.infrastructure.sql_alchemy.models import CourseModel, LectioModel
 
 
@@ -14,7 +15,8 @@ class GetCourseShould(IsolatedAsyncioTestCase):
         lectio_id = GenericUUID.next_id().hex
 
         query = GetCourse(
-            course_id=course_id
+            course_id=course_id,
+            user_id=owner_id
         )
 
         session = AsyncMock()

@@ -1,6 +1,6 @@
 from src.agora.courses.application.queries import list_courses
-from src.akademos.courses.domain.value_objects import CourseState
 from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.shared.domain.value_objects import CourseState
 from src.shared.infrastructure.sql_alchemy.models import CourseModel
 from test.shared.database import TestInMemorySqlDatabase
 
@@ -17,7 +17,7 @@ class GetPagedCoursesShould(TestInMemorySqlDatabase):
                 name="kant vs hegel",
                 description="La panacea de la filosofia",
                 topics="Filosofía;Linguistica",
-                state=CourseState.CREATED
+                state=CourseState.PUBLISHED
             ),
             course_ids
         )

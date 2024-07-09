@@ -1,5 +1,4 @@
 from unittest.mock import AsyncMock
-from lato.message import Message
 from src.agora.students.application.commands.sing_up_student import SignUpStudent, sign_up_student
 from src.agora.students.domain.entities import Student, StudentFaculty
 from src.agora.students.domain.events import StudentCreated

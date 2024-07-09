@@ -27,17 +27,6 @@ class GetLectioShould(IsolatedAsyncioTestCase):
             video_id=video_id
         )
 
-        publish = AsyncMock()
-
-        video = VideoDto(
-            video_id=video_id.hex,
-            file=TestAsyncBinaryIOProtocol(),
-            filename="los cuatro astros",
-            content_type="video/mp4"
-        )
-
-        publish.return_value = video
-
         expected_response = GetLectioResponse(
             lectio_id=query.lectio_id,
             name="contexto histórico",
@@ -45,6 +34,6 @@ class GetLectioShould(IsolatedAsyncioTestCase):
             video_id=video_id.hex
         )
 
-        response = await get_lectio(query, session, publish)
+        response = await get_lectio(query, session)
 
         self.assertEqual(response, expected_response)

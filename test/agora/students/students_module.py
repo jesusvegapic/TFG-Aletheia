@@ -72,10 +72,10 @@ class StudentMother:
                     id=StudentCourse.next_id().hex,
                     lectios=[
                         StudentLectio(
-                            id=lectio_id
+                            id=lectio_id.hex
                         )
                     ],
-                    last_visited_lectio=GenericUUID(lectio_id)
+                    last_visited_lectio=lectio_id
                 )
             ]
         )

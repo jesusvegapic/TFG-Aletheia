@@ -1,12 +1,12 @@
 from typing import List
 from lato import Query
 from pydantic import BaseModel
+
 from src.framework_ddd.core.domain.errors import DomainError
-from src.framework_ddd.iam.application.services import IamUserInfo
 
 
 class GetCourse(Query):  # type: ignore
-    user_info: IamUserInfo
+    user_id: str
     course_id: str
 
 
