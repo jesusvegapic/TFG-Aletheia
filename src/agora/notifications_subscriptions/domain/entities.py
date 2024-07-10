@@ -14,6 +14,11 @@ class NotificationsSubscription(AggregateRoot):
         self.__subscriber_id = GenericUUID(subscriber_id)
 
 
+    @property
+    def subscriber_id(self):
+        return self.__subscriber_id.hex
+
+
 class TeacherCoursesSubscription(NotificationsSubscription):
     __teacher_id: GenericUUID
     __topics: List[Topic]
@@ -36,3 +41,12 @@ class TeacherCoursesSubscription(NotificationsSubscription):
             )
         )
         return subscription
+
+
+    @property
+    def teacher_id(self):
+        return self.__teacher_id.hex
+
+    @property
+    def topics(self):
+        return self.__topics

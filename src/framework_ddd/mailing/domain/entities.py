@@ -15,3 +15,19 @@ class EmailMessage(AggregateRoot):
         self.__from = Email(from_)
         self.__subject = EmailSubject(subject)
         self.__body = EmailBody(body)
+
+    @property
+    def to(self):
+        return self.__to
+
+    @property
+    def from_(self) -> str:
+        return self.__from
+
+    @property
+    def subject(self) -> str:
+        return self.__subject
+
+    @property
+    def body(self) -> str:
+        return self.__body

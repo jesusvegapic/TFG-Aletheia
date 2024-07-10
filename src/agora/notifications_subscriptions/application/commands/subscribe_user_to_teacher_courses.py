@@ -20,7 +20,7 @@ async def subscribe_user_to_teacher_courses(
 ):
     await publish_query(GetTeacherName(teacher_id=command.teacher_id))
 
-    subscription = TeacherCoursesSubscription(
+    subscription = TeacherCoursesSubscription.create(
         id=command.subscription_id,
         subscriber_id=command.user_id,
         teacher_id=command.teacher_id,

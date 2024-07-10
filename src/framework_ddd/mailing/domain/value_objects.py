@@ -6,7 +6,7 @@ from src.framework_ddd.mailing.domain.errors import EmailSubjectError, EmailBody
 
 
 @dataclass(frozen=True)
-class Email(ValueObject, str):
+class Email(str):
     value: str
 
     def __post_init__(self):
@@ -19,7 +19,7 @@ class Email(ValueObject, str):
         return self.value
 
 
-class EmailSubject(ValueObject, str):
+class EmailSubject(str):
     def __new__(cls, value: str):
         if len(value) > EmailSubject.max_length():
             raise EmailSubjectError(actual_length=len(value), max_length=EmailSubject.max_length())
@@ -31,7 +31,7 @@ class EmailSubject(ValueObject, str):
         return 60
 
 
-class EmailBody(ValueObject, str):
+class EmailBody(str):
     def __new__(cls, value: str):
         bytes_length = len(value.encode("UTF-8"))
         if bytes_length > EmailBody.max_bytes_length():

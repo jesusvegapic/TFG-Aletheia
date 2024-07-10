@@ -46,8 +46,6 @@ class CoursePublishedNotification(EmailMessage):
         self.__topics = topics
         self.__lectios_names = lectios_names
 
-
-
     @classmethod
     def send(
             cls,
@@ -77,28 +75,53 @@ class CoursePublishedNotification(EmailMessage):
         )
         return notification
 
+    @property
+    def teacher_name(self):
+        return self.__teacher_name
+
+    @property
+    def teacher_firstname(self):
+        return self.__teacher_firstname
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    @property
+    def description(self) -> str:
+        return self.__description
+
+    @property
+    def topics(self):
+        return self.__topics
+
+    @property
+    def lectios_names(self):
+        return self.__lectios_names
+
     @classmethod
     def format_body(
-        cls,
-        teacher_name: str,
-        teacher_firstname: str,
-        name: str,
-        description: str,
-        topics: List[str],
-        lectios_names: List[str]
+            cls,
+            teacher_name: str,
+            teacher_firstname: str,
+            name: str,
+            description: str,
+            topics: List[str],
+            lectios_names: List[str]
     ) -> str:
         enumerated_lectios_lines = [f"{i}: {lectio}" for i, lectio in enumerate(lectios_names, 1)]
-        last_topic = topics.pop()
+        topics_aux = topics.copy()
+        last_topic = topics_aux.pop()
 
         text_body = (
-            f"Tienes disponible el nuevo curso \"{name}\" sobre {", ".join(topics)} y {last_topic} "
-            f"del profesor  {teacher_name} {teacher_firstname}\n"
-            
-            f"{description}\n"
-            
+            f"Tienes disponible el nuevo curso \"{name}\" sobre {", ".join(topics_aux)} y {last_topic} "
+            f"del profesor {teacher_name} {teacher_firstname}\n\n"
+
+            f"{description}\n\n"
+
             "Lecciones:\n"
-            
-            "\n".join(enumerated_lectios_lines)
+
+            + ("\n".join(enumerated_lectios_lines))
         )
 
         return text_body
