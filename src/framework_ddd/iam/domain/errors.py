@@ -12,12 +12,6 @@ class PersonalUserSurnamesError(DomainError):
     firstname: str
     second_name: str
 
-
-@dataclass(frozen=True)
-class EmailError(DomainError):
-    email: str
-
-
 @dataclass(frozen=True)
 class InvalidCredentialsException(DomainError):
     ...

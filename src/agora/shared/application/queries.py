@@ -50,3 +50,31 @@ class ListedCourseDto(BaseModel):
     id: str
     owner: str
     name: str
+
+
+class GetTeacher(Query):
+    teacher_id: str
+
+
+class GetTeacherCourseSubscribersMailingList(Query):
+    teacher_id: str
+    topics: List[str]
+
+
+class GetTeacherName(Query):
+    teacher_id: str
+
+
+class MailingListDto(BaseModel):
+    emails: List[str]
+
+
+class GetTeacherNameResponse(BaseModel):
+    name: str
+    firstname: str
+
+
+class LectioProgressDto(BaseModel):
+    id: str
+    name: str
+    progress: str

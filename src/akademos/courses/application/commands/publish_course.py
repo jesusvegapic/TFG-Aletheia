@@ -15,7 +15,7 @@ class PublishCourse(Command):
 async def publish_course(command: PublishCourse, course_repository: CourseRepository, publish):
     course = await course_repository.get(GenericUUID(command.course_id))
     if course:
-        if course.owner != command.teacher_id:
+        if not course.is_owner(command.teacher_id):
             raise NotAuthorizedTeacherError()
 
         course.publish()

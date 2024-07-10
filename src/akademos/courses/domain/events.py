@@ -8,7 +8,3 @@ class CourseCreated(DomainEvent):
     name: str
     description: str
     topics: list[str]
-    event_name: ClassVar[str] = "akademos.course.created"
-
-class CourseHasBeenPublished(DomainEvent):
-    ...

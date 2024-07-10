@@ -1,9 +1,29 @@
 from dataclasses import dataclass, Field
-from src.framework_ddd.core.domain.errors import EntityNotFoundError, DomainError
+from src.framework_ddd.core.domain.errors import EntityNotFoundError, DomainError, ApplicationError
 
 
-class StudentsModuleError(DomainError):
+class StudentsModuleError(ApplicationError):
     pass
+
+
+class CreateStudentError(StudentsModuleError):
+    ...
+
+
+class EnrollInACourseError(StudentsModuleError):
+    ...
+
+
+class SetLastVisitedLectioError(StudentsModuleError):
+    ...
+
+
+class StartLectioError(StudentsModuleError):
+    ...
+
+
+class FinishLectioError(StudentsModuleError):
+    ...
 
 
 class StudentNotFoundError(EntityNotFoundError, StudentsModuleError):
@@ -15,17 +35,28 @@ class CourseNotFoundError(EntityNotFoundError, StudentsModuleError):
 
 
 @dataclass(frozen=True)
-class DegreeNotExistsInStudentFacultyError(StudentsModuleError):
+class DegreeNotExistsInStudentFacultyError(StudentsModuleError, DomainError):
     degree_id: str
     faculty_id: str
 
 
 @dataclass(frozen=True)
-class NotEnrolledLectioError(StudentsModuleError):
+class NotEnrolledLectioError(StudentsModuleError, DomainError):
     course_id: str
     lectio_id: str
 
+
 @dataclass(frozen=True)
-class LectioNotExistsInCourse(StudentsModuleError):
+class LectioNotExistsInCourse(StudentsModuleError, DomainError):
     lectio_id: str
     course_id: str
+
+
+@dataclass(frozen=True)
+class StartFinishedLectioError(StartLectioError, DomainError):
+    ...
+
+
+@dataclass(frozen=True)
+class FinishNotStartedLectioError(FinishLectioError, DomainError):
+    ...
