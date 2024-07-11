@@ -1,5 +1,6 @@
 from src.framework_ddd.core.domain.entities import AggregateRoot
-from src.framework_ddd.iam.domain.value_objects import Name, Surnames, Email
+from src.framework_ddd.iam.domain.value_objects import Name, Surnames
+from src.framework_ddd.mailing.domain.value_objects import Email
 
 
 class User(AggregateRoot):

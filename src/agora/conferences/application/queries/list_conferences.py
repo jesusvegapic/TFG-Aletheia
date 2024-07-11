@@ -5,6 +5,8 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.shared.infrastructure.sql_alchemy.models import ConferenceModel
+
 
 class ListConferences(Query):
     page_number: int
@@ -29,9 +31,9 @@ async def list_conferences(query: ListConferences, session: AsyncSession):
             .where(
                 or_(
                     *[ConferenceModel.topics.contains(topic) for topic in query.topics]
-                )
+                ) if len(query.topics) > 1 else ConferenceModel.topics.contains(query.topics[0])
             )
-            .offset(query.page_number * query.courses_by_page)
+            .offset(query.page_number-1 * query.courses_by_page)
             .limit(query.courses_by_page)
         )
     ).scalars().all()
@@ -40,8 +42,8 @@ async def list_conferences(query: ListConferences, session: AsyncSession):
         conferences=[
             ListedConferenceDto(
                 id=conference.id.hex,
-                name=conference.name,
-                owner=conference.owner
+                name=conference.name,  # type: ignore
+                owner=conference.owner.hex  # type: ignore
             )
             for conference in conferences
         ]

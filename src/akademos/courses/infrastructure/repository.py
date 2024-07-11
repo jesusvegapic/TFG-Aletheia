@@ -2,9 +2,9 @@ from re import split
 from sqlalchemy_utils import UUIDType  # type: ignore
 from src.akademos.courses.domain.entities import Course, Lectio
 from src.akademos.courses.domain.repository import CourseRepository
-from src.akademos.courses.domain.value_objects import Topic
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.core.infrastructure.repository import SqlAlchemyGenericRepository
+from src.shared.domain.value_objects import Topic
 from src.shared.infrastructure.sql_alchemy.models import CourseModel, LectioModel
 
 
@@ -25,7 +25,7 @@ class CourseDataMapper(DataMapper):
             name=instance.name,  # type: ignore
             description=instance.description,  # type: ignore
             state=instance.state,  # type: ignore
-            topics=[Topic(topic) for topic in split(";", instance.topics)],  # type: ignore
+            topics=[Topic(topic) for topic in split(";", instance.topics)],
             lectios=[lectio_model_to_entity(lectio_instance) for lectio_instance in instance.lectios]
         )
 

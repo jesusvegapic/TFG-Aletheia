@@ -20,6 +20,7 @@ async def get_course(query: GetCourse, session: AsyncSession) -> GetCourseRespon
 def course_model_to_get_course_response(instance: CourseModel) -> GetCourseResponse:
     return GetCourseResponse(
         id=instance.id.hex,
+        course_id=instance.course_id.hex,
         name=instance.name,  # type: ignore
         owner=instance.owner.hex,
         description=instance.description,  # type: ignore

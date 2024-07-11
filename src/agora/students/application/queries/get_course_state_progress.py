@@ -17,14 +17,15 @@ class GetCourseStateProgress(Query):
 
 
 class GetCourseStateProgressResponse(BaseModel):
-    lectios_progress: List[str]
+    lectios_progress: List[LectioProgressDto]
+    course_percent_progress: int
 
 
 async def get_course_state_progress(query: GetCourseStateProgress, session: AsyncSession):
     lectios_progress = (
         await session.execute(
             select(StudentLectioModel)
-            .options(joinedload(StudentLectioModel.course))
+            .options(joinedload(StudentLectioModel.student_course))
             .where(
                 StudentLectioModel.student_course_id == GenericUUID(query.course_id) and
                 StudentLectioModel.student_course.student_id == GenericUUID(query.student_id)
@@ -32,17 +33,17 @@ async def get_course_state_progress(query: GetCourseStateProgress, session: Asyn
         )
     ).scalars().all()
 
-    course_percent_progress = (
-        len(list(filter(lambda progress: progress == LectioStatus.FINISHED, lectios_progress))) /
+    course_percent_progress = int(
+        len(list(filter(lambda lectio: lectio.progress == LectioStatus.FINISHED, lectios_progress))) * 100 /
         len(lectios_progress)
-    ) * 100
+    )
 
     return GetCourseStateProgressResponse(
         lectios_progress=[
             LectioProgressDto(
-                id=lectio.lectio_id,
+                id=lectio.lectio_id.hex,  # type: ignore
                 name=lectio.lectio.name,
-                profress=lectio.progress
+                progress=lectio.progress  # type: ignore
             )
             for lectio in lectios_progress
         ],

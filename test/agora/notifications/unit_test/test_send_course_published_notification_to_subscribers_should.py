@@ -1,7 +1,5 @@
 from unittest.mock import AsyncMock
-
 from lato import Query
-
 from src.agora.notifications.application.events.send_course_published_notification_to_subscribers import \
     send_course_published_notification_to_subscribers
 from src.agora.notifications.domain.entities import CoursePublishedNotification
@@ -80,15 +78,15 @@ class SendCoursePublishedNotificationToSubscribersShould(TestNotificationsModule
         self.assertEqual(args[0].model_dump(exclude={"id"}), expected_notification.model_dump(exclude={"id"}))
         self.assertEqual(
             args[0].body,
-            "Tienes disponible el nuevo curso Kant vs hegel sobre Derecho y Biología del profesor aragorn elassar\n"
+            "Tienes disponible el nuevo curso \"Kant vs hegel\" sobre Derecho y Biología del profesor aragorn elessar\n\n"
 
-            "La panacea de la historia de la filosofía\n"
+            "La panacea de la historia de la filosofía\n\n"
 
             "Lecciones:\n"
 
             "1: Materialismo filosófico\n"
 
-            "2: Ensayos materialistas\n"
+            "2: Ensayos materialistas"
         )
 
         args, kwargs = publish.call_args

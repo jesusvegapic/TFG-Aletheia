@@ -6,7 +6,7 @@ from jwt import PyJWTError
 from pydantic import BaseModel
 from src.framework_ddd.iam.domain.errors import InvalidCredentialsException
 from src.framework_ddd.iam.domain.repository import UserRepository
-from src.framework_ddd.iam.domain.value_objects import Email
+from src.framework_ddd.mailing.domain.value_objects import Email
 
 
 class IamUserInfo(BaseModel):

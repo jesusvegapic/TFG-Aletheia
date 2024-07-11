@@ -30,6 +30,36 @@ rsa = ["PyMySQL[rsa] (>=1.0)"]
 sa = ["sqlalchemy (>=1.3,<1.4)"]
 
 [[package]]
+name = "aiosmtpd"
+version = "1.4.6"
+description = "aiosmtpd - asyncio based SMTP server"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "aiosmtpd-1.4.6-py3-none-any.whl", hash = "sha256:72c99179ba5aa9ae0abbda6994668239b64a5ce054471955fe75f581d2592475"},
+    {file = "aiosmtpd-1.4.6.tar.gz", hash = "sha256:5a811826e1a5a06c25ebc3e6c4a704613eb9a1bcf6b78428fbe865f4f6c9a4b8"},
+]
+
+[package.dependencies]
+atpublic = "*"
+attrs = "*"
+
+[[package]]
+name = "aiosmtplib"
+version = "3.0.1"
+description = "asyncio SMTP client"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "aiosmtplib-3.0.1-py3-none-any.whl", hash = "sha256:abcceae7e820577307b4cda2041b2c25e5121469c0e186764ddf8e15b12064cd"},
+    {file = "aiosmtplib-3.0.1.tar.gz", hash = "sha256:43580604b152152a221598be3037f0ae6359c2817187ac4433bd857bc3fc6513"},
+]
+
+[package.extras]
+docs = ["furo (>=2023.9.10,<2024.0.0)", "sphinx (>=7.0.0,<8.0.0)", "sphinx-copybutton (>=0.5.0,<0.6.0)", "sphinx_autodoc_typehints (>=1.24.0,<2.0.0)"]
+uvloop = ["uvloop (>=0.18,<0.19)"]
+
+[[package]]
 name = "aiosqlite"
 version = "0.19.0"
 description = "asyncio bridge to the standard sqlite3 module"
@@ -142,6 +172,36 @@ async-timeout = {version = ">=4.0.3", markers = "python_version < \"3.12.0\""}
 [package.extras]
 docs = ["Sphinx (>=5.3.0,<5.4.0)", "sphinx-rtd-theme (>=1.2.2)", "sphinxcontrib-asyncio (>=0.3.0,<0.4.0)"]
 test = ["flake8 (>=6.1,<7.0)", "uvloop (>=0.15.3)"]
+
+[[package]]
+name = "atpublic"
+version = "4.1.0"
+description = "Keep all y'all's __all__'s in sync"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "atpublic-4.1.0-py3-none-any.whl", hash = "sha256:df90de1162b1a941ee486f484691dc7c33123ee638ea5d6ca604061306e0fdde"},
+    {file = "atpublic-4.1.0.tar.gz", hash = "sha256:d1c8cd931af7461f6d18bc6063383e8654d9e9ef19d58ee6dc01e8515bbf55df"},
+]
+
+[[package]]
+name = "attrs"
+version = "23.2.0"
+description = "Classes Without Boilerplate"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "attrs-23.2.0-py3-none-any.whl", hash = "sha256:99b87a485a5820b23b879f04c2305b44b951b502fd64be915879d77a7e8fc6f1"},
+    {file = "attrs-23.2.0.tar.gz", hash = "sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30"},
+]
+
+[package.extras]
+cov = ["attrs[tests]", "coverage[toml] (>=5.3)"]
+dev = ["attrs[tests]", "pre-commit"]
+docs = ["furo", "myst-parser", "sphinx", "sphinx-notfound-page", "sphinxcontrib-towncrier", "towncrier", "zope-interface"]
+tests = ["attrs[tests-no-zope]", "zope-interface"]
+tests-mypy = ["mypy (>=1.6)", "pytest-mypy-plugins"]
+tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "pytest (>=4.3.0)", "pytest-xdist[psutil]"]
 
 [[package]]
 name = "bcrypt"
@@ -257,6 +317,17 @@ files = [
 
 [package.dependencies]
 pycparser = "*"
+
+[[package]]
+name = "circuitbreaker"
+version = "2.0.0"
+description = "Python Circuit Breaker pattern implementation"
+optional = false
+python-versions = "*"
+files = [
+    {file = "circuitbreaker-2.0.0-py2.py3-none-any.whl", hash = "sha256:c8c6f044b616cd5066368734ce4488020392c962b4bd2869d406d883c36d9859"},
+    {file = "circuitbreaker-2.0.0.tar.gz", hash = "sha256:28110761ca81a2accbd6b33186bc8c433e69b0933d85e89f280028dbb8c1dd14"},
+]
 
 [[package]]
 name = "click"
@@ -1419,6 +1490,21 @@ anyio = ">=3.4.0,<5"
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyaml"]
 
 [[package]]
+name = "tenacity"
+version = "8.5.0"
+description = "Retry code until it succeeds"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "tenacity-8.5.0-py3-none-any.whl", hash = "sha256:b594c2a5945830c267ce6b79a166228323ed52718f30302c1359836112346687"},
+    {file = "tenacity-8.5.0.tar.gz", hash = "sha256:8bc6c0c8a09b31e6cad13c47afbed1a567518250a9a171418582ed8d9c20ca78"},
+]
+
+[package.extras]
+doc = ["reno", "sphinx"]
+test = ["pytest", "tornado (>=4.5)", "typeguard"]
+
+[[package]]
 name = "types-aiofiles"
 version = "23.2.0.20240403"
 description = "Typing stubs for aiofiles"
@@ -1461,4 +1547,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a57b14c77aa65cdd2fdce930b4c046a413cd2cf1e1bdb01c952d9c649b6fed8b"
+content-hash = "db064ff48b3ced66f5e107eedb2e9f4be9fa6769acdb1b0b381c12ab505a041b"

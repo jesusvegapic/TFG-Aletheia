@@ -2,10 +2,8 @@ from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock
 from src.agora.courses.application.queries.get_lectio import get_lectio
 from src.agora.shared.application.queries import GetLectio, GetLectioResponse
-from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.shared.infrastructure.sql_alchemy.models import LectioModel
-from test.shared.files import TestAsyncBinaryIOProtocol
 
 
 class GetLectioShould(IsolatedAsyncioTestCase):

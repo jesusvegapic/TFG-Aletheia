@@ -30,13 +30,15 @@ class StudentModel(Base):
 
 class StudentCourseModel(Base):
     __tablename__ = "students_courses"
-    id = Column(UUIDType(binary=False), ForeignKey(CourseModel.id))  # type: ignore
+    id = Column(UUIDType(binary=False), primary_key=True)  # type: ignore
+    course_id = Column(UUIDType(binary=False), ForeignKey(CourseModel.id))  # type: ignore
     student_id = Column(UUIDType(binary=False), ForeignKey(StudentModel.personal_user_id))  # type: ignore
     last_visited_lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id))  # type: ignore
-    course = relationship(CourseModel)
+    course = relationship(CourseModel, lazy="selectin")
     student = relationship(
         StudentModel,
-        back_populates="student_courses"  # type: ignore
+        back_populates="student_courses",  # type: ignore
+        lazy="selectin"
     )
     lectios_in_progress = relationship(
         'StudentLectioModel',
@@ -52,8 +54,8 @@ class StudentLectioModel(Base):
     student_course_id = Column(UUIDType(binary=False), ForeignKey(StudentCourseModel.id))  # type: ignore
     lectio_id = Column(UUIDType(binary=False), ForeignKey(LectioModel.id))  # type: ignore
     progress = Column(Enum(LectioStatus))  # type: ignore
-    student_course = relationship(StudentCourseModel, back_populates="lectios_in_progress")
-    lectio = relationship(LectioModel)  # type: ignore
+    student_course = relationship(StudentCourseModel, back_populates="lectios_in_progress", lazy="selectin")
+    lectio = relationship(LectioModel, lazy="selectin")  # type: ignore
     __table_args__ = (
         PrimaryKeyConstraint("student_course_id", "lectio_id"),
     )
@@ -74,6 +76,7 @@ class StudentDataMapper(DataMapper):
             courses_in_progress=[
                 StudentCourse(
                     course.id.hex,
+                    course.course_id.hex,
                     [
                         StudentLectio(lectio.lectio_id.hex, lectio.progress)
                         for lectio in course.lectios_in_progress
@@ -93,6 +96,7 @@ class StudentDataMapper(DataMapper):
             student_courses=[
                 StudentCourseModel(
                     id=GenericUUID(course.id),
+                    course_id=GenericUUID(course.course_id),
                     student_id=GenericUUID(student.id),
                     lectios_in_progress=[
                         StudentLectioModel(

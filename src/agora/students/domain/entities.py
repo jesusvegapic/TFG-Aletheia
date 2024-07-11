@@ -76,16 +76,16 @@ class Student(PersonalUser):
         self.__courses_in_progress.append(course)
         self._register_event(StudentHasBeenEnrolledInACourse(entity_id=self.id, course_id=course.id))
 
-    def start_lectio_in_course(self, course_id: str, lectio: 'StudentLectio'):
-        course = next(find(lambda course: course.id == course_id, self.__courses_in_progress))
+    def start_lectio_on_a_course(self, course_id: str, lectio: 'StudentLectio'):
+        course = find(lambda course: course.course_id == course_id, self.__courses_in_progress)
         if course:
             course.start_lectio(lectio)
 
-    def finish_lectio(self, course_id: str, lectio_id: str):
+    def finish_lectio_on_a_course(self, course_id: str, lectio_id: str):
         self.__find_lectio(course_id, lectio_id).finish()
 
     def set_last_visited_lectio(self, lectio_id: str, course_id: str):
-        course = next(find(lambda course: course.id == course_id, self.__courses_in_progress))
+        course = find(lambda course: course.course_id == course_id, self.__courses_in_progress)
         course.set_last_visited_lectio(lectio_id)
         self._register_event(
             LectioHasBeenVisitedOnStudentCourse(
@@ -96,16 +96,12 @@ class Student(PersonalUser):
         )
 
     def get_last_visited_lectio(self, course_id: str):
-        course = next(find(lambda course: course.id == course_id, self.__courses_in_progress))
+        course = find(lambda course: course.course_id == course_id, self.__courses_in_progress)
         return course.last_visited_lectio
 
-    def start_lectio_on_a_course(self, course_id: str, lectio_id: str):
-        lectio = self.__find_lectio(course_id, lectio_id)
-        lectio.start()
-
     def __find_lectio(self, course_id: str, lectio_id: str) -> 'StudentLectio':
-        lectios = find(lambda course: course.id == course_id, self.__courses_in_progress)
-        lectio = next(find(lambda lectio: lectio.id == lectio_id, lectios))
+        course = find(lambda course: course.course_id == course_id, self.__courses_in_progress)
+        lectio = find(lambda lectio: lectio.id == lectio_id, course.lectios)
         if lectio:
             return lectio
         else:
@@ -129,16 +125,19 @@ class Student(PersonalUser):
 
 
 class StudentCourse(Entity):
+    __course_id: GenericUUID
     __lectios: List['StudentLectio']
     __last_visited_lectio: Optional[GenericUUID]
 
     def __init__(
             self,
             id: str,
+            course_id: str,
             lectios: Optional[List['StudentLectio']] = None,
             last_visited_lectio: Optional['GenericUUID'] = None
     ):
         super().__init__(id)
+        self.__course_id = GenericUUID(course_id)
         self.__lectios = lectios if lectios else []
         self.__last_visited_lectio = last_visited_lectio
 
@@ -149,6 +148,10 @@ class StudentCourse(Entity):
         if lectio_id not in [lectio.id for lectio in self.__lectios]:
             raise LectioNotExistsInCourse(lectio_id=lectio_id, course_id=self.id)
         self.__last_visited_lectio = GenericUUID(lectio_id)
+
+    @property
+    def course_id(self):
+        return self.__course_id.hex
 
     @property
     def lectios(self):

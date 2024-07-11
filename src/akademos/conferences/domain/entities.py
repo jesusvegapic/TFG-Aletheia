@@ -37,3 +37,23 @@ class Conference(AggregateRoot):
             )
         )
         return conference
+
+    @property
+    def owner(self):
+        return self.__owner.hex
+
+    @property
+    def name(self) -> str:
+        return self.__name
+
+    @property
+    def description(self) -> str:
+        return self.__description
+
+    @property
+    def topics(self):
+        return self.__topics
+
+    @property
+    def video_id(self):
+        return self.__video_id

@@ -6,8 +6,8 @@ from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.core.infrastructure.repository import SqlAlchemyGenericRepository
 from src.framework_ddd.iam.domain.entities import User
 from src.framework_ddd.iam.domain.repository import UserRepository
-from src.framework_ddd.iam.domain.value_objects import Email
 from src.framework_ddd.iam.infrastructure.user_model import UserModel
+from src.framework_ddd.mailing.domain.value_objects import Email
 
 
 class UserDataMapper(DataMapper):

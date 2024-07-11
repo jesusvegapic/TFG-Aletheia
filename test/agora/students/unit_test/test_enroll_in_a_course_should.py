@@ -27,8 +27,10 @@ class EnrollInACourseShould(TestStudentsModule):
             events.append(event)
 
         publish_query = AsyncMock()
+        student_course_id = GenericUUID.next_id().hex
         publish_query.return_value = GetCourseResponse(
-            id=course_id,
+            id=student_course_id,
+            course_id=course_id,
             name="kant vs hegel",
             owner=owner_id,
             description="la panacea de la filosofia",
@@ -42,7 +44,8 @@ class EnrollInACourseShould(TestStudentsModule):
         )
 
         course_expected = StudentCourse(
-            id=course_id,
+            id=student_course_id,
+            course_id=course_id,
             lectios=[StudentLectio(id=lectio_id)]
         )
 

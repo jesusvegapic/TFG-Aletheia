@@ -10,7 +10,7 @@ class FinishLectio(Command):
     lectio_id: str
 
 
-async def start_lectio(command: FinishLectio, student_repository: StudentRepository, publish):
+async def finish_lectio(command: FinishLectio, student_repository: StudentRepository, publish):
     student = await student_repository.get(GenericUUID(command.student_id))
     if student:
         student.finish_lectio_on_a_course(command.course_id, command.lectio_id)

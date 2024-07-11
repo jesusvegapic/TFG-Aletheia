@@ -37,7 +37,7 @@ class EmailBody(str):
         if bytes_length > EmailBody.max_bytes_length():
             raise EmailBodyError(actual_bytes_length=bytes_length, max_bytes_length=EmailBody.max_bytes_length())
         else:
-            super().__new__(cls, value)
+            return super().__new__(cls, value)
 
     @classmethod
     def max_bytes_length(cls):

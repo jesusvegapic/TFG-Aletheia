@@ -10,11 +10,8 @@ def flatmap(f: Callable[[X], T], xs: Iterable[X]):
 
 
 def find(exp: Callable[[T], bool], listToSearch: Iterable[T]):
-    found = False
     for item in listToSearch:
         if exp(item):
-            yield item
-            found = True
-            break
-    if not found:
-        yield None
+            return item
+
+    return None

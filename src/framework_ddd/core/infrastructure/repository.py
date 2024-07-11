@@ -2,13 +2,18 @@ from dataclasses import dataclass
 from typing import Optional, Any, Mapping
 from uuid import UUID
 import bson
+import pymongo.errors
+from circuitbreaker import CircuitBreakerError, circuit
 from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorGridFSBucket
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+
 from src.framework_ddd.core.domain.errors import EntityNotFoundError
-from src.framework_ddd.core.domain.files import BinaryIOProtocol, AsyncBinaryIOProtocol
+from src.framework_ddd.core.domain.files import AsyncBinaryIOProtocol
 from src.framework_ddd.core.domain.repository import GenericRepository, Entity, EntityId
 from src.framework_ddd.core.domain.value_objects import GenericUUID
-from src.framework_ddd.core.infrastructure.database import Base, GridOutWrapper, AsyncGridOutWrapper
+from src.framework_ddd.core.infrastructure.database import Base, AsyncGridOutWrapper
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.core.infrastructure.errors import NullFilename
 
@@ -36,6 +41,17 @@ class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
     def data_mapper(self):
         return self.mapper_class()
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=1, max=10),
+        retry=retry_if_exception_type((OperationalError, CircuitBreakerError)),
+        reraise=True
+    )
+    @circuit(
+        failure_threshold=3,
+        expected_exception=OperationalError,
+        recovery_timeout=10
+    )
     async def add(self, entity: Entity):
         if entity.id not in self._identity_map.keys():
             self._identity_map[entity.id] = entity
@@ -44,24 +60,68 @@ class SqlAlchemyGenericRepository(GenericRepository[GenericUUID, Entity]):
         else:
             await self._merge(entity)
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=1, max=10),
+        retry=retry_if_exception_type((OperationalError, CircuitBreakerError)),
+        reraise=True
+    )
+    @circuit(
+        failure_threshold=3,
+        expected_exception=OperationalError,
+        recovery_timeout=10
+    )
     async def _merge(self, entity: Entity):
         self._check_not_removed(entity.id)
         instance = self.map_entity_to_model(entity)
         merged = await self._session.merge(instance)
         self._session.add(merged)
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=1, max=10),
+        retry=retry_if_exception_type((OperationalError, CircuitBreakerError)),
+        reraise=True
+    )
+    @circuit(
+        failure_threshold=3,
+        expected_exception=OperationalError,
+        recovery_timeout=10
+    )
     async def get(self, id: GenericUUID) -> Optional[Entity]:  # type: ignore
         instance = await self._session.get(self.get_model_class(), id)
         if instance is None:
             return None
         return self._get_entity(instance)
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=1, max=10),
+        retry=retry_if_exception_type((OperationalError, CircuitBreakerError)),
+        reraise=True
+    )
+    @circuit(
+        failure_threshold=3,
+        expected_exception=OperationalError,
+        recovery_timeout=10
+    )
     async def remove(self, entity: Entity):
         self._check_not_removed(entity.id)
         self._identity_map[entity.id] = self.removed
         instance = await self._session.get(self.get_model_class(), id)
         await self._session.delete(instance)
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=1, max=10),
+        retry=retry_if_exception_type((OperationalError, CircuitBreakerError)),
+        reraise=True
+    )
+    @circuit(
+        failure_threshold=3,
+        expected_exception=OperationalError,
+        recovery_timeout=10
+    )
     async def remove_by_id(self, entity_id: GenericUUID):
         self._check_not_removed(entity_id)
         self._identity_map[entity_id] = self.removed
@@ -128,6 +188,17 @@ class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
     def data_mapper(self):
         return self.mapper_class()
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=1, max=10),
+        retry=retry_if_exception_type((pymongo.errors.NetworkTimeout, CircuitBreakerError)),
+        reraise=True
+    )
+    @circuit(
+        failure_threshold=3,
+        expected_exception=pymongo.errors.NetworkTimeout,
+        recovery_timeout=10
+    )
     async def add(self, entity: Entity):
         self._identity_map[entity.id] = entity
         instance = self.map_entity_to_model(entity)
@@ -147,6 +218,17 @@ class AsyncMotorGridFsGenericRepository(GenericRepository[GenericUUID, Entity]):
 
         return self.data_mapper.entity_to_model(entity)
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=1, max=10),
+        retry=retry_if_exception_type((pymongo.errors.NetworkTimeout, CircuitBreakerError)),
+        reraise=True
+    )
+    @circuit(
+        failure_threshold=3,
+        expected_exception=pymongo.errors.NetworkTimeout,
+        recovery_timeout=10
+    )
     async def get(self, id: EntityId) -> Optional[Entity]:
         download = await self._bucket.open_download_stream(bson.Binary.from_uuid(id), self._session)
         filename = download.filename

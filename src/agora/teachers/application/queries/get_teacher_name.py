@@ -9,6 +9,6 @@ async def get_teacher(query: GetTeacherName, session: AsyncSession):
     teacher = await session.get(PersonalUserModel, GenericUUID(query.teacher_id))
 
     if teacher:
-        return GetTeacherNameResponse(name=teacher.name, firstname=teacher.firstname)
+        return GetTeacherNameResponse(name=teacher.name, firstname=teacher.firstname)  # type: ignore
     else:
         TeacherNotFoundError(entity_id=query.teacher_id)

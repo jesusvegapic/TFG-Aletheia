@@ -4,6 +4,7 @@ from lato import Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.shared.infrastructure.sql_alchemy.models import ConferenceModel
 
 
 class GetConference(Query):
@@ -25,8 +26,8 @@ async def get_conference(query: GetConference, session: AsyncSession):
         return GetConferenceResponse(
             id=conference_instance.id.hex,
             owner=conference_instance.owner.hex,
-            name=conference_instance.name,
-            description=conference_instance.description,
-            topics=split(";", conference_instance.topics),
-            video_id=conference_instance.video_id
+            name=conference_instance.name,  # type: ignore
+            description=conference_instance.description,  # type: ignore
+            topics=split(";", conference_instance.topics),  # type: ignore
+            video_id=conference_instance.video_id.hex
         )

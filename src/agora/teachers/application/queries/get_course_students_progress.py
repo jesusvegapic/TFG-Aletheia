@@ -9,6 +9,7 @@ from src.agora.shared.application.queries import LectioProgressDto
 from src.agora.students.domain.value_objects import LectioStatus
 from src.agora.students.infrastructure.repository import StudentCourseModel, StudentModel, StudentLectioModel
 from src.framework_ddd.core.domain.value_objects import GenericUUID
+from src.shared.utils.list import find
 
 
 class GetCourseStudentsProgress(Query):
@@ -33,24 +34,20 @@ async def get_course_students_progress(query: GetCourseStudentsProgress, session
     students_courses = (
         await session.execute(
             select(StudentCourseModel)
-            .options(
-                joinedload(StudentCourseModel.student).joinedload(StudentModel.personal_user),
-                joinedload(StudentCourseModel.course),
-                joinedload(StudentCourseModel.lectios_in_progress)
-            )
             .where(
-                StudentCourseModel.id == GenericUUID(query.course_id) and
-                StudentCourseModel.course.owner == GenericUUID(query.teacher_id)
+                StudentCourseModel.course_id == GenericUUID(query.course_id))
             )
-        )
     ).scalars().all()
+
+    if find(lambda student_course: student_course.course.owner != GenericUUID(query.teacher_id), students_courses):
+        raise Exception
 
     return GetCourseStudentsProgressResponse(
         students_progress=[
             StudentCourseProgressDto(
-                id=student_course.student.id.hex,
+                id=student_course.student.personal_user_id.hex,
                 name=student_course.student.personal_user.name,
-                firstname=student_course.student.personal_user.firtname,
+                firstname=student_course.student.personal_user.firstname,
                 second_name=student_course.student.personal_user.second_name,
                 progress=[
                     LectioProgressDto(
@@ -68,7 +65,7 @@ async def get_course_students_progress(query: GetCourseStudentsProgress, session
 
 
 def course_percent_progress(lectios: List[StudentLectioModel]):
-    return (
-            len(filter(lambda lectio: lectio.progress == LectioStatus.FINISHED, lectios)) /
-            len(lectios)
-    ) * 100
+    return int(
+        len(list(filter(lambda lectio: lectio.progress == LectioStatus.FINISHED, lectios))) * 100 /
+        len(lectios)
+    )

@@ -17,7 +17,8 @@ class SetLastVisitedLectioShould(TestStudentsModule):
         test_student = StudentMother.random(
             courses_in_progress=[
                 StudentCourse(
-                    id=command.course_id,
+                    id=GenericUUID.next_id().hex,
+                    course_id=command.course_id,
                     lectios=[StudentLectio(id=StudentLectio.next_id().hex), StudentLectio(id=command.lectio_id)]
                 )
             ]
