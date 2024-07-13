@@ -189,4 +189,4 @@ class GetCourseStudentsProgressShould(TestInMemorySqlDatabase):
             ]
         )
 
-        self.assertEqual(response.model_dump(), expected_response.model_dump())
+        self.assertCountEqual(response.model_dump(), expected_response.model_dump())

@@ -9,6 +9,7 @@ from src.agora.students.application.commands.enroll_in_a_course import EnrollInA
 from src.agora.students.application.commands.set_last_visited_lectio import SetLastVisitedLectio
 from src.agora.students.application.commands.sing_up_student import SignUpStudent
 from src.agora.students.application.queries import GetLastVisitedLectio
+from src.agora.students.application.queries.get_course_state_progress import GetCourseStateProgress
 from src.agora.students.application.queries.list_courses_enrolled import ListCoursesEnrolled
 from src.framework_ddd.iam.application.services import IamUserInfo
 
@@ -97,6 +98,24 @@ async def get_last_visited_lectio_on_student_curse(
         user_info: Annotated[IamUserInfo, Depends(get_authenticated_user_info)]
 ):
     query = GetLastVisitedLectio(
+        student_id=user_info.user_id,
+        course_id=course_id
+    )
+
+    response = await application.execute_async(query)
+    return response
+
+
+@router.get(
+    "students/enrolledCourses/{course_id}/stateProgress"
+)
+@inject
+async def get_enrolled_course_state_progress(
+        course_id: str,
+        application: Annotated[Application, Depends(get_application)],
+        user_info: Annotated[IamUserInfo, Depends(get_authenticated_user_info)]
+):
+    query = GetCourseStateProgress(
         student_id=user_info.user_id,
         course_id=course_id
     )

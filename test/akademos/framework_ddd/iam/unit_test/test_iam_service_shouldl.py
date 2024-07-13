@@ -16,12 +16,12 @@ class IamServiceShould(TestIamModule):
         )
         self.repository.get_by_email.return_value = user
 
-        token = await self.iam_service.authenticate_with_email_and_password(
+        login_response = await self.iam_service.authenticate_with_email_and_password(
             "pepito@gmail.com",
             "1lkjas232134"
         )
 
-        user_info = self.iam_service.auth_by_token(token)
+        user_info = self.iam_service.auth_by_token(login_response.access_token)
 
         self.assertEqual(user_info.user_id, user.id)
         self.assertEqual(user_info.email, user.email)
