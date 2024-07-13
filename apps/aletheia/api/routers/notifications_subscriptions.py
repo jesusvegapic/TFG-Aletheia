@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.put(
-    "/notificationsSubscription/teacherCourses/{subscription_id}"
+    "/notificationsSubscriptions/teacherCourses/{subscription_id}"
 )
 @inject
 async def put_teacher_courses_subscription(

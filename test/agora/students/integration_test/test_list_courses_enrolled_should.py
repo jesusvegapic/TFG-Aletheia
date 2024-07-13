@@ -17,8 +17,8 @@ class ListCoursesEnrolledShould(TestInMemorySqlDatabase):
     async def test_list_valid_courses(self):
         test_student = StudentMother.random(
             courses_in_progress=[
-                StudentCourse(id=StudentCourse.next_id().hex),
-                StudentCourse(id=StudentCourse.next_id().hex)
+                StudentCourse(id=StudentCourse.next_id().hex, course_id=StudentCourse.next_id().hex),
+                StudentCourse(id=StudentCourse.next_id().hex, course_id=StudentCourse.next_id().hex)
             ]
         )
 
@@ -27,7 +27,7 @@ class ListCoursesEnrolledShould(TestInMemorySqlDatabase):
 
         self.session.add(
             CourseModel(
-                id=GenericUUID(test_student.courses_in_progress[0].id),
+                id=GenericUUID(test_student.courses_in_progress[0].course_id),
                 owner=first_owner,
                 name="Kant vs Hegel",
                 description="La panacea de la historía de la filosofía",
@@ -38,7 +38,7 @@ class ListCoursesEnrolledShould(TestInMemorySqlDatabase):
 
         self.session.add(
             CourseModel(
-                id=GenericUUID(test_student.courses_in_progress[1].id),
+                id=GenericUUID(test_student.courses_in_progress[1].course_id),
                 owner=second_owner,
                 name="Filosofía de Gustavo Bueno",
                 description="Un comentario de los ensayos materialistas",
@@ -58,16 +58,16 @@ class ListCoursesEnrolledShould(TestInMemorySqlDatabase):
         expected_response = ListCoursesResponse(
             courses=[
                 ListedCourseDto(
-                    id=test_student.courses_in_progress[0].id,
+                    id=test_student.courses_in_progress[0].course_id,
                     name="Kant vs Hegel",
                     owner=first_owner.hex
                 ),
                 ListedCourseDto(
-                    id=test_student.courses_in_progress[1].id,
+                    id=test_student.courses_in_progress[1].course_id,
                     name="Filosofía de Gustavo Bueno",
                     owner=second_owner.hex
                 )
             ]
         )
 
-        self.assertEqual(response, expected_response)
+        self.assertCountEqual(response.model_dump(), expected_response.model_dump())

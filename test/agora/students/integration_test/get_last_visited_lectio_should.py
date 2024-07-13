@@ -15,6 +15,7 @@ class GetLastVisitedLectioShould(TestInMemorySqlDatabase):
 
     async def test_get_valid_lectio(self):
         lectio_id = StudentLectio.next_id()
+        student_course_id = StudentCourse.next_id().hex
         course_id = StudentCourse.next_id().hex
         video_id = GenericUUID.next_id()
         self.session.add(
@@ -29,7 +30,8 @@ class GetLastVisitedLectioShould(TestInMemorySqlDatabase):
         test_student = StudentMother.random(
             courses_in_progress=[
                 StudentCourse(
-                    id=course_id,
+                    id=student_course_id,
+                    course_id=course_id,
                     lectios=[StudentLectio(id=lectio_id.hex)],
                     last_visited_lectio=lectio_id
                 )
@@ -49,8 +51,8 @@ class GetLastVisitedLectioShould(TestInMemorySqlDatabase):
         expected_response = GetLectioResponse(
             lectio_id=lectio_id.hex,
             name="Kant vs Hegel",
-            description ="La panacea de la historía de la filosofía",
-            video_id =video_id.hex
+            description="La panacea de la historía de la filosofía",
+            video_id=video_id.hex
         )
 
         self.assertEqual(response, expected_response)

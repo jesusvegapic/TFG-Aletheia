@@ -1,10 +1,9 @@
 import email
 import threading
 from asyncio import Queue
-from smtplib import SMTPException, SMTPConnectError, SMTPServerDisconnected
+from dataclasses import dataclass
+from smtplib import SMTPConnectError, SMTPServerDisconnected
 from typing import Optional
-
-import tenacity.asyncio
 from aiosmtplib import SMTP
 from circuitbreaker import circuit, CircuitBreakerError  # type: ignore
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -13,20 +12,25 @@ from src.framework_ddd.mailing.domain.email_sender import EmailSender
 from src.framework_ddd.mailing.domain.entities import EmailMessage
 
 
+@dataclass(frozen=True)
+class EmailServerURL:
+    host: str
+    port: int
+    user: Optional[str] = None
+    password: Optional[str] = None
+
+
 class AioSmtpEmailSender(EmailSender):
     def __init__(
             self,
-            server: str,
-            port: int,
-            user: Optional[str] = None,
-            password: Optional[str] = None,
+            email_server_url: EmailServerURL,
             tls=False,
             max_connections=5
     ):
-        self.server = server
-        self.port = port
-        self.user = user
-        self.password = password
+        self.server = email_server_url.host
+        self.port = email_server_url.port
+        self.user = email_server_url.user
+        self.password = email_server_url.password
         self.tls = tls
         self.max_connections = max_connections
         self.pool: Queue[SMTP] = Queue(max_connections)

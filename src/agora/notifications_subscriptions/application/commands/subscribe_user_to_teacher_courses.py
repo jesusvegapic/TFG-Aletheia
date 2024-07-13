@@ -1,5 +1,7 @@
 from typing import List
 from lato import Command
+
+from src.agora.notifications_subscriptions.application import notifications_subscriptions_module
 from src.agora.notifications_subscriptions.domain.entities import TeacherCoursesSubscription
 from src.agora.notifications_subscriptions.domain.repository import NotificationsSubscriptionRepository
 from src.agora.shared.application.queries import GetTeacherName
@@ -12,6 +14,7 @@ class SubscribeUserToTeacherCourses(Command):
     topics: List[str]
 
 
+@notifications_subscriptions_module.handler(SubscribeUserToTeacherCourses)
 async def subscribe_user_to_teacher_courses(
         command: SubscribeUserToTeacherCourses,
         notifications_subscriptions_repository: NotificationsSubscriptionRepository,

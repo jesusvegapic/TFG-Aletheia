@@ -1,7 +1,5 @@
 import re
 from dataclasses import dataclass
-
-from src.framework_ddd.core.domain.value_objects import ValueObject
 from src.framework_ddd.mailing.domain.errors import EmailSubjectError, EmailBodyError, EmailError
 
 

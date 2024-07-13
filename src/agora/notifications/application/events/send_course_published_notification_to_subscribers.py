@@ -1,3 +1,4 @@
+from src.agora.notifications.application import notifications_module
 from src.agora.notifications.domain.entities import CoursePublishedNotification
 from src.agora.shared.application.queries import GetTeacherName, GetTeacherCourseSubscribersMailingList, MailingListDto, \
     GetTeacherNameResponse
@@ -6,6 +7,7 @@ from src.framework_ddd.mailing.domain.value_objects import Email
 from src.shared.domain.events import CoursePublished
 
 
+@notifications_module.handler(CoursePublished)
 async def send_course_published_notification_to_subscribers(
         event: CoursePublished,
         email_sender: EmailSender,

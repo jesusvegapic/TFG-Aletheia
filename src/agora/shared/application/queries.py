@@ -12,7 +12,6 @@ class GetCourse(Query):  # type: ignore
 
 class GetCourseResponse(BaseModel):
     id: str
-    course_id: str
     name: str
     owner: str
     description: str

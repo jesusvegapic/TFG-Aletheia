@@ -45,6 +45,7 @@ class SqlAlchemyStudentRepositoryShould(TestInMemorySqlDatabase):
             courses_in_progress=[
                 StudentCourse(
                     id=StudentCourse.next_id().hex,
+                    course_id=GenericUUID.next_id().hex,
                     lectios=[
                         StudentLectio(
                             id=lectio_id

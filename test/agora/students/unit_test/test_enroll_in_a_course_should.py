@@ -29,8 +29,7 @@ class EnrollInACourseShould(TestStudentsModule):
         publish_query = AsyncMock()
         student_course_id = GenericUUID.next_id().hex
         publish_query.return_value = GetCourseResponse(
-            id=student_course_id,
-            course_id=course_id,
+            id=course_id,
             name="kant vs hegel",
             owner=owner_id,
             description="la panacea de la filosofia",
@@ -84,13 +83,13 @@ class EnrollInACourseShould(TestStudentsModule):
 
         actual_student = args[0]
 
-        self.assertEqual(actual_student, expected_student)
+        self.assertEqual(actual_student.model_dump(), expected_student.model_dump())
         self.assertTrue(len(events) == 1)
         self.assertTrue(isinstance(events[0], StudentHasBeenEnrolledInACourse))
         self.assertEqual(
             events[0].event_dump(),
             StudentHasBeenEnrolledInACourse(
                 entity_id=expected_student.id,
-                course_id=course_expected.id
+                course_id=course_expected.course_id
             ).event_dump()
         )

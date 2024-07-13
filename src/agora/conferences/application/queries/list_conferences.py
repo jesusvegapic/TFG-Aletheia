@@ -5,12 +5,13 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.agora.conferences.application import agora_conferences_module
 from src.shared.infrastructure.sql_alchemy.models import ConferenceModel
 
 
 class ListConferences(Query):
     page_number: int
-    courses_by_page: int
+    conferences_by_page: int
     topics: List[str]
 
 
@@ -24,6 +25,7 @@ class ListedConferenceDto(BaseModel):
     owner: str
 
 
+@agora_conferences_module.handler(ListConferences)
 async def list_conferences(query: ListConferences, session: AsyncSession):
     conferences = (
         await session.execute(
@@ -33,8 +35,8 @@ async def list_conferences(query: ListConferences, session: AsyncSession):
                     *[ConferenceModel.topics.contains(topic) for topic in query.topics]
                 ) if len(query.topics) > 1 else ConferenceModel.topics.contains(query.topics[0])
             )
-            .offset(query.page_number-1 * query.courses_by_page)
-            .limit(query.courses_by_page)
+            .offset(query.page_number - 1 * query.conferences_by_page)
+            .limit(query.conferences_by_page)
         )
     ).scalars().all()
 

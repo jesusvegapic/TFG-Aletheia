@@ -1,6 +1,7 @@
 from typing import List
 from lato import Command
 from src.agora.shared.application.queries import GetTeacherName
+from src.akademos.conferences.application import akademos_conferences_module
 from src.akademos.conferences.domain.entities import Conference
 from src.akademos.conferences.domain.repository import ConferenceRepository
 from src.akademos.shared.application.dtos import VideoDto
@@ -15,6 +16,7 @@ class CreateConference(Command):
     video: VideoDto
 
 
+@akademos_conferences_module.handler(CreateConference)
 async def create_conference(
         command: CreateConference,
         conference_repository: ConferenceRepository,

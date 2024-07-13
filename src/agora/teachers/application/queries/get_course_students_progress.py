@@ -3,11 +3,11 @@ from lato import Query
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from src.agora.shared.application.queries import LectioProgressDto
 from src.agora.students.domain.value_objects import LectioStatus
-from src.agora.students.infrastructure.repository import StudentCourseModel, StudentModel, StudentLectioModel
+from src.agora.students.infrastructure.repository import StudentCourseModel, StudentLectioModel
+from src.agora.teachers.application import agora_teachers_module
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.shared.utils.list import find
 
@@ -29,7 +29,7 @@ class StudentCourseProgressDto(BaseModel):
     progress: List['LectioProgressDto']
     course_percent_progress: int
 
-
+@agora_teachers_module.handler(GetCourseStudentsProgress)
 async def get_course_students_progress(query: GetCourseStudentsProgress, session: AsyncSession):
     students_courses = (
         await session.execute(

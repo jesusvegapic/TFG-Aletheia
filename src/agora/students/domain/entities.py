@@ -74,12 +74,10 @@ class Student(PersonalUser):
 
     def enroll_in_a_course(self, course: 'StudentCourse'):
         self.__courses_in_progress.append(course)
-        self._register_event(StudentHasBeenEnrolledInACourse(entity_id=self.id, course_id=course.id))
+        self._register_event(StudentHasBeenEnrolledInACourse(entity_id=self.id, course_id=course.course_id))
 
     def start_lectio_on_a_course(self, course_id: str, lectio: 'StudentLectio'):
-        course = find(lambda course: course.course_id == course_id, self.__courses_in_progress)
-        if course:
-            course.start_lectio(lectio)
+        self.__find_lectio(course_id, lectio.id).start()
 
     def finish_lectio_on_a_course(self, course_id: str, lectio_id: str):
         self.__find_lectio(course_id, lectio_id).finish()
@@ -118,10 +116,6 @@ class Student(PersonalUser):
     @property
     def courses_in_progress(self):
         return self.__courses_in_progress
-
-    @property
-    def last_visited_lectio(self):
-        return self.__last_visited_lectio.hex
 
 
 class StudentCourse(Entity):

@@ -3,6 +3,8 @@ from typing import List
 from lato import Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.agora.conferences.application import agora_conferences_module
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.shared.infrastructure.sql_alchemy.models import ConferenceModel
 
@@ -20,6 +22,7 @@ class GetConferenceResponse(BaseModel):
     video_id: str
 
 
+@agora_conferences_module.handler(GetConference)
 async def get_conference(query: GetConference, session: AsyncSession):
     conference_instance = await session.get(ConferenceModel, GenericUUID(query.conference_id))
     if conference_instance:

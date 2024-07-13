@@ -1,11 +1,9 @@
-import asyncio
-from queue import Queue
 from typing import List, Tuple, Any
 from unittest import IsolatedAsyncioTestCase
 import aiosmtpd.handlers
 from aiosmtpd.controller import Controller
 from src.framework_ddd.mailing.domain.entities import EmailMessage
-from src.framework_ddd.mailing.infrastructure.email_sender import AioSmtpEmailSender
+from src.framework_ddd.mailing.infrastructure.email_sender import AioSmtpEmailSender, EmailServerURL
 
 
 class TestEmailHandler(aiosmtpd.handlers.Message):
@@ -24,7 +22,7 @@ class EmailSenderShould(IsolatedAsyncioTestCase):
         self.handler = TestEmailHandler()
         self.controller = Controller(self.handler, hostname='localhost', port=1025)
         self.controller.start()
-        self.sender = AioSmtpEmailSender('localhost', 1025)
+        self.sender = AioSmtpEmailSender(EmailServerURL(host="localhost", port=1025))
         await self.sender.create_pool()
 
     async def asyncTearDown(self):

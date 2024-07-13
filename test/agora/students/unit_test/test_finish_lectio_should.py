@@ -33,7 +33,7 @@ class FinishLectioShould(TestStudentsModule):
         await finish_lectio(
             command=FinishLectio(
                 student_id=fake_student.id,
-                course_id=fake_student.courses_in_progress[0].id,
+                course_id=fake_student.courses_in_progress[0].course_id,
                 lectio_id=fake_student.courses_in_progress[0].lectios[0].id
             ),
             student_repository=self.repository,

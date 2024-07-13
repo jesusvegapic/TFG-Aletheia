@@ -29,7 +29,7 @@ async def enroll_in_a_course(command: EnrollInACourse, student_repository: Stude
 
 def get_course_response_to_entity(response: GetCourseResponse) -> StudentCourse:
     return StudentCourse(
+        StudentCourse.next_id().hex,
         response.id,
-        response.course_id,
         [StudentLectio(lectio.id, None) for lectio in response.lectios]
     )

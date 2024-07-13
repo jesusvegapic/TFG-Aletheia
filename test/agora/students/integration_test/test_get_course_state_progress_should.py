@@ -98,7 +98,8 @@ class GetCourseStateProgressShould(TestInMemorySqlDatabase):
         student = StudentMother.random(
             courses_in_progress=[
                 StudentCourse(
-                    id=course_id.hex,
+                    id=StudentCourse.next_id().hex,
+                    course_id=course_id.hex,
                     lectios=[
                         StudentLectio(
                             id=first_lectio_id.hex,

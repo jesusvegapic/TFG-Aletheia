@@ -5,11 +5,21 @@ from dependency_injector.wiring import Provide, inject  # noqa
 from lato import Application, TransactionContext, as_type, Query
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket, AsyncIOMotorClientSession
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession
+
+from src.agora.conferences.application import agora_conferences_module
 from src.agora.courses.application import agora_courses_module
+from src.agora.notifications.application import notifications_module
+from src.agora.notifications_subscriptions.application import notifications_subscriptions_module
+from src.agora.notifications_subscriptions.domain.repository import NotificationsSubscriptionRepository
+from src.agora.notifications_subscriptions.infrastructure.repository import \
+    SqlAlchemyNotificationsSubscriptionRepository
 from src.agora.students.application import students_module
 from src.agora.students.domain.repository import StudentRepository
 from src.agora.students.infrastructure.repository import SqlAlchemyStudentRepository
 from src.agora.videos.application import agora_videos_module
+from src.akademos.conferences.application import akademos_conferences_module
+from src.akademos.conferences.domain.repository import ConferenceRepository
+from src.akademos.conferences.infrastructure.repository import SqlAlchemyConferenceRepository
 from src.akademos.courses.application import akademos_courses_module
 from src.akademos.courses.domain.repository import CourseRepository
 from src.akademos.courses.infrastructure.repository import SqlCourseRepository
@@ -24,8 +34,10 @@ from src.akademos.videos.domain.repository import VideoRepository
 from src.akademos.videos.infrastructure.repository import AsyncMotorGridFsVideoRepository
 from src.framework_ddd.core.infrastructure.custom_loggin import logger
 from src.framework_ddd.iam.application.services import IamService
-from src.framework_ddd.iam.domain.repository import UserRepository
 from src.framework_ddd.iam.infrastructure.repository import SqlAlchemyUserRepository
+from src.framework_ddd.mailing.domain.email_sender import EmailSender
+from src.framework_ddd.mailing.domain.value_objects import Email
+from src.framework_ddd.mailing.infrastructure.email_sender import EmailServerURL, AioSmtpEmailSender
 
 
 @dataclass
@@ -34,6 +46,8 @@ class Config:
     DEBUG: bool
     DATABASE_ECHO: bool
     DATABASE_URL: str
+    EMAIL_SERVER_URL: EmailServerURL
+    SYSTEM_EMAIL: Email
     BUCKET_URL: str
     LOGGER_NAME: str
     SECRET_KEY: str
@@ -45,7 +59,7 @@ def create_db_engine(config: Config) -> AsyncEngine:
     )
     from src.framework_ddd.core.infrastructure.database import Base
 
-    # TODO: it seems like a hack, but it works...
+
     Base.metadata.bind = engine
     return engine
 
@@ -80,6 +94,10 @@ def create_application(
     application.include_submodule(faculties_module)
     application.include_submodule(teachers_module)
     application.include_submodule(agora_videos_module)
+    application.include_submodule(notifications_subscriptions_module)
+    application.include_submodule(notifications_module)
+    application.include_submodule(akademos_conferences_module)
+    application.include_submodule(agora_conferences_module)
 
     @application.on_enter_transaction_context
     async def on_enter_transaction_context(ctx: TransactionContext):
@@ -101,12 +119,19 @@ def create_application(
             publish=ctx.publish_async,
             publish_query=publish_query,
             db_session=db_session,
+            email_sender=as_type(AioSmtpEmailSender(config.EMAIL_SERVER_URL), EmailSender),
+            aletheia_platform_email=config.SYSTEM_EMAIL,
             bucket_session=bucket_session,
             course_repository=as_type(SqlCourseRepository(db_session), CourseRepository),
             video_repository=as_type(AsyncMotorGridFsVideoRepository(bucket, bucket_session), VideoRepository),
             student_repository=as_type(SqlAlchemyStudentRepository(db_session), StudentRepository),
             faculty_repository=as_type(SqlAlchemyFacultyRepository(db_session), FacultyRepository),
             teacher_repository=as_type(SqlAlchemyTeacherRepository(db_session), TeacherRepository),
+            conference_repository=as_type(SqlAlchemyConferenceRepository(db_session), ConferenceRepository),
+            notifications_subscriptions_repository=as_type(
+                SqlAlchemyNotificationsSubscriptionRepository(db_session),
+                NotificationsSubscriptionRepository
+            ),
             iam_service=as_type(
                 IamService(
                     SqlAlchemyUserRepository(db_session),

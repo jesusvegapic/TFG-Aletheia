@@ -25,7 +25,7 @@ class ConferenceDataMapper(DataMapper):
             owner=GenericUUID(entity.owner),
             name=entity.name,
             description=entity.description,
-            topic=entity.topics,
+            topics=";".join(entity.topics),
             video_id=entity.video_id
         )
 

@@ -37,7 +37,7 @@ async def find_lectio(
         select(LectioModel)
         .join(StudentCourseModel)
         .where(
-            StudentCourseModel.id == GenericUUID(query.course_id) and
+            StudentCourseModel.course_id == GenericUUID(query.course_id) and
             StudentCourseModel.student_id == GenericUUID(query.student_id)
         )
     )
