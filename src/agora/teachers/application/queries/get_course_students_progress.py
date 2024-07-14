@@ -29,6 +29,7 @@ class StudentCourseProgressDto(BaseModel):
     progress: List['LectioProgressDto']
     course_percent_progress: int
 
+
 @agora_teachers_module.handler(GetCourseStudentsProgress)
 async def get_course_students_progress(query: GetCourseStudentsProgress, session: AsyncSession):
     students_courses = (
@@ -36,7 +37,7 @@ async def get_course_students_progress(query: GetCourseStudentsProgress, session
             select(StudentCourseModel)
             .where(
                 StudentCourseModel.course_id == GenericUUID(query.course_id))
-            )
+        )
     ).scalars().all()
 
     if find(lambda student_course: student_course.course.owner != GenericUUID(query.teacher_id), students_courses):

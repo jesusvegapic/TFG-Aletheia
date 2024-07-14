@@ -16,6 +16,7 @@ from src.agora.notifications_subscriptions.infrastructure.repository import \
 from src.agora.students.application import students_module
 from src.agora.students.domain.repository import StudentRepository
 from src.agora.students.infrastructure.repository import SqlAlchemyStudentRepository
+from src.agora.teachers.application import agora_teachers_module
 from src.agora.videos.application import agora_videos_module
 from src.akademos.conferences.application import akademos_conferences_module
 from src.akademos.conferences.domain.repository import ConferenceRepository
@@ -93,6 +94,7 @@ def create_application(
     application.include_submodule(agora_courses_module)
     application.include_submodule(faculties_module)
     application.include_submodule(teachers_module)
+    application.include_submodule(agora_teachers_module)
     application.include_submodule(agora_videos_module)
     application.include_submodule(notifications_subscriptions_module)
     application.include_submodule(notifications_module)

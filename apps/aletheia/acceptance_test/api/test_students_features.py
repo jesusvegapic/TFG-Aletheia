@@ -178,15 +178,15 @@ class StudentsControllerShould(TestFastapiServer):
         login_response = await self.api_client.post(
             "/auth/accesstoken",
             json={
-                "email": "teacher@aletheia.com",
-                "password": "teacher_passwd"
+                "email": self.admin_email,
+                "password": self.admin_password
             }
         )
 
         token = login_response.json()["access_token"]
         self.api_client.headers["Authorization"] = f"Bearer {token}"
 
-        response = self.api_client.get(f"/teachers/courseStudentsProgress/{course_id}")
+        response = await self.api_client.get(f"/teachers/courseStudentsProgress/{course_id}")
 
         expected_response = {
             "students_progress": [
@@ -195,17 +195,19 @@ class StudentsControllerShould(TestFastapiServer):
                     "name": "pepe",
                     "firstname": "gonzalez",
                     "second_name": "sanchez",
-                    "progress":[
+                    "progress": [
                         {
                             "id": lectio_id,
                             "name": "El ego trascendental",
                             "progress": "FINISHED"
                         }
                     ],
-                    ""
+                    "course_percent_progress": 100
                 }
             ]
         }
+
+        self.assertEqual(expected_response, response.json())
 
     async def test_get_last_visited_lectio(self):
         email = "student@aletheia.com"
