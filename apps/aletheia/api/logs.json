@@ -1,0 +1,6 @@
+{"message": "using db engine Engine(postgresql://postgres:***@postgres:5432/postgres), creating tables", "correlation_id": "00000000-0000-0000-0000-000000000000", "@timestamp": "2024-02-18T19:38:49.406426", "level": "INFO", "logger": "api"}
+{"message": "using db engine Engine(postgresql://postgres:***@postgres:5432/postgres), creating tables", "correlation_id": "00000000-0000-0000-0000-000000000000", "@timestamp": "2024-02-18T19:39:33.040044", "level": "INFO", "logger": "api"}
+{"message": "using db engine Engine(postgresql://postgres:***@postgres:5432/postgres), creating tables", "correlation_id": "00000000-0000-0000-0000-000000000000", "@timestamp": "2024-02-22T19:35:32.740325", "level": "INFO", "logger": "api"}
+{"message": "using db engine Engine(postgresql://localhost:***@postgres:5432/postgres), creating tables", "correlation_id": "00000000-0000-0000-0000-000000000000", "@timestamp": "2024-02-24T12:21:16.463579", "level": "INFO", "logger": "api"}
+{"message": "using db engine Engine(postgresql://localhost:***@postgres:5432/postgres), creating tables", "correlation_id": "00000000-0000-0000-0000-000000000000", "@timestamp": "2024-02-24T12:21:20.479748", "level": "INFO", "logger": "api"}
+{"message": "setup complete", "correlation_id": "00000000-0000-0000-0000-000000000000", "@timestamp": "2024-04-06T14:18:19.587378", "level": "INFO", "logger": "app"}

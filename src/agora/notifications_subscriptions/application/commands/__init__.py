@@ -1,0 +1,1 @@
+from src.agora.notifications_subscriptions.application.commands.subscribe_user_to_teacher_courses import SubscribeUserToTeacherCourses
