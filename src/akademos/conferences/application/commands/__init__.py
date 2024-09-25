@@ -1,0 +1,1 @@
+from src.akademos.conferences.application.commands.create_conference import CreateConference

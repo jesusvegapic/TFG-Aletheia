@@ -1,0 +1,1 @@
+from src.akademos.faculties.application.queries.get_faculty import GetFaculty

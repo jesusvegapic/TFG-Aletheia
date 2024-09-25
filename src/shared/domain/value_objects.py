@@ -1,13 +1,23 @@
-import uuid
-from dataclasses import dataclass
+from enum import StrEnum
 
 
-@dataclass(frozen=True)
-class ValueObject:
-    ...
+class CourseState(StrEnum):
+    CREATED = "CREATED"
+    PUBLISHED = "PUBLISHED"
 
 
-class GenericUUID(uuid.UUID):
-    @classmethod
-    def next_id(cls):
-        return cls(int=uuid.uuid4().int)
+class Topic(StrEnum):
+    Ciencias_sociales_y_humanidades = "Ciencias sociales y humanidades"
+    Antropologia = "Antropologia"
+    Historia = "Historia"
+    Psicologia = "Psicología"
+    Sociologia = "Sociología"
+    Filosofia = "Filosofía"
+    Ciencias_politicas = "Ciencias políticas"
+    Relaciones_internacionales = "Relaciones internacionales"
+    Estudios_culturales = "Estudios culturales"
+    Literatura = "Literatura"
+    Linguistica = "Lingüistica"
+    Educacion = "Educación"
+    Ciencias_naturales_y_matematicas = "Ciencias naturales y matemáticas"
+    Biologia = "Biología"

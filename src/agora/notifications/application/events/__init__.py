@@ -1,0 +1,1 @@
+from src.agora.notifications.application.events.send_course_published_notification_to_subscribers import send_course_published_notification_to_subscribers
