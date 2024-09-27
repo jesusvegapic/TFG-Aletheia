@@ -1,5 +1,4 @@
 from lato import Command
-
 from src.agora.students.application import students_module
 from src.agora.students.domain.errors import StudentNotFoundError
 from src.agora.students.domain.repository import StudentRepository

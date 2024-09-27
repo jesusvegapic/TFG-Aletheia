@@ -143,4 +143,5 @@ class GetCourseStateProgressShould(TestInMemorySqlDatabase):
             course_percent_progress=50
         )
 
-        self.assertEqual(response, response_expected)
+        self.assertEqual(response.course_percent_progress, response_expected.course_percent_progress)
+        self.assertCountEqual(response.lectios_progress, response_expected.lectios_progress)

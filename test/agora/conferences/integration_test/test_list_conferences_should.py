@@ -81,7 +81,7 @@ class ListConferencesShould(TestInMemorySqlDatabase):
 
         query = ListConferences(
             page_number=1,
-            courses_by_page=15,
+            conferences_by_page=15,
             topics=["Filosofía"]
         )
 

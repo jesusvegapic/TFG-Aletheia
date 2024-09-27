@@ -1,10 +1,15 @@
+import os
+from pathlib import Path
+
 from httpx import AsyncClient
 from apps.aletheia.acceptance_test.api.test_fastapi_server import TestFastapiServer
 from apps.aletheia.api.routers import videos, teachers, iam, faculties, conferences
 from apps.aletheia.api.routers.courses import router
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 
-TEST_VIDEO_PATH = "../../../../test/akademos/videos/test_files/test_video.mp4"
+current_dir = Path(__file__).parent
+
+TEST_VIDEO_PATH = os.path.join(current_dir, "../../../../test/akademos/videos/test_files/test_video.mp4")
 
 
 class CoursesControllerShould(TestFastapiServer):

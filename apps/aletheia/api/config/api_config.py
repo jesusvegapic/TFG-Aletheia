@@ -1,7 +1,6 @@
 import json
 import os
 from dataclasses import dataclass
-
 from apps.aletheia.container import Config
 
 secrets_filename: str = os.getenv("SECRETS_FILENAME")  # type: ignore
