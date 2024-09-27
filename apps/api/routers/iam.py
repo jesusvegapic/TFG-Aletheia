@@ -3,8 +3,8 @@ from dependency_injector.wiring import inject
 from fastapi import APIRouter
 from fastapi.params import Depends
 from lato import TransactionContext
-from apps.aletheia.api.dependencies import get_transaction_context
-from apps.aletheia.api.models.iam import LoginRequest
+from apps.api.dependencies import get_transaction_context
+from apps.api.models.iam import LoginRequest
 from src.framework_ddd.iam.application.services import IamService
 
 router = APIRouter()

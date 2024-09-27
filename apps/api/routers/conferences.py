@@ -4,8 +4,8 @@ from fastapi import APIRouter, Form, UploadFile
 from fastapi.params import Depends, File, Query
 from lato import Application
 from starlette.responses import JSONResponse
-from apps.aletheia.api.dependencies import get_application, get_authenticated_super_user_info, UploadFileWrapper
-from apps.aletheia.api.models.conferences import GetConferenceHttpResponse
+from apps.api.dependencies import get_application, get_authenticated_super_user_info, UploadFileWrapper
+from apps.api.models.conferences import GetConferenceHttpResponse
 from src.agora.conferences.application.queries.get_conference import GetConference
 from src.agora.conferences.application.queries.list_conferences import ListConferences
 from src.akademos.conferences.application.commands.create_conference import CreateConference

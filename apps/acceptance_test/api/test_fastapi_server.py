@@ -1,8 +1,9 @@
+import os
 from unittest import IsolatedAsyncioTestCase
 from aiosmtpd.controller import Controller
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
-from apps.aletheia.container import Config, ApplicationContainer
+from apps.container import Config, ApplicationContainer
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.framework_ddd.core.infrastructure.custom_loggin import LoggerFactory
 from src.framework_ddd.core.infrastructure.database import Base
@@ -19,7 +20,7 @@ class TestFastapiServer(IsolatedAsyncioTestCase):
         config = Config(
             APP_NAME="api_test",
             DATABASE_URL="sqlite+aiosqlite:///:memory:",
-            BUCKET_URL="mongodb://root:example@localhost:27017/",
+            BUCKET_URL=os.getenv("TEST_MONGO_URI"),
             EMAIL_SERVER_URL=EmailServerURL(host="localhost", port=1025),
             SYSTEM_EMAIL=Email("aletheia@aleheia.com"),
             DATABASE_ECHO=True,
