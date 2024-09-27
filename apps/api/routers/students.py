@@ -3,8 +3,8 @@ from dependency_injector.wiring import inject
 from fastapi import APIRouter
 from fastapi.params import Depends
 from lato import Application
-from apps.aletheia.api.dependencies import get_application, get_authenticated_user_info
-from apps.aletheia.api.models.students import PutStudentRequest
+from apps.api.dependencies import get_application, get_authenticated_user_info
+from apps.api.models.students import PutStudentRequest
 from src.agora.students.application.commands.enroll_in_a_course import EnrollInACourse
 from src.agora.students.application.commands.finish_lectio import FinishLectio
 from src.agora.students.application.commands.set_last_visited_lectio import SetLastVisitedLectio

@@ -1,9 +1,9 @@
 import time
 from fastapi import FastAPI, Request
 from lato import Application
-from apps.aletheia.api.routers import courses, students, faculties, teachers
-from apps.aletheia.api.config.api_config import ApiConfig
-from apps.aletheia.container import ApplicationContainer
+from apps.api.routers import courses, faculties, students, teachers
+from apps.api.config.api_config import ApiConfig
+from apps.container import ApplicationContainer
 from src.framework_ddd.core.infrastructure.custom_loggin import LoggerFactory, logger
 from src.framework_ddd.core.infrastructure.database import Base
 

@@ -5,8 +5,8 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from lato import Application
 
-from apps.aletheia.api.dependencies import get_application, get_authenticated_user_info
-from apps.aletheia.api.models.notifications_subscriptions import PutTeacherCoursesSubscription
+from apps.api.dependencies import get_application, get_authenticated_user_info
+from apps.api.models.notifications_subscriptions import PutTeacherCoursesSubscription
 from src.agora.notifications_subscriptions.application.commands.subscribe_user_to_teacher_courses import \
     SubscribeUserToTeacherCourses
 from src.framework_ddd.iam.application.services import IamUserInfo
