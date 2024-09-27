@@ -3,7 +3,6 @@ from lato import Query
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.agora.shared.application.queries import LectioProgressDto
 from src.agora.students.domain.value_objects import LectioStatus
 from src.agora.students.infrastructure.repository import StudentCourseModel, StudentLectioModel

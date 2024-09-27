@@ -3,7 +3,6 @@ from typing import List
 from lato import Query
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.agora.conferences.application import agora_conferences_module
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 from src.shared.infrastructure.sql_alchemy.models import ConferenceModel
