@@ -52,3 +52,6 @@ class TestFastapiServer(IsolatedAsyncioTestCase):
         self.email_handler = TestEmailHandler()
         self.email_controller = Controller(self.email_handler, "localhost", 1025)
         self.email_controller.start()
+
+    def tearDown(self):
+        self.email_controller.stop()

@@ -1,10 +1,10 @@
 import bson
 from lato import Query
-from motor.motor_asyncio import AsyncIOMotorClientSession, AsyncIOMotorGridFSBucket
+from motor.motor_asyncio import AsyncIOMotorGridFSBucket
 from src.agora.videos.application import agora_videos_module
 from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.value_objects import GenericUUID
-from src.framework_ddd.core.infrastructure.database import GridOutWrapper, AsyncGridOutWrapper
+from src.framework_ddd.core.infrastructure.database import AsyncGridOutWrapper
 from src.framework_ddd.core.infrastructure.errors import NullFilename, NullContentType
 
 

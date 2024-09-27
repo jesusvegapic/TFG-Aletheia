@@ -1,10 +1,14 @@
+import os
+from pathlib import Path
+
 from httpx import AsyncClient
-from apps.aletheia.acceptance_test.api.test_produce_and_consume_content_path import TEST_VIDEO_PATH
 from apps.aletheia.acceptance_test.api.test_fastapi_server import TestFastapiServer
 from apps.aletheia.api.routers import students, courses, faculties, iam, teachers, notifications_subscriptions
 from src.framework_ddd.core.domain.value_objects import GenericUUID
 
-TEST_VIDEO_PATH = "../../../../test/akademos/videos/test_files/test_video.mp4"
+current_dir = Path(__file__).parent
+
+TEST_VIDEO_PATH = os.path.join(current_dir, "../../../../test/akademos/videos/test_files/test_video.mp4")
 
 
 class StudentsControllerShould(TestFastapiServer):
@@ -125,7 +129,8 @@ class StudentsControllerShould(TestFastapiServer):
 
         await self.api_client.put(students_uri + f"/enrolledCourses/{course_id}")
 
-        await self.api_client.patch(students_uri + f"/enrolledCourses/{course_id}/lectios/{lectio_id}/stateProgress/start")
+        await self.api_client.patch(
+            students_uri + f"/enrolledCourses/{course_id}/lectios/{lectio_id}/stateProgress/start")
 
         response = await self.api_client.get(students_uri + "/enrolledCourses")
 

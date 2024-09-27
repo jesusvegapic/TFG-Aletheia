@@ -1,10 +1,5 @@
-from sqlalchemy import Column, ForeignKey, PrimaryKeyConstraint
-from sqlalchemy.orm import relationship
-from sqlalchemy_utils import UUIDType
-from src.agora.shared.infrastructure.models import DegreeModel
 from src.akademos.teachers.domain.entities import Teacher, TeacherFaculty
 from src.akademos.teachers.domain.repository import TeacherRepository
-from src.framework_ddd.core.infrastructure.database import Base
 from src.framework_ddd.core.infrastructure.datamapper import DataMapper
 from src.framework_ddd.core.infrastructure.repository import SqlAlchemyGenericRepository
 from src.framework_ddd.iam.infrastructure.user_model import PersonalUserModel, UserModel

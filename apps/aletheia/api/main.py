@@ -11,7 +11,7 @@ from src.framework_ddd.core.infrastructure.database import Base
 
 
 LoggerFactory.configure(logger_name="api")
-config = ApiConfig()
+config = ApiConfig()  # type: ignore
 container = ApplicationContainer(config=config)
 api = FastAPI(debug=config.DEBUG)  # type: ignore
 api.include_router(courses.router)
