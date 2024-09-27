@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi.params import Depends
 from lato import Application
 from starlette.responses import StreamingResponse
-from apps.aletheia.api.dependencies import get_application
+from apps.api.dependencies import get_application
 from src.agora.videos.application.queries import GetVideo
 from src.akademos.shared.application.dtos import VideoDto
 from src.framework_ddd.core.domain.files import AsyncBinaryIOProtocol

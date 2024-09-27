@@ -2,8 +2,8 @@ from typing import Annotated
 from dependency_injector.wiring import inject
 from fastapi import APIRouter, Depends
 from lato import Application
-from apps.aletheia.api.dependencies import get_application, get_authenticated_super_user_info
-from apps.aletheia.api.models.teachers import PutTeacherRequest
+from apps.api.dependencies import get_application, get_authenticated_super_user_info
+from apps.api.models.teachers import PutTeacherRequest
 from src.agora.teachers.application.queries.get_course_students_progress import GetCourseStudentsProgress
 from src.akademos.teachers.application.commands.sign_up_teacher import SignUpTeacher
 from src.framework_ddd.iam.application.services import IamUserInfo

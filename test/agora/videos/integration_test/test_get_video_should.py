@@ -1,3 +1,4 @@
+import os
 from unittest import IsolatedAsyncioTestCase
 import bson
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
@@ -10,7 +11,7 @@ from test.shared.files import TestAsyncBinaryIOProtocol
 
 class GetVideoShould(IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
-        client = AsyncIOMotorClient("mongodb://root:example@localhost:27017/")
+        client = AsyncIOMotorClient(os.getenv("TEST_MONGO_URI"))
         self.bucket = AsyncIOMotorGridFSBucket(client.admin)
 
     async def test_get_valid_course(self):

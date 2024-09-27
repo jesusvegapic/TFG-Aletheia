@@ -3,8 +3,8 @@ from dependency_injector.wiring import inject
 from fastapi import APIRouter
 from fastapi.params import Depends
 from lato import Application
-from apps.aletheia.api.dependencies import get_application, get_authenticated_super_user_info
-from apps.aletheia.api.models.faculties import PutFacultyRequest
+from apps.api.dependencies import get_application, get_authenticated_super_user_info
+from apps.api.models.faculties import PutFacultyRequest
 from src.akademos.faculties.application.commands import CreateFaculty
 from src.akademos.faculties.application.queries import GetFaculty
 from src.framework_ddd.iam.application.services import IamUserInfo

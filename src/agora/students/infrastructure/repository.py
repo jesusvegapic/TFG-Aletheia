@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Enum, PrimaryKeyConstraint
+from sqlalchemy import Column, ForeignKey, Enum, PrimaryKeyConstraint, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import UUIDType  # type: ignore
 from src.agora.shared.infrastructure.models import FacultyModel, DegreeModel
@@ -46,7 +46,7 @@ class StudentCourseModel(Base):
         back_populates="student_course"
     )
     last_visited_lectio = relationship(LectioModel)  # type: ignore
-    __table_args__ = (PrimaryKeyConstraint("student_id", "id"),)
+    __table_args__ = (UniqueConstraint("student_id", "id"),)
 
 
 class StudentLectioModel(Base):

@@ -4,9 +4,9 @@ from fastapi import APIRouter, UploadFile
 from fastapi.params import Depends, Query, Form, File
 from lato import Application
 from starlette.responses import JSONResponse
-from apps.aletheia.api.dependencies import get_application, UploadFileWrapper, get_authenticated_super_user_info, \
+from apps.api.dependencies import get_application, UploadFileWrapper, get_authenticated_super_user_info, \
     get_authenticated_user_info
-from apps.aletheia.api.models.courses import PostCourseRequest, GetLectioHttpResponse
+from apps.api.models.courses import PostCourseRequest, GetLectioHttpResponse
 from src.agora.courses.application.queries.list_courses import ListCourses
 from src.agora.shared.application.queries import GetCourse, GetCourseResponse, GetLectio, GetLectioResponse
 from src.akademos.courses.application.commands import CreateCourse, AddLectio

@@ -6,10 +6,12 @@ services:
     build: .
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
     environment:
       SECRETS_FILENAME: /run/secrets/secrets_file
+      TEST_MONGO_URI: mongodb://root:example@mongo:27017/
+    container_name: "tfg-aletheia-api"
+    volumes:
+      - .:/app
     secrets:
       - secrets_file
 
@@ -33,7 +35,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: motor_mongodb://root:example@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
       ME_CONFIG_BASICAUTH: "false"
 
   adminer:
